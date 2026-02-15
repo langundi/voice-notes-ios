@@ -11,9 +11,11 @@ import Foundation
 final class HomeViewModel {
     
     private let audioRepository: AudioRepository
+    private let audioManager: AudioManager
     
-    init(audioRepository: AudioRepository) {
+    init(audioRepository: AudioRepository, audioManager: AudioManager) {
         self.audioRepository = audioRepository
+        self.audioManager = audioManager
     }
     
     var isEditing: Bool = false
@@ -27,8 +29,7 @@ final class HomeViewModel {
         
         audioRepository.addNewFolder(title: newFolderTitle)
         
-        newFolderTitle = ""
-        showAlert = false
+        resetAlert()
     }
     
     func deleteFolder(folder: FolderModel) {
@@ -40,4 +41,7 @@ final class HomeViewModel {
         showAlert = false
     }
     
+    func setupAudioSession() throws {
+        try audioManager.setupSession()
+    }
 }

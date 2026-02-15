@@ -18,6 +18,13 @@
 		8156B17D2F40B2DE000447EF /* AudioRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B17C2F40B2DE000447EF /* AudioRepository.swift */; };
 		8156B17F2F40B4AD000447EF /* RecordingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B17E2F40B4AD000447EF /* RecordingScreen.swift */; };
 		8156B1812F40B4B4000447EF /* RecordingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B1802F40B4B4000447EF /* RecordingViewModel.swift */; };
+		81BD96732F419B88001135A2 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BD96722F419B88001135A2 /* AudioManager.swift */; };
+		81BD967D2F41B2ED001135A2 /* AudioManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BD967C2F41B2ED001135A2 /* AudioManagerError.swift */; };
+		81ED5BF02F41E22800357F54 /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ED5BEF2F41E22800357F54 /* View+Extensions.swift */; };
+		81ED5BF52F41F46C00357F54 /* RecordingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ED5BF42F41F46C00357F54 /* RecordingSheet.swift */; };
+		81ED5BF82F41F57200357F54 /* RecordButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ED5BF72F41F57200357F54 /* RecordButtonStyle.swift */; };
+		81ED5BFA2F420B2300357F54 /* StartRecordButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ED5BF92F420B2300357F54 /* StartRecordButtonStyle.swift */; };
+		81ED5BFC2F42139F00357F54 /* ToolbarButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ED5BFB2F42139F00357F54 /* ToolbarButtonStyle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +40,13 @@
 		8156B17C2F40B2DE000447EF /* AudioRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRepository.swift; sourceTree = "<group>"; };
 		8156B17E2F40B4AD000447EF /* RecordingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingScreen.swift; sourceTree = "<group>"; };
 		8156B1802F40B4B4000447EF /* RecordingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewModel.swift; sourceTree = "<group>"; };
+		81BD96722F419B88001135A2 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		81BD967C2F41B2ED001135A2 /* AudioManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManagerError.swift; sourceTree = "<group>"; };
+		81ED5BEF2F41E22800357F54 /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
+		81ED5BF42F41F46C00357F54 /* RecordingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSheet.swift; sourceTree = "<group>"; };
+		81ED5BF72F41F57200357F54 /* RecordButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordButtonStyle.swift; sourceTree = "<group>"; };
+		81ED5BF92F420B2300357F54 /* StartRecordButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartRecordButtonStyle.swift; sourceTree = "<group>"; };
+		81ED5BFB2F42139F00357F54 /* ToolbarButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarButtonStyle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,10 +79,11 @@
 		8122CE0F2F3F58C70098A422 /* VoiceNotes */ = {
 			isa = PBXGroup;
 			children = (
-				8156B17B2F40B2D1000447EF /* Repositories */,
+				8122CE1C2F3F59050098A422 /* App */,
 				8122CE212F3F591C0098A422 /* Helpers */,
 				8122CE1E2F3F590C0098A422 /* Models */,
-				8122CE1C2F3F59050098A422 /* App */,
+				8156B17B2F40B2D1000447EF /* Repositories */,
+				81BD96712F419B77001135A2 /* Services */,
 				8122CE0B2F3F58C70098A422 /* Assets.xcassets */,
 			);
 			path = VoiceNotes;
@@ -98,6 +113,7 @@
 		8122CE1F2F3F59100098A422 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				81ED5BEF2F41E22800357F54 /* View+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -105,6 +121,8 @@
 		8122CE202F3F59150098A422 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				81ED5BFD2F42151E00357F54 /* Error */,
+				81ED5BF62F41F54200357F54 /* Style */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -112,20 +130,12 @@
 		8122CE212F3F591C0098A422 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				8122CE242F3F59570098A422 /* DI */,
 				8122CE232F3F59510098A422 /* Components */,
-				8122CE222F3F59480098A422 /* Navigation */,
-				8122CE202F3F59150098A422 /* Utils */,
+				8122CE242F3F59570098A422 /* DI */,
 				8122CE1F2F3F59100098A422 /* Extensions */,
+				8122CE202F3F59150098A422 /* Utils */,
 			);
 			path = Helpers;
-			sourceTree = "<group>";
-		};
-		8122CE222F3F59480098A422 /* Navigation */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Navigation;
 			sourceTree = "<group>";
 		};
 		8122CE232F3F59510098A422 /* Components */ = {
@@ -164,6 +174,7 @@
 			children = (
 				8156B17E2F40B4AD000447EF /* RecordingScreen.swift */,
 				8156B1802F40B4B4000447EF /* RecordingViewModel.swift */,
+				81ED5BF42F41F46C00357F54 /* RecordingSheet.swift */,
 			);
 			path = Recording;
 			sourceTree = "<group>";
@@ -174,6 +185,32 @@
 				8156B17C2F40B2DE000447EF /* AudioRepository.swift */,
 			);
 			path = Repositories;
+			sourceTree = "<group>";
+		};
+		81BD96712F419B77001135A2 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				81BD96722F419B88001135A2 /* AudioManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		81ED5BF62F41F54200357F54 /* Style */ = {
+			isa = PBXGroup;
+			children = (
+				81ED5BF72F41F57200357F54 /* RecordButtonStyle.swift */,
+				81ED5BF92F420B2300357F54 /* StartRecordButtonStyle.swift */,
+				81ED5BFB2F42139F00357F54 /* ToolbarButtonStyle.swift */,
+			);
+			path = Style;
+			sourceTree = "<group>";
+		};
+		81ED5BFD2F42151E00357F54 /* Error */ = {
+			isa = PBXGroup;
+			children = (
+				81BD967C2F41B2ED001135A2 /* AudioManagerError.swift */,
+			);
+			path = Error;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -250,14 +287,21 @@
 			files = (
 				8156B17F2F40B4AD000447EF /* RecordingScreen.swift in Sources */,
 				8122CE102F3F58C70098A422 /* ContentView.swift in Sources */,
+				81ED5BFA2F420B2300357F54 /* StartRecordButtonStyle.swift in Sources */,
 				8156B1812F40B4B4000447EF /* RecordingViewModel.swift in Sources */,
 				8156B15A2F407AD1000447EF /* AudioModel.swift in Sources */,
 				8156B17D2F40B2DE000447EF /* AudioRepository.swift in Sources */,
+				81ED5BF52F41F46C00357F54 /* RecordingSheet.swift in Sources */,
+				81BD967D2F41B2ED001135A2 /* AudioManagerError.swift in Sources */,
 				8156B16A2F40AEC1000447EF /* HomeViewModel.swift in Sources */,
 				8156B1682F4085B6000447EF /* HomeScreen.swift in Sources */,
 				8156B15C2F407B7C000447EF /* FolderModel.swift in Sources */,
 				8156B1662F40824C000447EF /* DIContainer.swift in Sources */,
+				81BD96732F419B88001135A2 /* AudioManager.swift in Sources */,
+				81ED5BF02F41E22800357F54 /* View+Extensions.swift in Sources */,
+				81ED5BF82F41F57200357F54 /* RecordButtonStyle.swift in Sources */,
 				8122CE122F3F58C70098A422 /* VoiceNotesApp.swift in Sources */,
+				81ED5BFC2F42139F00357F54 /* ToolbarButtonStyle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -401,7 +445,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -435,7 +479,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -16,9 +16,10 @@ final class DIContainer {
     
     lazy var container: ModelContainer = makeContainer()
     lazy var audioRepository = AudioRepository(context: container.mainContext)
+    lazy var audioManager = AudioManager()
     
     func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(audioRepository: audioRepository)
+        HomeViewModel(audioRepository: audioRepository, audioManager: audioManager)
     }
     
     func makeRecordingViewModel() -> RecordingViewModel {
@@ -62,12 +63,24 @@ extension DIContainer {
             isStoredInMemoryOnly: true,
             allowsSave: true
         )
-
-        do {
-            return try ModelContainer(for: schema, configurations: [configuration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
+        
+        let container = try! ModelContainer(for: schema, configurations: [configuration])
+        
+        let context = container.mainContext
+        
+        let recording1 = AudioModel(title: "New Recording 1", fileURL: dummyURL("recording1"), duration: 120)
+        let recording2 = AudioModel(title: "New Recording 2", fileURL: dummyURL("recording2"), duration: 40)
+        let recording3 = AudioModel(title: "New Recording 3", fileURL: dummyURL("recording3"), duration: 240)
+        
+        context.insert(recording1)
+        context.insert(recording2)
+        context.insert(recording3)
+        
+        return container
+    }
+    
+    private func dummyURL(_ filename: String) -> URL {
+        URL.documentsDirectory.appending(path: "\(filename).m4a")
     }
     
 }

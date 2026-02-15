@@ -11,8 +11,10 @@ import SwiftData
 struct HomeScreen: View {
     
     @State private var vm = DIContainer.shared.makeHomeViewModel()
+    
     @Environment(\.modelContext) private var context
     @Environment(\.editMode) private var editMode
+    
     @Query(animation: .snappy) var recordings: [AudioModel]
     @Query(animation: .snappy) var folders: [FolderModel]
     
@@ -88,11 +90,15 @@ struct HomeScreen: View {
                             vm.isEditing.toggle()
                         }
                     } label: {
-                        if vm.isEditing {
-                            Image(systemName: "checkmark")
-                        } else {
-                            Text("Edit")
+                        Group {
+                            if vm.isEditing {
+                                Image(systemName: "checkmark")
+                            } else {
+                                Text("Edit")
+                                    .padding(.horizontal, 4)
+                            }
                         }
+                        .fontWeight(.medium)
                     }
                 }
             } else {
@@ -103,13 +109,18 @@ struct HomeScreen: View {
                         vm.isEditing.toggle()
                     } label: {
                         Text(vm.isEditing ? "Done" : "Edit")
-                            .animation(.easeInOut(duration: 0.2))
+                            .animation(.smooth(duration: 0.1))
                     }
                 }
             }
         }
         .alert("Create New Folder", isPresented: $vm.showAlert) {
             TextField("New Folder", text: $vm.newFolderTitle)
+                .onChange(of: vm.newFolderTitle) { newValue, _ in
+                    if newValue.count > 50 {
+                        vm.newFolderTitle = String(newValue.prefix(50))
+                    }
+                }
             
             Button("Cancel", role: .cancel) {
                 print("Cancel pressed")
