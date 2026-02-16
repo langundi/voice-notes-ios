@@ -22,11 +22,11 @@ final class AudioRepository {
                 try context.save()
             }
         } catch {
-            print("Database Error: \(error)")
+            print("error saving: \(error.localizedDescription)")
         }
     }
     
-    // MARK: - Folder Functions
+    // MARK: - Folder
     
     func addNewFolder(title: String) {
         let newFolder = FolderModel(title: title)
@@ -39,23 +39,34 @@ final class AudioRepository {
         saveContext()
     }
     
-    // MARK: - Recording Functions
+    // MARK: - Recording 
     
-    func addRecording(fileURL: URL, duration: Double) {
+    func addRecording(title: String, fileURL: URL, duration: Double, createdAt: Date) {
         let recording = AudioModel(
-            title: "New recording",
+            title: title,
             fileURL: fileURL,
-            duration: duration
+            duration: duration,
+            createdAt: createdAt
         )
         
-        recording.createdAt = Date.now
-        
-        do {
-            context.insert(recording)
-            try context.save()
-        } catch {
-            print("Error saving recording: \(error.localizedDescription)")
-        }
+        context.insert(recording)
+        saveContext()
     }
     
+    func deleteRecording(audio: AudioModel) {
+        context.delete(audio)
+        saveContext()
+    }
+    
+    func getAudioCount() -> Int {
+        let sortByDate = [SortDescriptor(\AudioModel.createdAt, order: .reverse)]
+        let descriptor = FetchDescriptor<AudioModel>(sortBy: sortByDate)
+        
+        do {
+            return try context.fetchCount(descriptor)
+        } catch {
+            print("error getting count: \(error.localizedDescription)")
+            return 0
+        }
+    }
 }

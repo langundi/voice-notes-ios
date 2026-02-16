@@ -80,9 +80,9 @@ struct RecordingScreen: View {
                         } label: {
                             Group {
                                 if vm.isEditing {
-                                    Text("Select")
-                                } else {
                                     Text("Cancel")
+                                } else {
+                                    Text("Select")
                                 }
                             }
                             .fontWeight(.medium)

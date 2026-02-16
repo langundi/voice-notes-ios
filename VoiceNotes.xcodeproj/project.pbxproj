@@ -12,6 +12,7 @@
 		8122CE132F3F58C70098A422 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8122CE0B2F3F58C70098A422 /* Assets.xcassets */; };
 		815329C42F42F17300CAB519 /* MicrophoneAccessEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815329C32F42F17300CAB519 /* MicrophoneAccessEnum.swift */; };
 		815329C62F42F26600CAB519 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815329C52F42F26600CAB519 /* K.swift */; };
+		815329C82F433D5000CAB519 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815329C72F433D5000CAB519 /* Formatter.swift */; };
 		8156B15A2F407AD1000447EF /* AudioModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B1592F407AD1000447EF /* AudioModel.swift */; };
 		8156B15C2F407B7C000447EF /* FolderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B15B2F407B7C000447EF /* FolderModel.swift */; };
 		8156B1662F40824C000447EF /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B1652F40824C000447EF /* DIContainer.swift */; };
@@ -36,6 +37,7 @@
 		8122CE0E2F3F58C70098A422 /* VoiceNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNotesApp.swift; sourceTree = "<group>"; };
 		815329C32F42F17300CAB519 /* MicrophoneAccessEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneAccessEnum.swift; sourceTree = "<group>"; };
 		815329C52F42F26600CAB519 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
+		815329C72F433D5000CAB519 /* Formatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatter.swift; sourceTree = "<group>"; };
 		8156B1592F407AD1000447EF /* AudioModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioModel.swift; sourceTree = "<group>"; };
 		8156B15B2F407B7C000447EF /* FolderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderModel.swift; sourceTree = "<group>"; };
 		8156B1652F40824C000447EF /* DIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainer.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				81ED5BFD2F42151E00357F54 /* Error */,
 				81ED5BF62F41F54200357F54 /* Style */,
 				815329C52F42F26600CAB519 /* K.swift */,
+				815329C72F433D5000CAB519 /* Formatter.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -293,6 +296,7 @@
 			files = (
 				8156B17F2F40B4AD000447EF /* RecordingScreen.swift in Sources */,
 				8122CE102F3F58C70098A422 /* ContentView.swift in Sources */,
+				815329C82F433D5000CAB519 /* Formatter.swift in Sources */,
 				81ED5BFA2F420B2300357F54 /* StartRecordButtonStyle.swift in Sources */,
 				8156B1812F40B4B4000447EF /* RecordingViewModel.swift in Sources */,
 				8156B15A2F407AD1000447EF /* AudioModel.swift in Sources */,

@@ -18,10 +18,10 @@ final class AudioModel {
     var deletedAt: Date? = nil
     var Folder: FolderModel?
     
-    init(title: String, fileURL: URL, duration: Double) {
+    init(title: String, fileURL: URL, duration: Double, createdAt: Date) {
         self.title = title
         self.fileURL = fileURL
         self.duration = duration
-        self.createdAt = .now
+        self.createdAt = createdAt
     }
 }

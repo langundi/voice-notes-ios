@@ -15,7 +15,9 @@ final class DIContainer {
     private init() { }
     
     lazy var container: ModelContainer = makeContainer()
+    
     lazy var audioRepository = AudioRepository(context: container.mainContext)
+    
     lazy var audioManager = AudioManager()
     
     func makeHomeViewModel() -> HomeViewModel {
@@ -23,7 +25,7 @@ final class DIContainer {
     }
     
     func makeRecordingViewModel() -> RecordingViewModel {
-        RecordingViewModel(audioRepository: audioRepository)
+        RecordingViewModel(audioRepository: audioRepository, audioManager: audioManager)
     }
 }
 
@@ -70,10 +72,13 @@ extension DIContainer {
         
         let folder1 = FolderModel(title: "Folder 1")
         
-        let recording1 = AudioModel(title: "Asdf", fileURL: dummyURL("recording1"), duration: 120)
-        let recording2 = AudioModel(title: "Qwer", fileURL: dummyURL("recording2"), duration: 40)
-        let recording3 = AudioModel(title: "Uiop", fileURL: dummyURL("recording3"), duration: 240)
-        let recording4 = AudioModel(title: "Not in a folder", fileURL: dummyURL("recording4"), duration: 120)
+        let now = Date.now
+        let formattedDate = format(date: now, format: "HH:mm:ss_dd MMM yyyy")
+        
+        let recording1 = AudioModel(title: "Asdf_\(formattedDate)", fileURL: dummyURL("recording1"), duration: 120, createdAt: now)
+        let recording2 = AudioModel(title: "Qwer_\(formattedDate)", fileURL: dummyURL("recording2"), duration: 40, createdAt: now)
+        let recording3 = AudioModel(title: "Uiop_\(formattedDate)", fileURL: dummyURL("recording3"), duration: 240, createdAt: now)
+        let recording4 = AudioModel(title: "Not in a folder_\(formattedDate)", fileURL: dummyURL("recording4"), duration: 120, createdAt: now)
         
         let recordings = [recording1, recording2, recording3]
         
