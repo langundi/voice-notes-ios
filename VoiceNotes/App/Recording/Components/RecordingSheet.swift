@@ -90,7 +90,6 @@ struct RecordingSheet: View {
 
 #Preview {
     let vm = DIContainer.shared.makeRecordingViewModel()
-    
     RecordingSheet()
-    .environment(vm)
+        .environment(vm)
 }

@@ -43,8 +43,21 @@ struct RecordingScreen: View {
             let _ = $0.safeAreaInsets
             
             ScrollView(.vertical) {
-                LazyVStack(alignment: .center, spacing: 8) {
-                    recordingList()
+                if recordings.isEmpty {
+                    ContentUnavailableView(
+                        "No Recordings",
+                        systemImage: "folder",
+                        description: Text("Tap the Record button to start a Voice Note")
+                    )
+                    .padding(.top, 200)
+                } else {
+                    LazyVStack(alignment: .center, spacing: 0) {
+                        recordingList()
+                        
+                        Divider()
+                            .padding(.horizontal, 16)
+                            .padding(.top, 8)
+                    }
                 }
             }
             .navigationTitle(navigationTitle!)
@@ -96,26 +109,26 @@ struct RecordingScreen: View {
                             Text(vm.isEditing ? "Cancel" : "Edit")
                                 .fontWeight(vm.isEditing ? .medium : .regular)
                                 .animation(.smooth(duration: 0.1))
+                                .disabled(recordings.isEmpty)
                         }
                     }
                 }
             }
             .sheet(isPresented: $vm.hasStartedRecording) {
                 RecordingSheet()
-                    .environment(vm)
                     .presentationDetents([.fraction(1)])
                     .interactiveDismissDisabled(true)
                     .presentationBackgroundInteraction(.disabled)
                     .presentationDragIndicator(.hidden)
             }
+            .environment(vm)
         }
     }
     
     @ViewBuilder
     private func recordingList() -> some View {
         ForEach(recordings) { recording in
-            Text(recording.title)
-                .padding()
+            RecordingRowView(recording: recording, isExpanded: false)
         }
     }
 }

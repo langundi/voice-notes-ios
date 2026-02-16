@@ -25,3 +25,12 @@ final class AudioModel {
         self.createdAt = createdAt
     }
 }
+
+extension AudioModel {
+    
+    static var sample = {
+        let url = URL.documentsDirectory.appending(path: "New Recording 12.m4a")
+        return AudioModel(title: "New Recording 12", fileURL: url, duration: 120, createdAt: Date.now)
+    }()
+    
+}

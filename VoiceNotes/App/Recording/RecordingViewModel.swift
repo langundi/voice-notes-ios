@@ -29,10 +29,11 @@ final class RecordingViewModel {
     private var timer: Timer?
     
     // UI Attributes
-    var isRecording: Bool = false
     var hasStartedRecording: Bool = false
-    var showSheet: Bool = false
+    var isRecording: Bool = false
+    var isPlaying: Bool = false
     var isEditing: Bool = false
+    var showSheet: Bool = false
     var duration: TimeInterval = 0
     
     func resetUI() {
