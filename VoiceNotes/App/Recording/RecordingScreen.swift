@@ -52,7 +52,9 @@ struct RecordingScreen: View {
                     .padding(.top, 200)
                 } else {
                     LazyVStack(alignment: .center, spacing: 0) {
-                        recordingList()
+                        ForEach(recordings) { recording in
+                            RecordingRowView(recording: recording, isExpanded: false)
+                        }
                         
                         Divider()
                             .padding(.horizontal, 16)
@@ -122,13 +124,6 @@ struct RecordingScreen: View {
                     .presentationDragIndicator(.hidden)
             }
             .environment(vm)
-        }
-    }
-    
-    @ViewBuilder
-    private func recordingList() -> some View {
-        ForEach(recordings) { recording in
-            RecordingRowView(recording: recording, isExpanded: false)
         }
     }
 }
