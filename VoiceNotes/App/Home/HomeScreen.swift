@@ -18,131 +18,170 @@ struct HomeScreen: View {
     @Query(animation: .snappy) var recordings: [AudioModel]
     @Query(animation: .snappy) var folders: [FolderModel]
     
+    @AppStorage(K.microphoneAccess) private var microphoneAccess: MicrophoneAccessEnum = .undetermined
+    
     var body: some View {
-        VStack(alignment: .center, spacing: 16) {
-            List {
-                NavigationLink {
-                    RecordingScreen()
-                } label: {
-                    HStack(spacing: 16) {
-                        Image(systemName: "waveform")
-                            .fontWeight(.light)
-                            .font(.title3)
-                            .foregroundStyle(.blue)
-                        
-                        Text("All Recordings")
-                        
-                        Spacer()
-                        
-                        Text("\(recordings.count)")
-                            .foregroundStyle(.secondary)
+        NavigationStack {
+            VStack(alignment: .center, spacing: 16) {
+                List {
+                    NavigationLink {
+                        RecordingScreen(folderTitle: "All")
+                    } label: {
+                        HStack(spacing: 16) {
+                            Image(systemName: "waveform")
+                                .fontWeight(.light)
+                                .font(.title3)
+                                .foregroundStyle(.blue)
+                            
+                            Text("All Recordings")
+                            
+                            Spacer()
+                            
+                            Text("\(recordings.count)")
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                }
-                
-                Section(folders.isEmpty ? "" : "My Folders") {
-                    ForEach(folders) { folder in
-                        let count = folder.Audios.count
-                        
-                        NavigationLink {
-                            RecordingScreen()
-                        } label: {
-                            HStack(spacing: 16) {
-                                Image(systemName: "folder")
-                                    .fontWeight(.light)
-                                    .font(.title3)
-                                    .foregroundStyle(.blue)
-                                
-                                Text(folder.title)
-                                
-                                Spacer()
-                                
-                                Text("\(count)")
-                                    .foregroundStyle(.secondary)
+                    
+                    Section(folders.isEmpty ? "" : "My Folders") {
+                        ForEach(folders) { folder in
+                            let count = folder.Audios.count
+                            
+                            NavigationLink {
+                                RecordingScreen(folderTitle: folder.title)
+                            } label: {
+                                HStack(spacing: 16) {
+                                    Image(systemName: "folder")
+                                        .fontWeight(.light)
+                                        .font(.title3)
+                                        .foregroundStyle(.blue)
+                                    
+                                    Text(folder.title)
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(count)")
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        .onDelete { index in
+                            for offset in index {
+                                let folder = folders[offset]
+                                vm.deleteFolder(folder: folder)
                             }
                         }
                     }
-                    .onDelete { index in
-                        for offset in index {
-                            let folder = folders[offset]
-                            vm.deleteFolder(folder: folder)
-                        }
-                    }
                 }
             }
-        }
-        .navigationTitle("Voice Notes")
-        .toolbar {
-            ToolbarItem {
-                Button {
-                    vm.showAlert = true
-                } label: {
-                    Image(systemName: "folder.badge.plus")
-                }
-                .disabled(vm.isEditing)
-            }
-            
-            if #available(iOS 26.0, *) {
-                ToolbarSpacer(.fixed)
-                
+            .navigationTitle("Voice Notes")
+            .toolbar {
                 ToolbarItem {
                     Button {
-                        withAnimation(.snappy) {
-                            vm.isEditing.toggle()
-                        }
+                        vm.showAlert = true
                     } label: {
-                        Group {
-                            if vm.isEditing {
-                                Image(systemName: "checkmark")
-                            } else {
-                                Text("Edit")
-                                    .padding(.horizontal, 4)
-                            }
-                        }
-                        .fontWeight(.medium)
+                        Image(systemName: "folder.badge.plus")
                     }
+                    .disabled(vm.isEditing)
                 }
-            } else {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    Spacer()
+                
+                if #available(iOS 26.0, *) {
+                    ToolbarSpacer(.fixed)
                     
-                    Button {
-                        vm.isEditing.toggle()
-                    } label: {
-                        Text(vm.isEditing ? "Done" : "Edit")
-                            .animation(.smooth(duration: 0.1))
+                    ToolbarItem {
+                        Button {
+                            withAnimation(.snappy) {
+                                vm.isEditing.toggle()
+                            }
+                        } label: {
+                            Group {
+                                if vm.isEditing {
+                                    Image(systemName: "checkmark")
+                                } else {
+                                    Text("Edit")
+                                        .padding(.horizontal, 4)
+                                }
+                            }
+                            .fontWeight(.medium)
+                        }
+                    }
+                } else {
+                    ToolbarItemGroup(placement: .bottomBar) {
+                        Spacer()
+                        
+                        Button {
+                            vm.isEditing.toggle()
+                        } label: {
+                            Text(vm.isEditing ? "Done" : "Edit")
+                                .animation(.smooth(duration: 0.1))
+                        }
                     }
                 }
             }
-        }
-        .alert("Create New Folder", isPresented: $vm.showAlert) {
-            TextField("New Folder", text: $vm.newFolderTitle)
-                .onChange(of: vm.newFolderTitle) { newValue, _ in
-                    if newValue.count > 50 {
-                        vm.newFolderTitle = String(newValue.prefix(50))
+            .alert("New Folder", isPresented: $vm.showAlert) {
+                TextField("Name", text: $vm.newFolderTitle)
+                    .onChange(of: vm.newFolderTitle) { newValue, _ in
+                        if newValue.count > 50 {
+                            vm.newFolderTitle = String(newValue.prefix(50))
+                        }
+                    }
+                
+                Button("Cancel", role: .cancel) {
+                    vm.resetAlert()
+                }
+                
+                if #available(iOS 26.0, *) {
+                    Button("Add", role: .confirm) {
+                        vm.createNewFolder()
+                    }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(vm.newFolderTitle.isEmpty)
+                } else {
+                    Button("Add") {
+                        vm.createNewFolder()
+                    }
+                    .disabled(vm.newFolderTitle.isEmpty)
+                }
+            } message: {
+                Text("Enter a name for this folder.")
+            }
+            .alert("Microphone Access Needed", isPresented: $vm.showMicrophoneAlert) {
+                
+                Button("Cancel", role: .cancel) {
+                    vm.showMicrophoneAlert = false
+                }
+                
+                if #available(iOS 26.0, *) {
+                    Button("OK", role: .confirm) {
+                        vm.showMicrophoneAlert = false
+                    }
+                    .keyboardShortcut(.defaultAction)
+                } else {
+                    Button("OK") {
+                        vm.showMicrophoneAlert = false
                     }
                 }
-            
-            Button("Cancel", role: .cancel) {
-                print("Cancel pressed")
-                vm.resetAlert()
+            } message: {
+                Text("This app uses microphone to record audio. Enable microphone permissions in Settings>Voice Notes>Microphone Permission.")
             }
-            
-            if #available(iOS 26.0, *) {
-                Button("Add", role: .confirm) {
-                    print("Add pressed")
-                    vm.createNewFolder()
+            .task {
+                vm.checkMicrophonePermission()
+                if vm.microphoneAccess == .undetermined {
+                    await vm.requestMicrophonePermissions {
+                        microphoneAccess = vm.microphoneAccess
+                    }
+                    print("microphone: \(microphoneAccess)")
+                } else if vm.microphoneAccess == .granted {
+                    microphoneAccess = vm.microphoneAccess
+                    vm.setupAudioSession()
+                    print("microphone: \(microphoneAccess)")
+                } else if vm.microphoneAccess == .denied {
+                    microphoneAccess = vm.microphoneAccess
+                    vm.showMicrophoneAlert = true
+                    print("microphone: \(microphoneAccess)")
                 }
-                .keyboardShortcut(.defaultAction)
-                .disabled(vm.newFolderTitle.isEmpty)
-            } else {
-                Button("Add") {
-                    print("Add pressed")
-                    vm.createNewFolder()
-                }
-                .disabled(vm.newFolderTitle.isEmpty)
             }
+            .environment(\.editMode, .constant(vm.isEditing ? .active : .inactive))
         }
-        .environment(\.editMode, .constant(vm.isEditing ? .active : .inactive))
     }
 }
 

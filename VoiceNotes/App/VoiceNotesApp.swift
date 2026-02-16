@@ -12,6 +12,8 @@ import SwiftData
 struct VoiceNotesApp: App {
     
     private let container = DIContainer.shared.container
+    
+    @Environment(\.undoManager) var undoManager
 
     var body: some Scene {
         WindowGroup {

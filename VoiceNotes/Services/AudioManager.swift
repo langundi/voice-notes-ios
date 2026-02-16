@@ -29,11 +29,38 @@ final class AudioManager: NSObject {
         await AVAudioApplication.requestRecordPermission()
     }
     
+    func requestMircophonePermission() async -> MicrophoneAccessEnum {
+        let granted = await withCheckedContinuation { continuation in
+            AVAudioApplication.requestRecordPermission { granted in
+                continuation.resume(returning: granted)
+            }
+        }
+        
+        return granted ? .granted : .denied
+    }
+    
     private func microphonePermission() -> Bool {
         return AVAudioApplication.shared.recordPermission == .granted
     }
     
+    func checkMicrophonePermission() -> MicrophoneAccessEnum {
+        switch AVAudioApplication.shared.recordPermission {
+        case .undetermined:
+            return .undetermined
+        case .denied:
+            return .denied
+        case .granted:
+            return .granted
+        @unknown default:
+            fatalError("Unknown status")
+        }
+    }
+    
     func setupSession() throws {
+        guard microphonePermission() else {
+            throw AudioManagerError.microphonePermissionDenied
+        }
+        
         try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP])
         try session.setActive(true)
     }

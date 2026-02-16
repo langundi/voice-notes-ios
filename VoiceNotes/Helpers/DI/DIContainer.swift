@@ -68,13 +68,19 @@ extension DIContainer {
         
         let context = container.mainContext
         
-        let recording1 = AudioModel(title: "New Recording 1", fileURL: dummyURL("recording1"), duration: 120)
-        let recording2 = AudioModel(title: "New Recording 2", fileURL: dummyURL("recording2"), duration: 40)
-        let recording3 = AudioModel(title: "New Recording 3", fileURL: dummyURL("recording3"), duration: 240)
+        let folder1 = FolderModel(title: "Folder 1")
         
-        context.insert(recording1)
-        context.insert(recording2)
-        context.insert(recording3)
+        let recording1 = AudioModel(title: "Asdf", fileURL: dummyURL("recording1"), duration: 120)
+        let recording2 = AudioModel(title: "Qwer", fileURL: dummyURL("recording2"), duration: 40)
+        let recording3 = AudioModel(title: "Uiop", fileURL: dummyURL("recording3"), duration: 240)
+        let recording4 = AudioModel(title: "Not in a folder", fileURL: dummyURL("recording4"), duration: 120)
+        
+        let recordings = [recording1, recording2, recording3]
+        
+        folder1.Audios = recordings
+        
+        context.insert(folder1)
+        context.insert(recording4)
         
         return container
     }

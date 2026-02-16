@@ -12,13 +12,30 @@ struct RecordingScreen: View {
     
     @State private var vm = DIContainer.shared.makeRecordingViewModel()
     
+    @Namespace private var namespace
+    
     @Environment(\.modelContext) private var context
     @Environment(\.editMode) private var editMode
     
-    @Query(sort: \AudioModel.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
-    var recordings: [AudioModel]
+    @Query var recordings: [AudioModel]
     
-    @Namespace private var namespace
+    var navigationTitle: String?
+    
+    init(folderTitle: String) {
+        if folderTitle == "All" {
+            _recordings = Query(sort: \.createdAt, order: .reverse, animation: .smooth)
+            
+            navigationTitle = "All Recordings"
+        } else {
+            let predicate = #Predicate<AudioModel> { audio in
+                audio.Folder?.title == folderTitle
+            }
+            
+            _recordings = Query(filter: predicate, sort: \.createdAt, order: .reverse, animation: .smooth)
+            
+            navigationTitle = folderTitle
+        }
+    }
     
     var body: some View {
         GeometryReader {
@@ -30,7 +47,7 @@ struct RecordingScreen: View {
                     recordingList()
                 }
             }
-            .navigationTitle("Recordings")
+            .navigationTitle(navigationTitle!)
             .overlay(alignment: .bottom) {
                 if !vm.hasStartedRecording {
                     Button {
@@ -104,7 +121,9 @@ struct RecordingScreen: View {
 }
 
 #Preview {
-    RecordingScreen()
-        .modelContainer(DIContainer.shared.makePreviewContainer())
+    NavigationStack {
+        RecordingScreen(folderTitle: "All")
+            .modelContainer(DIContainer.shared.makePreviewContainer())
+    }
 }
 
