@@ -30,11 +30,22 @@ struct RecordingRowView: View {
                 Spacer()
                 
                 if isExpanded {
-                    Button {
-                        
+                    Menu {
+                        Button("Share", systemImage: "square.and.arrow.up") { }
+                        Divider()
+                        Button("Rename", systemImage: "pencil") { }
+                        Button("Edit Recording", systemImage: "waveform") { }
+                        Divider()
+                        Button("Options", systemImage: "slider.horizontal.3") { }
+                        Divider()
+                        Button("Favorite", systemImage: "heart") { }
+                        Button("Duplicate", systemImage: "plus.square.on.square") { }
+                        Button("Move", systemImage: "folder") { }
                     } label: {
                         Image(systemName: "ellipsis")
                             .font(.title2)
+                            .padding(.vertical)
+                            .padding(.leading)
                     }
                 } else {
                     Text(format(time: recording.duration))
@@ -136,6 +147,7 @@ struct RecordingRowView: View {
             .fontWeight(.medium)
             .foregroundStyle(.primary)
             .padding(.top, 24)
+            .padding(.bottom, 4)
         }
         .transition(.move(edge: .top).combined(with: .blurReplace))
     }
