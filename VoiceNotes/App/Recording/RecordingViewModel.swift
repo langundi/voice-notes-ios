@@ -23,10 +23,10 @@ final class RecordingViewModel {
         resetUI()
     }
     
-    private var title: String?
-    private var fileURL: URL?
-    private var createdAt: Date?
-    private var timer: Timer?
+    var title: String?
+    var fileURL: URL?
+    var createdAt: Date?
+    var timer: Timer?
     
     // UI Attributes
     var hasStartedRecording: Bool = false
@@ -61,7 +61,14 @@ final class RecordingViewModel {
         } else {
             selectedRecordings.insert(id)
         }
-    }   
+    }
+    
+    func getFormattedDate() -> String {
+        if let date = createdAt {
+            return format(date: date, format: "dd MMM yyyy")
+        }
+        return ""
+    }
     
     private func makeURL(for title: String) -> URL {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -131,10 +138,14 @@ extension RecordingViewModel {
         audioManager.stopRecording()
         saveRecording()
         
-        title = nil
-        fileURL = nil
-        duration = 0
-        createdAt = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.title = nil
+            self.fileURL = nil
+            self.duration = 0
+            self.createdAt = nil
+        }
+        
+        
     }
     
     func resumeRecording() {

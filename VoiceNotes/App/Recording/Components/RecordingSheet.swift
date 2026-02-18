@@ -16,16 +16,16 @@ struct RecordingSheet: View {
         
         NavigationStack {
             VStack(spacing: 16) {
-                Text("New Recording 12")
+                Text(vm.title ?? "")
                     .font(.title2)
                     .fontWeight(.bold)
                 
                 HStack(alignment: .center, spacing: 8) {
-                    Text("28 Nov 2024")
+                    Text(vm.getFormattedDate())
                         .foregroundStyle(.secondary)
                         .fontWeight(.semibold)
                     
-                    Text("20.00")
+                    Text("\(vm.duration)")
                         .foregroundStyle(.gray)
                 }
                 

@@ -11,14 +11,11 @@ import SwiftData
 struct HomeScreen: View {
     
     @State private var vm = DIContainer.shared.makeHomeViewModel()
-    
     @Environment(\.modelContext) private var context
     @Environment(\.editMode) private var editMode
-    
+    @AppStorage(K.microphoneAccess) private var microphoneAccess: MicrophoneAccessEnum = .undetermined
     @Query(animation: .snappy) var recordings: [AudioModel]
     @Query(animation: .snappy) var folders: [FolderModel]
-    
-    @AppStorage(K.microphoneAccess) private var microphoneAccess: MicrophoneAccessEnum = .undetermined
     
     var body: some View {
         NavigationStack {
@@ -86,7 +83,6 @@ struct HomeScreen: View {
                 
                 if #available(iOS 26.0, *) {
                     ToolbarSpacer(.fixed)
-                    
                     ToolbarItem {
                         Button {
                             withAnimation(.snappy) {
@@ -107,7 +103,6 @@ struct HomeScreen: View {
                 } else {
                     ToolbarItemGroup(placement: .bottomBar) {
                         Spacer()
-                        
                         Button {
                             vm.isEditing.toggle()
                         } label: {

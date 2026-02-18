@@ -33,8 +33,7 @@ struct RecordingScreen: View {
     
     var body: some View {
         GeometryReader {
-            let _ = $0.size
-            let _ = $0.safeAreaInsets
+            let size = $0.size
             
             ScrollView(.vertical) {
                 if recordings.isEmpty {
@@ -68,70 +67,90 @@ struct RecordingScreen: View {
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
                     }
+                    .padding(.bottom, vm.isEditing ? 0 : size.height * 0.2)
                 }
             }
-            .navigationTitle(navigationTitle!)
-            .overlay(alignment: .bottom) {
-                if !vm.hasStartedRecording {
-                    Button {
-                        vm.toggleRecording()
-                    } label: {
-                        Image(systemName: "circle.fill")
-                            .font(.largeTitle)
-                    }
-                    .buttonStyle(StartRecordButtonStyle())
-                    .transition(.move(edge: .bottom).combined(with: .scale))
-                }
-            }
-            .toolbar {
-                if #available(iOS 26.0, *) {
-                    ToolbarItem {
-                        Button {
-                            
-                        } label: {
-                            Image(systemName: "magnifyingglass")
-                        }
-                    }
-                    ToolbarSpacer(.fixed)
-                    ToolbarItem {
-                        Button {
-                            withAnimation(.snappy) {
-                                vm.isEditing.toggle()
-                            }
-                        } label: {
-                            Group {
-                                if vm.isEditing {
-                                    Text("Cancel")
-                                } else {
-                                    Text("Select")
-                                }
-                            }
-                            .fontWeight(.medium)
-                        }
-                    }
-                } else {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            vm.isEditing.toggle()
-                        } label: {
-                            Text(vm.isEditing ? "Cancel" : "Edit")
-                                .fontWeight(vm.isEditing ? .medium : .regular)
-                                .contentTransition(.symbolEffect(.replace))
-                                .animation(.smooth(duration: 0.1), value: vm.isEditing)
-                                .disabled(recordings.isEmpty)
-                        }
-                    }
-                }
-            }
-            .sheet(isPresented: $vm.hasStartedRecording) {
-                RecordingSheet()
-                    .presentationDetents([.fraction(1)])
-                    .interactiveDismissDisabled(true)
-                    .presentationBackgroundInteraction(.disabled)
-                    .presentationDragIndicator(.hidden)
-            }
-            .environment(vm)
         }
+        .navigationTitle(navigationTitle!)
+        .overlay(alignment: .bottom) {
+            if !vm.isEditing {
+                Button {
+                    vm.toggleRecording()
+                } label: {
+                    Image(systemName: "circle.fill")
+                        .font(.largeTitle)
+                }
+                .buttonStyle(StartRecordButtonStyle())
+                .transition(.move(edge: .bottom).combined(with: .blurReplace))
+            }
+        }
+        .toolbar {
+            if #available(iOS 26.0, *) {
+                ToolbarItem {
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                }
+                ToolbarSpacer(.fixed)
+                ToolbarItem {
+                    Button {
+                        withAnimation(.snappy) {
+                            vm.isEditing.toggle()
+                        }
+                    } label: {
+                        Group {
+                            if vm.isEditing {
+                                Text("Cancel")
+                            } else {
+                                Text("Select")
+                            }
+                        }
+                        .fontWeight(.medium)
+                    }
+                }
+            } else {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        vm.isEditing.toggle()
+                    } label: {
+                        Text(vm.isEditing ? "Cancel" : "Edit")
+                            .fontWeight(vm.isEditing ? .medium : .regular)
+                            .contentTransition(.symbolEffect(.replace))
+                            .animation(.smooth(duration: 0.1), value: vm.isEditing)
+                            .disabled(recordings.isEmpty)
+                    }
+                }
+            }
+            
+            if vm.isEditing {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    
+                    Spacer()
+                    
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $vm.hasStartedRecording) {
+            RecordingSheet()
+                .presentationDetents([.fraction(1)])
+                .interactiveDismissDisabled(true)
+                .presentationBackgroundInteraction(.disabled)
+                .presentationDragIndicator(.hidden)
+        }
+        .animation(.smooth(duration: 0.2), value: vm.isEditing)
+        .environment(vm)
     }
 }
 
