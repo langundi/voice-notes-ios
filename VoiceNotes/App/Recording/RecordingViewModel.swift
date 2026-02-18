@@ -35,6 +35,8 @@ final class RecordingViewModel {
     var isEditing: Bool = false
     var showSheet: Bool = false
     var duration: TimeInterval = 0
+    var expandedRecording: AudioModel.ID? = nil
+    
     
     func resetUI() {
         isRecording = false
@@ -110,6 +112,11 @@ final class RecordingViewModel {
         if let url = fileURL, let title = title, let date = createdAt {
             audioRepository.addRecording(title: title, fileURL: url, duration: duration, createdAt: date)
         }
+    }
+    
+    func deleteRecording(_ audio: AudioModel) {
+        audioRepository.deleteRecording(audio: audio)
+        expandedRecording =  nil
     }
     
     // MARK: - Helper

@@ -23,7 +23,7 @@ struct RecordingScreen: View {
     
     init(folderTitle: String) {
         if folderTitle == "All" {
-            _recordings = Query(sort: \.createdAt, order: .reverse, animation: .smooth)
+            _recordings = Query(sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
             
             navigationTitle = "All Recordings"
         } else {
@@ -31,7 +31,7 @@ struct RecordingScreen: View {
                 audio.Folder?.title == folderTitle
             }
             
-            _recordings = Query(filter: predicate, sort: \.createdAt, order: .reverse, animation: .smooth)
+            _recordings = Query(filter: predicate, sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
             
             navigationTitle = folderTitle
         }
@@ -53,7 +53,15 @@ struct RecordingScreen: View {
                 } else {
                     LazyVStack(alignment: .center, spacing: 0) {
                         ForEach(recordings) { recording in
-                            RecordingRowView(recording: recording, isExpanded: false)
+                            RecordingRowView(recording: recording, isExpanded: vm.expandedRecording == recording.id)
+                                .contentShape(.rect)
+                                .onTapGesture {
+                                    withAnimation(.smooth(duration: 0.2)) {
+                                        if vm.expandedRecording != recording.id {
+                                            vm.expandedRecording = recording.id
+                                        }
+                                    }
+                                }
                         }
                         
                         Divider()

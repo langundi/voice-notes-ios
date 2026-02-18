@@ -21,7 +21,7 @@ struct RecordingRowView: View {
     var body: some View {
         @Bindable var vm = vm
         
-        VStack(spacing: 12) {
+        VStack(spacing: 6) {
             Divider()
             
             HStack(alignment: .center, spacing: 16) {
@@ -38,10 +38,10 @@ struct RecordingRowView: View {
                     }
                 } else {
                     Text(format(time: recording.duration))
-                        .font(.callout)
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                         .vSpacing(.bottom)
-                        .transition(.push(from: .trailing).combined(with: .blurReplace))
+                        .transition(.blurReplace)
                 }
             }
             
@@ -50,13 +50,13 @@ struct RecordingRowView: View {
             }
         }
         .padding(.horizontal)
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
         .animation(.snappy(duration: 0.3), value: [isExpanded])
     }
     
     @ViewBuilder
     private func titleAndDateView() -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(recording.title)
                 .fontWeight(.semibold)
                 .lineLimit(1)
@@ -64,10 +64,10 @@ struct RecordingRowView: View {
             
             HStack(alignment: .center) {
                 Text(format(date: recording.createdAt, format: "HH.mm"))
-                    .font(.callout)
+                    .font(.footnote)
+                    .fontWeight(.medium)
                 
                 Image(systemName: "quote.bubble")
-                    .font(.title3)
             }
             .foregroundStyle(.secondary)
         }
@@ -125,7 +125,7 @@ struct RecordingRowView: View {
                 Spacer()
                 
                 Button {
-                    // Delete
+                    vm.deleteRecording(recording)
                 } label: {
                     Image(systemName: "trash")
                         .fontWeight(.light)
