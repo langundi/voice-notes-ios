@@ -65,7 +65,14 @@ final class AudioManager: NSObject {
         try session.setActive(true)
     }
     
-    // MARK: - Recorder
+    func getCurrentTime() -> TimeInterval {
+        return player!.currentTime
+    }
+}
+
+// MARK: - Audio Recorder
+
+extension AudioManager: AVAudioRecorderDelegate {
     
     func startRecording(fileURL: URL) throws {
         guard microphonePermission() else {
@@ -100,7 +107,14 @@ final class AudioManager: NSObject {
         recorder = nil
     }
     
-    // MARK: - Playback
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        onRecordingFinished?(flag)
+    }
+}
+
+// MARK: - Audio Player
+
+extension AudioManager: AVAudioPlayerDelegate {
     
     func setupPlayback(fileURL: URL) throws {
         player = nil
@@ -126,15 +140,6 @@ final class AudioManager: NSObject {
         player = nil
     }
     
-}
-
-extension AudioManager: AVAudioRecorderDelegate {
-    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        onRecordingFinished?(flag)
-    }
-}
-
-extension AudioManager: AVAudioPlayerDelegate {
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         onPlaybackFinished?(flag)
     }

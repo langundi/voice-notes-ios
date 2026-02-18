@@ -75,10 +75,10 @@ extension DIContainer {
         let now = Date.now
         let formattedDate = format(date: now, format: "HH:mm:ss_dd MMM yyyy")
         
-        let recording1 = AudioModel(title: "Asdf_\(formattedDate)", fileURL: dummyURL("recording1"), duration: 120, createdAt: now)
-        let recording2 = AudioModel(title: "Qwer_\(formattedDate)", fileURL: dummyURL("recording2"), duration: 40, createdAt: now)
-        let recording3 = AudioModel(title: "Uiop_\(formattedDate)", fileURL: dummyURL("recording3"), duration: 240, createdAt: now)
-        let recording4 = AudioModel(title: "Not in a folder_\(formattedDate)", fileURL: dummyURL("recording4"), duration: 120, createdAt: now)
+        let recording1 = AudioModel(title: "Asdf_\(formattedDate)", fileName: "New Recording 1.m4a", duration: 120, createdAt: now)
+        let recording2 = AudioModel(title: "Qwer_\(formattedDate)", fileName: "New Recording 1.m4a", duration: 40, createdAt: now)
+        let recording3 = AudioModel(title: "Uiop_\(formattedDate)", fileName: "New Recording 1.m4a", duration: 240, createdAt: now)
+        let recording4 = AudioModel(title: "Not in a folder_\(formattedDate)", fileName: "New Recording 1.m4a", duration: 120, createdAt: now)
         
         let recordings = [recording1, recording2, recording3]
         
@@ -88,10 +88,6 @@ extension DIContainer {
         context.insert(recording4)
         
         return container
-    }
-    
-    private func dummyURL(_ filename: String) -> URL {
-        URL.documentsDirectory.appending(path: "\(filename).m4a")
     }
     
 }

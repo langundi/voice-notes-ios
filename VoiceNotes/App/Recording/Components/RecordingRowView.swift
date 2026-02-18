@@ -11,11 +11,9 @@ import SwiftData
 struct RecordingRowView: View {
     
     @Environment(RecordingViewModel.self) private var vm
-    
     @State var isSelected: Bool = false
     
     let recording: AudioModel
-    
     var isExpanded: Bool
     private var isVisuallyExpanded: Bool {
         isExpanded && !vm.isEditing
@@ -26,7 +24,6 @@ struct RecordingRowView: View {
         
         VStack(spacing: 6) {
             Divider()
-            
             HStack(alignment: .center, spacing: 8) {
                 if vm.isEditing {
                     Button {
@@ -40,7 +37,7 @@ struct RecordingRowView: View {
                     .transition(.move(edge: .leading).combined(with: .opacity))
                     .animation(.snappy(duration: 0.2), value: isSelected)
                 }
-                
+
                 titleAndDateView()
                 
                 Spacer()
@@ -119,9 +116,7 @@ struct RecordingRowView: View {
             
             HStack {
                 Text(format(time: vm.duration))
-                
                 Spacer()
-                
                 Text(format(time: recording.duration))
             }
             .font(.caption)
@@ -135,9 +130,7 @@ struct RecordingRowView: View {
                         .fontWeight(.light)
                         .foregroundStyle(.blue)
                 }
-                
                 Spacer()
-                
                 Button {
                     // Rewind 15 seconds
                 } label: {
@@ -145,10 +138,12 @@ struct RecordingRowView: View {
                 }
                 
                 Button {
-                    // Toggle playback
+                    vm.togglePlayback()
                 } label: {
                     Image(systemName: vm.isPlaying ? "pause.fill" : "play.fill")
                         .font(.largeTitle)
+                        .contentTransition(.symbolEffect(.replace))
+                        .animation(.smooth, value: vm.isPlaying)
                 }
                 .frame(maxWidth: 40, maxHeight: 40)
                 
@@ -157,9 +152,7 @@ struct RecordingRowView: View {
                 } label: {
                     Image(systemName: "15.arrow.trianglehead.clockwise")
                 }
-                
                 Spacer()
-                
                 Button {
                     vm.deleteRecording(recording)
                 } label: {
@@ -189,18 +182,3 @@ struct RecordingRowView: View {
     .environment(vm)
     
 }
-
-//if vm.isEditing {
-//                    Button {
-//                        if isSelected {
-//
-//                        } else {
-//
-//                        }
-//                        isSelected.toggle()
-//                    } label: {
-//                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-//                            .font(.title3)
-//                    }
-//                    .transition(.move(edge: .leading).combined(with: .opacity))
-//                }

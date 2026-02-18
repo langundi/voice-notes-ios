@@ -41,10 +41,10 @@ final class AudioRepository {
     
     // MARK: - Recording 
     
-    func addRecording(title: String, fileURL: URL, duration: Double, createdAt: Date) {
+    func addRecording(title: String, fileName: String, duration: Double, createdAt: Date) {
         let recording = AudioModel(
             title: title,
-            fileURL: fileURL,
+            fileName: fileName,
             duration: duration,
             createdAt: createdAt
         )

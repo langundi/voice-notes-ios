@@ -112,7 +112,8 @@ struct HomeScreen: View {
                             vm.isEditing.toggle()
                         } label: {
                             Text(vm.isEditing ? "Done" : "Edit")
-                                .animation(.smooth(duration: 0.1))
+                                .contentTransition(.symbolEffect(.replace))
+                                .animation(.smooth, value: vm.isEditing)
                         }
                     }
                 }

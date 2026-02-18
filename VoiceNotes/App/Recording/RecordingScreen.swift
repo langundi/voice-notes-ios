@@ -11,12 +11,9 @@ import SwiftData
 struct RecordingScreen: View {
     
     @State private var vm = DIContainer.shared.makeRecordingViewModel()
-    
-    @Namespace private var namespace
-    
     @Environment(\.modelContext) private var context
     @Environment(\.editMode) private var editMode
-    
+    @Namespace private var namespace
     @Query var recordings: [AudioModel]
     
     var navigationTitle: String?
@@ -24,15 +21,12 @@ struct RecordingScreen: View {
     init(folderTitle: String) {
         if folderTitle == "All" {
             _recordings = Query(sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
-            
             navigationTitle = "All Recordings"
         } else {
             let predicate = #Predicate<AudioModel> { audio in
                 audio.Folder?.title == folderTitle
             }
-            
             _recordings = Query(filter: predicate, sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
-            
             navigationTitle = folderTitle
         }
     }
@@ -58,17 +52,15 @@ struct RecordingScreen: View {
                                 .onTapGesture {
                                     withAnimation(.smooth(duration: 0.2)) {
                                         if !vm.isEditing {
-                                            withAnimation(.smooth(duration: 0.2)) {
-                                                vm.expandedRecording = (vm.expandedRecording == recording.id) ? nil : recording.id
+                                            if vm.expandedRecording != recording.id {
+                                                vm.isPlaying = false
+                                                vm.expandedRecording = recording.id
                                             }
                                         } else {
-                                            // Optionally toggle selection on row tap during edit mode
                                             vm.toggleSelection(for: recording.id)
                                         }
-//                                        if vm.expandedRecording != recording.id {
-//                                            vm.expandedRecording = recording.id
-//                                        }
                                     }
+                                    vm.setupPlayback(for: recording)
                                 }
                         }
                         
@@ -100,15 +92,12 @@ struct RecordingScreen: View {
                             Image(systemName: "magnifyingglass")
                         }
                     }
-                    
                     ToolbarSpacer(.fixed)
-                    
                     ToolbarItem {
                         Button {
                             withAnimation(.snappy) {
                                 vm.isEditing.toggle()
                             }
-                            print(vm.selectedRecordings.count)
                         } label: {
                             Group {
                                 if vm.isEditing {
@@ -123,12 +112,12 @@ struct RecordingScreen: View {
                 } else {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            print(vm.selectedRecordings.count)
                             vm.isEditing.toggle()
                         } label: {
                             Text(vm.isEditing ? "Cancel" : "Edit")
                                 .fontWeight(vm.isEditing ? .medium : .regular)
-                                .animation(.smooth(duration: 0.1))
+                                .contentTransition(.symbolEffect(.replace))
+                                .animation(.smooth(duration: 0.1), value: vm.isEditing)
                                 .disabled(recordings.isEmpty)
                         }
                     }
