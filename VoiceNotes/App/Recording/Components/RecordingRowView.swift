@@ -12,7 +12,7 @@ struct RecordingRowView: View {
     
     @Environment(RecordingViewModel.self) private var vm
     
-    @State private var isSelected: Bool = false
+    @State var isSelected: Bool = false
     
     let recording: AudioModel
     
@@ -24,7 +24,19 @@ struct RecordingRowView: View {
         VStack(spacing: 6) {
             Divider()
             
-            HStack(alignment: .center, spacing: 16) {
+            HStack(alignment: .center, spacing: 8) {
+                if vm.isEditing {
+                    Button {
+                        vm.toggleSelection(for: recording.id)
+                    } label: {
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                            .font(.title2)
+                            .foregroundStyle(isSelected ? .blue : Color.secondary)
+                    }
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                    .animation(.snappy(duration: 0.2), value: isSelected)
+                }
+                
                 titleAndDateView()
                 
                 Spacer()
@@ -63,6 +75,15 @@ struct RecordingRowView: View {
         .padding(.horizontal)
         .padding(.vertical, 6)
         .animation(.snappy(duration: 0.3), value: [isExpanded])
+        .onChange(of: vm.selectedRecordings) { oldValue, newValue in
+            let currentlyInSet = newValue.contains(recording.id)
+            if isSelected != currentlyInSet {
+                isSelected = currentlyInSet
+            }
+        }
+        .onAppear {
+            isSelected = vm.selectedRecordings.contains(recording.id)
+        }
     }
     
     @ViewBuilder

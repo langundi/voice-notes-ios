@@ -32,17 +32,31 @@ final class RecordingViewModel {
     var hasStartedRecording: Bool = false
     var isRecording: Bool = false
     var isPlaying: Bool = false
-    var isEditing: Bool = false
+    var isEditing: Bool = false {
+        didSet {
+            if !isEditing {
+                selectedRecordings.removeAll()
+            }
+        }
+    }
     var showSheet: Bool = false
     var duration: TimeInterval = 0
     var expandedRecording: AudioModel.ID? = nil
-    
+    var selectedRecordings: Set<AudioModel.ID> = []
     
     func resetUI() {
         isRecording = false
         hasStartedRecording = false
         showSheet = false
         isEditing = false
+    }
+    
+    func toggleSelection(for id: AudioModel.ID) {
+        if selectedRecordings.contains(id) {
+            selectedRecordings.remove(id)
+        } else {
+            selectedRecordings.insert(id)
+        }
     }
     
     // MARK: - Recording

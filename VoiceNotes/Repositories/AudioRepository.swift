@@ -63,7 +63,7 @@ final class AudioRepository {
         let descriptor = FetchDescriptor<AudioModel>(sortBy: sortByDate)
         
         do {
-            return try context.fetchCount(descriptor)
+            return try context.fetchCount(descriptor) + 1
         } catch {
             print("error getting count: \(error.localizedDescription)")
             return 0

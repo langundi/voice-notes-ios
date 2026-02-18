@@ -100,6 +100,7 @@ struct RecordingScreen: View {
                             withAnimation(.snappy) {
                                 vm.isEditing.toggle()
                             }
+                            print(vm.selectedRecordings.count)
                         } label: {
                             Group {
                                 if vm.isEditing {
@@ -114,6 +115,7 @@ struct RecordingScreen: View {
                 } else {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
+                            print(vm.selectedRecordings.count)
                             vm.isEditing.toggle()
                         } label: {
                             Text(vm.isEditing ? "Cancel" : "Edit")
