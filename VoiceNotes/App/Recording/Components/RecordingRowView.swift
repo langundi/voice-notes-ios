@@ -17,6 +17,9 @@ struct RecordingRowView: View {
     let recording: AudioModel
     
     var isExpanded: Bool
+    private var isVisuallyExpanded: Bool {
+        isExpanded && !vm.isEditing
+    }
     
     var body: some View {
         @Bindable var vm = vm
@@ -32,6 +35,7 @@ struct RecordingRowView: View {
                         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                             .font(.title2)
                             .foregroundStyle(isSelected ? .blue : Color.secondary)
+                            .contentTransition(.symbolEffect(.replace))
                     }
                     .transition(.move(edge: .leading).combined(with: .opacity))
                     .animation(.snappy(duration: 0.2), value: isSelected)
@@ -41,7 +45,7 @@ struct RecordingRowView: View {
                 
                 Spacer()
                 
-                if isExpanded {
+                if isVisuallyExpanded {
                     Menu {
                         Button("Share", systemImage: "square.and.arrow.up") { }
                         Divider()
@@ -68,13 +72,13 @@ struct RecordingRowView: View {
                 }
             }
             
-            if isExpanded {
+            if isVisuallyExpanded {
                 playbackControlView()
             }
         }
         .padding(.horizontal)
         .padding(.vertical, 6)
-        .animation(.snappy(duration: 0.3), value: [isExpanded])
+        .animation(.snappy(duration: 0.3), value: isVisuallyExpanded)
         .onChange(of: vm.selectedRecordings) { oldValue, newValue in
             let currentlyInSet = newValue.contains(recording.id)
             if isSelected != currentlyInSet {

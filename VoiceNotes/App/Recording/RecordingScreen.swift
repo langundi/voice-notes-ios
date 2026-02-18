@@ -57,9 +57,17 @@ struct RecordingScreen: View {
                                 .contentShape(.rect)
                                 .onTapGesture {
                                     withAnimation(.smooth(duration: 0.2)) {
-                                        if vm.expandedRecording != recording.id {
-                                            vm.expandedRecording = recording.id
+                                        if !vm.isEditing {
+                                            withAnimation(.smooth(duration: 0.2)) {
+                                                vm.expandedRecording = (vm.expandedRecording == recording.id) ? nil : recording.id
+                                            }
+                                        } else {
+                                            // Optionally toggle selection on row tap during edit mode
+                                            vm.toggleSelection(for: recording.id)
                                         }
+//                                        if vm.expandedRecording != recording.id {
+//                                            vm.expandedRecording = recording.id
+//                                        }
                                     }
                                 }
                         }
