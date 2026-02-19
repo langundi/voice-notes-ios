@@ -14,6 +14,8 @@ struct RecordingRowView: View {
     @ScaledMetric private var buttonWidth: CGFloat = 44
     @State private var isSelected: Bool = false
     @State private var textField: String = ""
+    @State private var selection: TextSelection?
+    @FocusState private var isFocused: Bool
     
     let recording: AudioModel
     var isExpanded: Bool
@@ -48,7 +50,9 @@ struct RecordingRowView: View {
                     Menu {
                         Button("Share", systemImage: "square.and.arrow.up") { }
                         Divider()
-                        Button("Rename", systemImage: "pencil") { }
+                        Button("Rename", systemImage: "pencil") {
+                            isFocused = true
+                        }
                         Button("Edit Recording", systemImage: "waveform") { }
                         Divider()
                         Button("Options", systemImage: "slider.horizontal.3") { }
@@ -95,19 +99,24 @@ struct RecordingRowView: View {
     @ViewBuilder
     private func titleAndDateView() -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            TextField("", text: $textField)
+            TextField("", text: $textField, selection: $selection)
                 .fontWeight(.semibold)
                 .lineLimit(1)
                 .truncationMode(.tail)
+                .focused($isFocused)
                 .disabled(!isExpanded)
-                .onSubmit {
-                    vm.renameTitle(for: recording, title: textField)
+                .onChange(of: isFocused) { oldValue, newValue in
+                    if isFocused {
+                        selection = .init(range: textField.startIndex..<textField.endIndex)
+                    }
                 }
-            
-//            Text(recording.title)
-//                .fontWeight(.semibold)
-//                .lineLimit(1)
-//                .truncationMode(.tail)
+                .onSubmit {
+                    if textField.isEmpty {
+                        textField = recording.title
+                    } else {
+                        vm.renameTitle(for: recording, title: textField)
+                    }
+                }
             
             HStack(alignment: .center) {
                 Text(format(date: recording.createdAt, format: "HH.mm"))
