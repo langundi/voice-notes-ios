@@ -10,6 +10,7 @@
 		8122CE102F3F58C70098A422 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8122CE0C2F3F58C70098A422 /* ContentView.swift */; };
 		8122CE122F3F58C70098A422 /* VoiceNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8122CE0E2F3F58C70098A422 /* VoiceNotesApp.swift */; };
 		8122CE132F3F58C70098A422 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8122CE0B2F3F58C70098A422 /* Assets.xcassets */; };
+		8130BBD72F475C1800A6C283 /* FolderEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8130BBD62F475C1800A6C283 /* FolderEnum.swift */; };
 		815329C42F42F17300CAB519 /* MicrophoneAccessEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815329C32F42F17300CAB519 /* MicrophoneAccessEnum.swift */; };
 		815329C62F42F26600CAB519 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815329C52F42F26600CAB519 /* K.swift */; };
 		815329C82F433D5000CAB519 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815329C72F433D5000CAB519 /* Formatter.swift */; };
@@ -36,6 +37,7 @@
 		8122CE0B2F3F58C70098A422 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8122CE0C2F3F58C70098A422 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8122CE0E2F3F58C70098A422 /* VoiceNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNotesApp.swift; sourceTree = "<group>"; };
+		8130BBD62F475C1800A6C283 /* FolderEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderEnum.swift; sourceTree = "<group>"; };
 		815329C32F42F17300CAB519 /* MicrophoneAccessEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneAccessEnum.swift; sourceTree = "<group>"; };
 		815329C52F42F26600CAB519 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		815329C72F433D5000CAB519 /* Formatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatter.swift; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				815329C32F42F17300CAB519 /* MicrophoneAccessEnum.swift */,
+				8130BBD62F475C1800A6C283 /* FolderEnum.swift */,
 			);
 			path = Enums;
 			sourceTree = "<group>";
@@ -313,6 +316,7 @@
 				8156B15C2F407B7C000447EF /* FolderModel.swift in Sources */,
 				8156B1662F40824C000447EF /* DIContainer.swift in Sources */,
 				815329C62F42F26600CAB519 /* K.swift in Sources */,
+				8130BBD72F475C1800A6C283 /* FolderEnum.swift in Sources */,
 				81BD96732F419B88001135A2 /* AudioManager.swift in Sources */,
 				81ED5BF02F41E22800357F54 /* View+Extensions.swift in Sources */,
 				81ED5BF82F41F57200357F54 /* RecordButtonStyle.swift in Sources */,

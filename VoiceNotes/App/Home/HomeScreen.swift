@@ -13,16 +13,22 @@ struct HomeScreen: View {
     @State private var vm = DIContainer.shared.makeHomeViewModel()
     @Environment(\.modelContext) private var context
     @Environment(\.editMode) private var editMode
-    @AppStorage(K.microphoneAccess) private var microphoneAccess: MicrophoneAccessEnum = .undetermined
+    
+    @AppStorage(K.microphoneAccess)
+    private var microphoneAccess: MicrophoneAccessEnum = .undetermined
+    
     @Query(animation: .snappy) var recordings: [AudioModel]
     @Query(animation: .snappy) var folders: [FolderModel]
+    @Query(filter: #Predicate<AudioModel> { state in
+        state.isFavorite
+    }, animation: .snappy) var favorites: [AudioModel]
     
     var body: some View {
         NavigationStack {
             VStack(alignment: .center, spacing: 16) {
                 List {
                     NavigationLink {
-                        RecordingScreen(folderTitle: "All")
+                        RecordingScreen(folderTitle: .all)
                     } label: {
                         HStack(spacing: 16) {
                             Image(systemName: "waveform")
@@ -39,12 +45,32 @@ struct HomeScreen: View {
                         }
                     }
                     
+                    if !favorites.isEmpty {
+                        NavigationLink {
+                            RecordingScreen(folderTitle: .favorites)
+                        } label: {
+                            HStack(spacing: 16) {
+                                Image(systemName: "heart")
+                                    .fontWeight(.light)
+                                    .font(.title3)
+                                    .foregroundStyle(.blue)
+                                
+                                Text("Favorites")
+                                
+                                Spacer()
+                                
+                                Text("\(favorites.count)")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    
                     Section(folders.isEmpty ? "" : "My Folders") {
                         ForEach(folders) { folder in
                             let count = folder.Audios.count
                             
                             NavigationLink {
-                                RecordingScreen(folderTitle: folder.title)
+                                RecordingScreen(folderTitle: .custom(folder.title))
                             } label: {
                                 HStack(spacing: 16) {
                                     Image(systemName: "folder")
@@ -184,5 +210,6 @@ struct HomeScreen: View {
 #Preview {
     NavigationStack {
         HomeScreen()
+            .modelContainer(DIContainer.shared.makePreviewContainer())
     }
 }

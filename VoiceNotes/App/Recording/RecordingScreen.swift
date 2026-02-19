@@ -18,16 +18,23 @@ struct RecordingScreen: View {
     
     var navigationTitle: String?
     
-    init(folderTitle: String) {
-        if folderTitle == "All" {
+    init(folderTitle: FolderEnum) {
+        switch folderTitle {
+        case .all:
             _recordings = Query(sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
-            navigationTitle = "All Recordings"
-        } else {
-            let predicate = #Predicate<AudioModel> { audio in
-                audio.Folder?.title == folderTitle
+            navigationTitle = folderTitle.title
+        case .favorites:
+            let predicate = #Predicate<AudioModel> { state in
+                state.isFavorite
             }
             _recordings = Query(filter: predicate, sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
-            navigationTitle = folderTitle
+            navigationTitle = folderTitle.title
+        case .custom(let name):
+            let predicate = #Predicate<AudioModel> { audio in
+                audio.Folder?.title == name
+            }
+            _recordings = Query(filter: predicate, sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
+            navigationTitle = name
         }
     }
     
@@ -158,7 +165,7 @@ struct RecordingScreen: View {
 
 #Preview {
     NavigationStack {
-        RecordingScreen(folderTitle: "All")
+        RecordingScreen(folderTitle: .favorites)
             .modelContainer(DIContainer.shared.makePreviewContainer())
     }
 }

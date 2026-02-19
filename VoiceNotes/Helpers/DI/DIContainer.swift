@@ -80,6 +80,9 @@ extension DIContainer {
         let recording3 = AudioModel(title: "Uiop_\(formattedDate)", fileName: "New Recording 1.m4a", duration: 240, createdAt: now)
         let recording4 = AudioModel(title: "Not in a folder_\(formattedDate)", fileName: "New Recording 1.m4a", duration: 120, createdAt: now)
         
+        recording1.isFavorite = true
+        recording3.isFavorite = true
+        
         let recordings = [recording1, recording2, recording3]
         
         folder1.Audios = recordings
