@@ -11,8 +11,9 @@ import SwiftData
 struct RecordingRowView: View {
     
     @Environment(RecordingViewModel.self) private var vm
-    @State var isSelected: Bool = false
     @ScaledMetric private var buttonWidth: CGFloat = 44
+    @State private var isSelected: Bool = false
+    @State private var textField: String = ""
     
     let recording: AudioModel
     var isExpanded: Bool
@@ -87,16 +88,26 @@ struct RecordingRowView: View {
         }
         .onAppear {
             isSelected = vm.selectedRecordings.contains(recording.id)
+            textField = recording.title
         }
     }
     
     @ViewBuilder
     private func titleAndDateView() -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(recording.title)
+            TextField("", text: $textField)
                 .fontWeight(.semibold)
                 .lineLimit(1)
                 .truncationMode(.tail)
+                .disabled(!isExpanded)
+                .onSubmit {
+                    vm.renameTitle(for: recording, title: textField)
+                }
+            
+//            Text(recording.title)
+//                .fontWeight(.semibold)
+//                .lineLimit(1)
+//                .truncationMode(.tail)
             
             HStack(alignment: .center) {
                 Text(format(date: recording.createdAt, format: "HH.mm"))

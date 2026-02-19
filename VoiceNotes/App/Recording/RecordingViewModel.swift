@@ -41,9 +41,11 @@ final class RecordingViewModel {
             }
         }
     }
+    var selectedRecordings: Set<AudioModel.ID> = []
+    
+    // Sheet
     var showSheet: Bool = false
     var expandedRecording: AudioModel.ID? = nil
-    var selectedRecordings: Set<AudioModel.ID> = []
     
     func resetUI() {
         hasStartedRecording = false
@@ -132,6 +134,10 @@ extension RecordingViewModel {
     func deleteRecording(from recordings: [AudioModel]) {
         audioRepository.deleteRecording(for: recordings)
         expandedRecording =  nil
+    }
+    
+    func renameTitle(for recording: AudioModel, title: String) {
+        audioRepository.updateTitle(for: recording, newTitle: title)
     }
     
     func duplicateRecording(recording: AudioModel) {

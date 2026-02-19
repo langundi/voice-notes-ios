@@ -62,7 +62,6 @@ final class AudioRepository {
     
     func duplicateRecording(from audio: AudioModel, newFile fileName: String) {
         let newTitle = audio.title + " copy"
-//        let newFileName = "copy_" + audio.fileName
         let newDate = Date.now
         let recording = AudioModel(
             title: newTitle,
@@ -72,6 +71,11 @@ final class AudioRepository {
         )
         
         context.insert(recording)
+        saveContext()
+    }
+    
+    func updateTitle(for audio: AudioModel, newTitle: String) {
+        audio.title = newTitle
         saveContext()
     }
     
