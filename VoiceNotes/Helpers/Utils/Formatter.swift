@@ -20,3 +20,11 @@ func format(time: TimeInterval) -> String {
     let seconds = Int(time) % 60
     return String(format: "%1d.%02d", minutes, seconds)
 }
+
+/// Format timer
+func formatTimer(time: TimeInterval) -> String {
+    let minutes = Int(time) / 60
+    let seconds = Int(time) % 60
+    let milliseconds = Int(time * 100) % 100
+    return String(format: "%02d.%02d,%02d", minutes, seconds, milliseconds)
+}

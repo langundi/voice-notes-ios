@@ -10,13 +10,14 @@ import SwiftUI
 struct RecordingSheet: View {
     
     @Environment(RecordingViewModel.self) private var vm
+    @ScaledMetric private var buttonWidth: CGFloat = 44
     
     var body: some View {
         @Bindable var vm = vm
         
         NavigationStack {
-            VStack(spacing: 16) {
-                Text(vm.title ?? "")
+            VStack(spacing: 24) {
+                Text(vm.title ?? "Title")
                     .font(.title2)
                     .fontWeight(.bold)
                 
@@ -25,11 +26,49 @@ struct RecordingSheet: View {
                         .foregroundStyle(.secondary)
                         .fontWeight(.semibold)
                     
-                    Text("\(vm.duration)")
+                    Text("\(format(time: vm.currentTime))")
                         .foregroundStyle(.gray)
+                        .monospacedDigit()
                 }
+                .frame(maxWidth: .infinity)
                 
-                Spacer()
+                Rectangle()
+                    .fill(.gray.tertiary)
+                    .frame(height: 320)
+                    .padding(.bottom, 24)
+                
+                Text("\(formatTimer(time: vm.currentTime))")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .monospacedDigit()
+                
+                HStack(spacing: 32) {
+                    Button {
+                        // Rewind 15 seconds
+                    } label: {
+                        Image(systemName: "15.arrow.trianglehead.counterclockwise")
+                    }
+                    
+                    Button {
+                        vm.togglePlayback()
+                    } label: {
+                        Image(systemName: vm.isPlaying ? "pause.fill" : "play.fill")
+                            .font(.largeTitle)
+                            .contentTransition(.symbolEffect(.replace))
+                            .animation(.smooth, value: vm.isPlaying)
+                            .frame(width: buttonWidth)
+                    }
+                    
+                    Button {
+                        // Fast forward 15 seconds
+                    } label: {
+                        Image(systemName: "15.arrow.trianglehead.clockwise")
+                    }
+                }
+                .font(.title)
+                .fontWeight(.medium)
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 HStack {
                     Button {

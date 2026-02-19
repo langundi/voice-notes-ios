@@ -18,6 +18,14 @@ final class AudioManager: NSObject {
     var onRecordingFinished: ((Bool) -> Void)?
     var onPlaybackFinished: ((Bool) -> Void)?
     
+    var currentPlaybackTime: TimeInterval {
+        player?.currentTime ?? 0
+    }
+    
+    var currentRecordingTime: TimeInterval {
+        recorder?.currentTime ?? 0
+    }
+    
     let settings: [String : Any] = [
         AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
         AVSampleRateKey: 44100.0,
@@ -125,6 +133,17 @@ extension AudioManager: AVAudioPlayerDelegate {
     func startPlayback() throws {
         player?.prepareToPlay()
         player?.play()
+    }
+    
+    func play(at time: TimeInterval) {
+        player?.play(atTime: time)
+    }
+    
+    func seek(at time: TimeInterval) throws { 
+        if let currentTime = player?.currentTime {
+            let newTime = currentTime + time
+            player?.currentTime = newTime
+        }
     }
     
     func pausePlayback() {

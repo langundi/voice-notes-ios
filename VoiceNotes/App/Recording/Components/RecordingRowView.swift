@@ -12,6 +12,7 @@ struct RecordingRowView: View {
     
     @Environment(RecordingViewModel.self) private var vm
     @State var isSelected: Bool = false
+    @ScaledMetric private var buttonWidth: CGFloat = 44
     
     let recording: AudioModel
     var isExpanded: Bool
@@ -115,7 +116,7 @@ struct RecordingRowView: View {
                 .padding(.top, 24)
             
             HStack {
-                Text(format(time: vm.duration))
+                Text(format(time: vm.currentTime))
                 Spacer()
                 Text(format(time: recording.duration))
             }
@@ -130,29 +131,36 @@ struct RecordingRowView: View {
                         .fontWeight(.light)
                         .foregroundStyle(.blue)
                 }
-                Spacer()
-                Button {
-                    // Rewind 15 seconds
-                } label: {
-                    Image(systemName: "15.arrow.trianglehead.counterclockwise")
-                }
                 
-                Button {
-                    vm.togglePlayback()
-                } label: {
-                    Image(systemName: vm.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.largeTitle)
-                        .contentTransition(.symbolEffect(.replace))
-                        .animation(.smooth, value: vm.isPlaying)
-                }
-                .frame(maxWidth: 40, maxHeight: 40)
-                
-                Button {
-                    // Fast forward 15 seconds
-                } label: {
-                    Image(systemName: "15.arrow.trianglehead.clockwise")
-                }
                 Spacer()
+                
+                HStack(spacing: 24) {
+                    Button {
+                        vm.rewind15Seconds()
+                    } label: {
+                        Image(systemName: "15.arrow.trianglehead.counterclockwise")
+                    }
+                    
+                    Button {
+                        vm.togglePlayback()
+                    } label: {
+                        Image(systemName: vm.isPlaying ? "pause.fill" : "play.fill")
+                            .font(.largeTitle)
+                            .contentTransition(.symbolEffect(.replace))
+                            .animation(.smooth, value: vm.isPlaying)
+                            .frame(width: buttonWidth)
+                    }
+                    
+                    Button {
+                        vm.forward15Seconds()
+                    } label: {
+                        Image(systemName: "15.arrow.trianglehead.clockwise")
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                Spacer()
+                
                 Button {
                     vm.deleteRecording(recording)
                 } label: {

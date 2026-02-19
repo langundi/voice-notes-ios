@@ -27,6 +27,7 @@ final class RecordingViewModel {
     var fileURL: URL?
     var createdAt: Date?
     var timer: Timer?
+    var currentTime: TimeInterval = 0
     
     // UI Attributes
     var hasStartedRecording: Bool = false
@@ -41,7 +42,6 @@ final class RecordingViewModel {
         }
     }
     var showSheet: Bool = false
-    var duration: TimeInterval = 0
     var expandedRecording: AudioModel.ID? = nil
     var selectedRecordings: Set<AudioModel.ID> = []
     
@@ -52,7 +52,7 @@ final class RecordingViewModel {
         isPlaying = false
         isEditing = false
         showSheet = false
-        duration = 0
+        currentTime = 0
     }
     
     func toggleSelection(for id: AudioModel.ID) {
@@ -76,9 +76,17 @@ final class RecordingViewModel {
         return url
     }
     
-    private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            self?.duration += 1
+    private func startRecordingTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.currentTime = self.audioManager.currentRecordingTime
+        }
+    }
+    
+    private func startPlaybackTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.currentTime = self.audioManager.currentPlaybackTime
         }
     }
     
@@ -113,7 +121,7 @@ extension RecordingViewModel {
         title = "New Recording \(count)"
         let fileName = "Recording_\(formattedTime).m4a"
         fileURL = makeURL(for: fileName)
-        duration = 0
+        currentTime = 0
         createdAt = Date.now
         
         do {
@@ -123,10 +131,22 @@ extension RecordingViewModel {
             hasStartedRecording = true
             showSheet = true
             
-            startTimer()
+            startRecordingTimer()
         } catch {
             print("error start recording: \(error.localizedDescription)")
         }
+    }
+    
+    func pauseRecording() {
+        isRecording = false
+        audioManager.pauseRecording()
+        stopTimer()
+    }
+    
+    func resumeRecording() {
+        isRecording = true
+        audioManager.resumeRecording()
+        startRecordingTimer()
     }
     
     func stopRecording() {
@@ -141,30 +161,16 @@ extension RecordingViewModel {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.title = nil
             self.fileURL = nil
-            self.duration = 0
+            self.currentTime = 0
             self.createdAt = nil
         }
-        
-        
-    }
-    
-    func resumeRecording() {
-        isRecording = true
-    }
-    
-    func pauseRecording() {
-        isRecording = false
-    }
-    
-    func getCurrentTime() {
-        duration = audioManager.getCurrentTime()
     }
     
     func saveRecording() {
         audioRepository.addRecording(
             title: title!,
             fileName: fileURL!.lastPathComponent,
-            duration: duration,
+            duration: currentTime,
             createdAt: createdAt!
         )
     }
@@ -194,6 +200,8 @@ extension RecordingViewModel {
             audioManager.onPlaybackFinished = { [weak self] flag in
                 self?.hasStartedPlaying = false
                 self?.isPlaying = false
+                self?.currentTime = 0
+                self?.stopTimer()
             }
         } catch {
             print("error setup playback: \(error.localizedDescription)")
@@ -216,6 +224,8 @@ extension RecordingViewModel {
         do {
             try audioManager.startPlayback()
             
+            startPlaybackTimer()
+            
             hasStartedPlaying = true
             isPlaying = true
         } catch {
@@ -225,18 +235,48 @@ extension RecordingViewModel {
     
     func pauseAudio() {
         audioManager.pausePlayback()
+        stopTimer()
         isPlaying = false
     }
     
     func resumeAudio() {
         audioManager.resumePlayback()
+        startPlaybackTimer()
         isPlaying = true
     }
     
     func stopAudio() {
         audioManager.stopPlayback()
+        stopTimer()
         fileURL = nil
         hasStartedPlaying = false
         isPlaying = false
+    }
+    
+    func play(at time: TimeInterval) {
+        audioManager.play(at: time)
+        isPlaying = true
+    }
+    
+    func rewind15Seconds() {
+        let newTime = currentTime - 15
+        currentTime = newTime
+        
+        do {
+            try audioManager.seek(at: newTime)
+        } catch {
+            print("error seeking: \(error.localizedDescription)")
+        }
+    }
+    
+    func forward15Seconds() {
+        let newTime = currentTime + 15
+        currentTime = newTime
+        
+        do {
+            try audioManager.seek(at: newTime)
+        } catch {
+            print("error seeking: \(error.localizedDescription)")
+        }
     }
 }
