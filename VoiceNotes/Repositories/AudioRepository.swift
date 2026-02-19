@@ -60,6 +60,21 @@ final class AudioRepository {
         saveContext()
     }
     
+    func duplicateRecording(from audio: AudioModel, newFile fileName: String) {
+        let newTitle = audio.title + " copy"
+//        let newFileName = "copy_" + audio.fileName
+        let newDate = Date.now
+        let recording = AudioModel(
+            title: newTitle,
+            fileName: fileName,
+            duration: audio.duration,
+            createdAt: newDate
+        )
+        
+        context.insert(recording)
+        saveContext()
+    }
+    
     func getAudioCount() -> Int {
         let sortByDate = [SortDescriptor(\AudioModel.createdAt, order: .reverse)]
         let descriptor = FetchDescriptor<AudioModel>(sortBy: sortByDate)

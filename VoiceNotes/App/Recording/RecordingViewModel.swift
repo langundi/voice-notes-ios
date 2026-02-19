@@ -76,6 +76,26 @@ final class RecordingViewModel {
         return url
     }
     
+    private func duplicateFile(sourceURL: URL, destinationURL: URL) {
+        let fileManager = FileManager.default
+        
+        let destinationDirectory = destinationURL.deletingLastPathComponent()
+        if !fileManager.fileExists(atPath: destinationDirectory.path) {
+            do {
+                try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print("error creating directory: \(error.localizedDescription)")
+                return
+            }
+        }
+        
+        do {
+            try fileManager.copyItem(at: sourceURL, to: destinationURL)
+        } catch {
+            print("error duplicating file: \(error.localizedDescription)")
+        }
+    }
+    
     private func startRecordingTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [weak self] _ in
             guard let self else { return }
@@ -95,6 +115,35 @@ final class RecordingViewModel {
         timer = nil
     }
     
+}
+
+// MARK: - Data
+
+extension RecordingViewModel {
+    func saveRecording() {
+        audioRepository.addRecording(
+            title: title!,
+            fileName: fileURL!.lastPathComponent,
+            duration: currentTime,
+            createdAt: createdAt!
+        )
+    }
+    
+    func deleteRecording(from recordings: [AudioModel]) {
+        audioRepository.deleteRecording(for: recordings)
+        expandedRecording =  nil
+    }
+    
+    func duplicateRecording(recording: AudioModel) {
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let sourceFile = path.appending(path: recording.fileName)
+        let copiedFileName = "copy_" + recording.fileName
+        let destinationFile = path.appending(path: copiedFileName)
+        
+        duplicateFile(sourceURL: sourceFile, destinationURL: destinationFile)
+        
+        audioRepository.duplicateRecording(from: recording, newFile: copiedFileName)
+    }
 }
 
 // MARK: - Recording
@@ -164,20 +213,6 @@ extension RecordingViewModel {
             self.currentTime = 0
             self.createdAt = nil
         }
-    }
-    
-    func saveRecording() {
-        audioRepository.addRecording(
-            title: title!,
-            fileName: fileURL!.lastPathComponent,
-            duration: currentTime,
-            createdAt: createdAt!
-        )
-    }
-    
-    func deleteRecording(from recordings: [AudioModel]) {
-        audioRepository.deleteRecording(for: recordings)
-        expandedRecording =  nil
     }
 }
 
@@ -280,14 +315,3 @@ extension RecordingViewModel {
         }
     }
 }
-
-
-/*
- 
- func deleteRecording(from recordings: [AudioModel]) {
-     let delete = recordings.filter { selectedRecordings.contains($0.id) }
-     audioRepository.deleteRecording(for: ids)
-     expandedRecording =  nil
- }
- 
- */

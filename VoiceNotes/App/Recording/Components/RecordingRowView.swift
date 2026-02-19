@@ -53,7 +53,9 @@ struct RecordingRowView: View {
                         Button("Options", systemImage: "slider.horizontal.3") { }
                         Divider()
                         Button("Favorite", systemImage: "heart") { }
-                        Button("Duplicate", systemImage: "plus.square.on.square") { }
+                        Button("Duplicate", systemImage: "plus.square.on.square") {
+                            vm.duplicateRecording(recording: recording)
+                        }
                         Button("Move", systemImage: "folder") { }
                     } label: {
                         Image(systemName: "ellipsis")
@@ -122,6 +124,7 @@ struct RecordingRowView: View {
             }
             .font(.caption)
             .foregroundStyle(.secondary)
+            .monospacedDigit()
             
             HStack(alignment: .center, spacing: 36) {
                 Button {
