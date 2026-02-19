@@ -67,7 +67,7 @@ struct RecordingScreen: View {
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
                     }
-                    .padding(.bottom, vm.isEditing ? 0 : size.height * 0.2)
+                    .padding(.bottom, vm.isEditing ? 0 : size.height * 0.15)
                 }
             }
         }
@@ -119,8 +119,8 @@ struct RecordingScreen: View {
                             .fontWeight(vm.isEditing ? .medium : .regular)
                             .contentTransition(.symbolEffect(.replace))
                             .animation(.smooth(duration: 0.1), value: vm.isEditing)
-                            .disabled(recordings.isEmpty)
                     }
+                    .disabled(recordings.isEmpty)
                 }
             }
             
@@ -135,7 +135,9 @@ struct RecordingScreen: View {
                     Spacer()
                     
                     Button {
-                        
+                        let delete = recordings.filter { vm.selectedRecordings.contains($0.id) }
+                        vm.deleteRecording(from: delete)
+                        vm.isEditing = false
                     } label: {
                         Image(systemName: "trash")
                     }

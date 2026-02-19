@@ -175,8 +175,8 @@ extension RecordingViewModel {
         )
     }
     
-    func deleteRecording(_ audio: AudioModel) {
-        audioRepository.deleteRecording(audio: audio)
+    func deleteRecording(from recordings: [AudioModel]) {
+        audioRepository.deleteRecording(for: recordings)
         expandedRecording =  nil
     }
 }
@@ -280,3 +280,14 @@ extension RecordingViewModel {
         }
     }
 }
+
+
+/*
+ 
+ func deleteRecording(from recordings: [AudioModel]) {
+     let delete = recordings.filter { selectedRecordings.contains($0.id) }
+     audioRepository.deleteRecording(for: ids)
+     expandedRecording =  nil
+ }
+ 
+ */

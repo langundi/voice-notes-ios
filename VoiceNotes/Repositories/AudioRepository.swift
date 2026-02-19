@@ -53,8 +53,10 @@ final class AudioRepository {
         saveContext()
     }
     
-    func deleteRecording(audio: AudioModel) {
-        context.delete(audio)
+    func deleteRecording(for recordings: [AudioModel]) {
+        for recording in recordings {
+            context.delete(recording)
+        }
         saveContext()
     }
     

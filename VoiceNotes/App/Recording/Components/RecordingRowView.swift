@@ -162,7 +162,7 @@ struct RecordingRowView: View {
                 Spacer()
                 
                 Button {
-                    vm.deleteRecording(recording)
+                    vm.deleteRecording(from: [recording])
                 } label: {
                     Image(systemName: "trash")
                         .fontWeight(.light)
