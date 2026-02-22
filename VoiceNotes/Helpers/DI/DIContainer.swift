@@ -73,7 +73,7 @@ extension DIContainer {
         let folder1 = FolderModel(title: "Folder 1")
         
         let now = Date.now
-        let formattedDate = format(date: now, format: "HH:mm:ss_dd MMM yyyy")
+        let formattedDate = formatDate(date: now, format: "HH:mm:ss_dd MMM yyyy")
         
         let recording1 = AudioModel(title: "Asdf_\(formattedDate)", fileName: "New Recording 1.m4a", duration: 120, createdAt: now)
         let recording2 = AudioModel(title: "Qwer_\(formattedDate)", fileName: "New Recording 1.m4a", duration: 40, createdAt: now)

@@ -22,11 +22,11 @@ struct RecordingSheet: View {
                     .fontWeight(.bold)
                 
                 HStack(alignment: .center, spacing: 8) {
-                    Text(vm.getFormattedDate())
+                    Text("\(formatDate(date: vm.createdAt ?? Date.now, format: "dd MMM yyyy"))")
                         .foregroundStyle(.secondary)
                         .fontWeight(.semibold)
                     
-                    Text("\(format(time: vm.currentTime))")
+                    Text("\(formatTime(time: vm.currentTime))")
                         .foregroundStyle(.gray)
                         .monospacedDigit()
                 }

@@ -65,19 +65,6 @@ final class RecordingViewModel {
         }
     }
     
-    func getFormattedDate() -> String {
-        if let date = createdAt {
-            return format(date: date, format: "dd MMM yyyy")
-        }
-        return ""
-    }
-    
-    func makeURL(for title: String) -> URL {
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let url = path.appending(path: title)
-        return url
-    }
-    
     private func duplicateFile(sourceURL: URL, destinationURL: URL) {
         let fileManager = FileManager.default
         
@@ -136,14 +123,14 @@ extension RecordingViewModel {
         expandedRecording =  nil
     }
     
-    func renameTitle(for recording: AudioModel, title: String) {
-        audioRepository.updateTitle(for: recording, newTitle: title)
+    func renameTitle(for recording: AudioModel, newTitle: String) {
+        audioRepository.updateTitle(for: recording, newTitle: newTitle)
     }
     
     func duplicateRecording(recording: AudioModel) {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let sourceFile = path.appending(path: recording.fileName)
-        let copiedFileName = "copy_" + recording.fileName
+        let copiedFileName = "Copy of " + recording.fileName
         let destinationFile = path.appending(path: copiedFileName)
         
         duplicateFile(sourceURL: sourceFile, destinationURL: destinationFile)
@@ -170,12 +157,9 @@ extension RecordingViewModel {
     
     func startRecording() {
         let count = audioRepository.getAudioCount()
-        let date = Date.now
-        let formattedTime = format(date: date, format: "yyyy-MMM-dd_HH.mm.ss")
         
         title = "New Recording \(count)"
-        let fileName = "Recording_\(formattedTime).m4a"
-        fileURL = makeURL(for: fileName)
+        fileURL = makeUniqueURL(for: title!)
         currentTime = 0
         createdAt = Date.now
         

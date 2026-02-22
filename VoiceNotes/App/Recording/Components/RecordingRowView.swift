@@ -49,7 +49,7 @@ struct RecordingRowView: View {
                 
                 if isVisuallyExpanded {
                     Menu {
-                        ShareLink(item: vm.makeURL(for: recording.fileName)) {
+                        ShareLink(item: getURL(for: recording.fileName)) {
                             Label("Share", systemImage: "square.and.arrow.up")
                         }
                         Divider()
@@ -72,7 +72,7 @@ struct RecordingRowView: View {
                             .padding(.leading)
                     }
                 } else {
-                    Text(format(time: recording.duration))
+                    Text(formatTime(time: recording.duration))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .vSpacing(.bottom)
@@ -108,6 +108,7 @@ struct RecordingRowView: View {
                 .truncationMode(.tail)
                 .focused($isFocused)
                 .disabled(!isExpanded)
+                .disabled(vm.isEditing)
                 .onChange(of: isFocused) { oldValue, newValue in
                     if isFocused {
                         selection = .init(range: textField.startIndex..<textField.endIndex)
@@ -117,12 +118,12 @@ struct RecordingRowView: View {
                     if textField.isEmpty {
                         textField = recording.title
                     } else {
-                        vm.renameTitle(for: recording, title: textField)
+                        vm.renameTitle(for: recording, newTitle: textField)
                     }
                 }
             
             HStack(alignment: .center) {
-                Text(format(date: recording.createdAt, format: "HH.mm"))
+                Text(formatDate(date: recording.createdAt, format: "HH.mm"))
                     .font(.footnote)
                     .fontWeight(.medium)
                 
@@ -141,9 +142,9 @@ struct RecordingRowView: View {
                 .padding(.top, 24)
             
             HStack {
-                Text(format(time: vm.currentTime))
+                Text(formatTime(time: vm.currentTime))
                 Spacer()
-                Text(format(time: recording.duration))
+                Text(formatTime(time: recording.duration))
             }
             .font(.caption)
             .foregroundStyle(.secondary)

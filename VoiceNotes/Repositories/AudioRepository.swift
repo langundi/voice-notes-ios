@@ -61,7 +61,7 @@ final class AudioRepository {
     }
     
     func duplicateRecording(from audio: AudioModel, newFile fileName: String) {
-        let newTitle = audio.title + " copy"
+        let newTitle = "Copy of " + audio.title
         let newDate = Date.now
         let recording = AudioModel(
             title: newTitle,
@@ -75,8 +75,20 @@ final class AudioRepository {
     }
     
     func updateTitle(for audio: AudioModel, newTitle: String) {
-        audio.title = newTitle
-        saveContext()
+        guard audio.title != newTitle else { return }
+        
+        let oldURL = getURL(for: audio.fileName)
+        let newURL = makeUniqueURL(for: newTitle)
+        
+        do {
+            try FileManager.default.moveItem(at: oldURL, to: newURL)
+            audio.title = newTitle
+            audio.fileName = newURL.lastPathComponent
+            
+            saveContext()
+        } catch {
+            print("error updating title: \(error.localizedDescription)")
+        }
     }
     
     func getAudioCount() -> Int {
