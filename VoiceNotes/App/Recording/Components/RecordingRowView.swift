@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 import SwiftData
 
 struct RecordingRowView: View {
@@ -41,14 +42,16 @@ struct RecordingRowView: View {
                     .transition(.move(edge: .leading).combined(with: .opacity))
                     .animation(.snappy(duration: 0.2), value: isSelected)
                 }
-
+                
                 titleAndDateView()
                 
                 Spacer()
                 
                 if isVisuallyExpanded {
                     Menu {
-                        Button("Share", systemImage: "square.and.arrow.up") { }
+                        ShareLink(item: vm.makeURL(for: recording.fileName)) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
                         Divider()
                         Button("Rename", systemImage: "pencil") {
                             isFocused = true

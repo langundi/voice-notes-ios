@@ -72,7 +72,7 @@ final class RecordingViewModel {
         return ""
     }
     
-    private func makeURL(for title: String) -> URL {
+    func makeURL(for title: String) -> URL {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let url = path.appending(path: title)
         return url
