@@ -91,6 +91,15 @@ final class AudioRepository {
         }
     }
     
+    func favoriteRecording(for audio: AudioModel) {
+        if audio.isFavorite {
+            audio.isFavorite = false
+        } else {
+            audio.isFavorite = true
+        }
+        saveContext()
+    }
+    
     func getAudioCount() -> Int {
         let sortByDate = [SortDescriptor(\AudioModel.createdAt, order: .reverse)]
         let descriptor = FetchDescriptor<AudioModel>(sortBy: sortByDate)

@@ -11,6 +11,7 @@ import SwiftData
 struct HomeScreen: View {
     
     @State private var vm = DIContainer.shared.makeHomeViewModel()
+    
     @Environment(\.modelContext) private var context
     @Environment(\.editMode) private var editMode
     
@@ -22,6 +23,7 @@ struct HomeScreen: View {
     @Query(filter: #Predicate<AudioModel> { state in
         state.isFavorite
     }, animation: .snappy) var favorites: [AudioModel]
+    
     
     var body: some View {
         NavigationStack {

@@ -6,17 +6,20 @@
 //
 
 import SwiftUI
-import UIKit
 import SwiftData
 
 struct RecordingRowView: View {
     
     @Environment(RecordingViewModel.self) private var vm
-    @ScaledMetric private var buttonWidth: CGFloat = 44
+    
     @State private var isSelected: Bool = false
     @State private var textField: String = ""
     @State private var selection: TextSelection?
+    
+    @Binding var hideRecordButton: Bool
     @FocusState private var isFocused: Bool
+    
+    @ScaledMetric private var buttonWidth: CGFloat = 44
     
     let recording: AudioModel
     var isExpanded: Bool
@@ -55,16 +58,25 @@ struct RecordingRowView: View {
                         Divider()
                         Button("Rename", systemImage: "pencil") {
                             isFocused = true
+                            hideRecordButton = true
                         }
                         Button("Edit Recording", systemImage: "waveform") { }
                         Divider()
                         Button("Options", systemImage: "slider.horizontal.3") { }
                         Divider()
-                        Button("Favorite", systemImage: "heart") { }
+                        Button(recording.isFavorite ? "Unfavorite" : "Favorite",
+                               systemImage: recording.isFavorite ? "heart.fill" : "heart") {
+                            vm.favoriteRecording(recording: recording)
+                        }
+                        .contentTransition(.symbolEffect)
+                        
                         Button("Duplicate", systemImage: "plus.square.on.square") {
                             vm.duplicateRecording(recording: recording)
                         }
-                        Button("Move", systemImage: "folder") { }
+                        
+                        Button("Move", systemImage: "folder") {
+                            
+                        }
                     } label: {
                         Image(systemName: "ellipsis")
                             .font(.title2)
@@ -120,6 +132,8 @@ struct RecordingRowView: View {
                     } else {
                         vm.renameTitle(for: recording, newTitle: textField)
                     }
+                    vm.isEditing = false
+                    hideRecordButton = false
                 }
             
             HStack(alignment: .center) {
@@ -210,8 +224,8 @@ struct RecordingRowView: View {
     let vm = DIContainer.shared.makeRecordingViewModel()
     
     ScrollView {
-        RecordingRowView(recording: AudioModel.sample, isExpanded: true)
-        RecordingRowView(recording: AudioModel.sample, isExpanded: false)
+        RecordingRowView(hideRecordButton: .constant(false), recording: AudioModel.sample, isExpanded: true)
+        RecordingRowView(hideRecordButton: .constant(false), recording: AudioModel.sample, isExpanded: false)
     }
     .modelContainer(DIContainer.shared.makePreviewContainer())
     .environment(vm)

@@ -11,9 +11,13 @@ import SwiftData
 struct RecordingScreen: View {
     
     @State private var vm = DIContainer.shared.makeRecordingViewModel()
+    @State private var hideRecordButton = false
+    
     @Environment(\.modelContext) private var context
     @Environment(\.editMode) private var editMode
+    
     @Namespace private var namespace
+    
     @Query var recordings: [AudioModel]
     
     var navigationTitle: String?
@@ -53,21 +57,25 @@ struct RecordingScreen: View {
                 } else {
                     LazyVStack(alignment: .center, spacing: 0) {
                         ForEach(recordings) { recording in
-                            RecordingRowView(recording: recording, isExpanded: vm.expandedRecording == recording.id)
-                                .contentShape(.rect)
-                                .onTapGesture {
-                                    withAnimation(.smooth(duration: 0.2)) {
-                                        if !vm.isEditing {
-                                            if vm.expandedRecording != recording.id {
-                                                vm.isPlaying = false
-                                                vm.expandedRecording = recording.id
-                                            }
-                                        } else {
-                                            vm.toggleSelection(for: recording.id)
+                            RecordingRowView(
+                                hideRecordButton: $hideRecordButton,
+                                recording: recording,
+                                isExpanded: vm.expandedRecording == recording.id
+                            )
+                            .contentShape(.rect)
+                            .onTapGesture {
+                                withAnimation(.smooth(duration: 0.2)) {
+                                    if !vm.isEditing {
+                                        if vm.expandedRecording != recording.id {
+                                            vm.isPlaying = false
+                                            vm.expandedRecording = recording.id
                                         }
+                                    } else {
+                                        vm.toggleSelection(for: recording.id)
                                     }
-                                    vm.setupPlayback(for: recording)
                                 }
+                                vm.setupPlayback(for: recording)
+                            }
                         }
                         
                         Divider()
@@ -80,7 +88,7 @@ struct RecordingScreen: View {
         }
         .navigationTitle(navigationTitle!)
         .overlay(alignment: .bottom) {
-            if !vm.isEditing {
+            if !vm.isEditing && !hideRecordButton {
                 Button {
                     vm.toggleRecording()
                 } label: {
@@ -142,7 +150,10 @@ struct RecordingScreen: View {
                     Spacer()
                     
                     Button {
-                        let delete = recordings.filter { vm.selectedRecordings.contains($0.id) }
+                        let delete = recordings.filter {
+                            vm.selectedRecordings.contains($0.id)
+                        }
+                        
                         vm.deleteRecording(from: delete)
                         vm.isEditing = false
                     } label: {
@@ -165,7 +176,7 @@ struct RecordingScreen: View {
 
 #Preview {
     NavigationStack {
-        RecordingScreen(folderTitle: .favorites)
+        RecordingScreen(folderTitle: .all)
             .modelContainer(DIContainer.shared.makePreviewContainer())
     }
 }

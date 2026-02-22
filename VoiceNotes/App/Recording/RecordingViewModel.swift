@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 @Observable
 final class RecordingViewModel {
@@ -136,6 +135,10 @@ extension RecordingViewModel {
         duplicateFile(sourceURL: sourceFile, destinationURL: destinationFile)
         
         audioRepository.duplicateRecording(from: recording, newFile: copiedFileName)
+    }
+    
+    func favoriteRecording(recording: AudioModel) {
+        audioRepository.favoriteRecording(for: recording)
     }
 }
 
