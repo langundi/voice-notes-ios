@@ -108,7 +108,9 @@ struct RecordingScreen: View {
                         Image(systemName: "magnifyingglass")
                     }
                 }
+                
                 ToolbarSpacer(.fixed)
+                
                 ToolbarItem {
                     Button {
                         withAnimation(.snappy) {
@@ -169,6 +171,14 @@ struct RecordingScreen: View {
                 .presentationDetents([.fraction(1)])
                 .interactiveDismissDisabled(true)
                 .presentationBackgroundInteraction(.disabled)
+                .presentationDragIndicator(.hidden)
+        }
+        
+        .sheet(isPresented: $vm.showOptionsSheet,
+               onDismiss: vm.dismissOptionsSheet) {
+            OptionsSheet()
+                .presentationDetents([.large])
+                .presentationBackgroundInteraction(.automatic)
                 .presentationDragIndicator(.hidden)
         }
         .animation(.smooth(duration: 0.2), value: vm.isEditing)

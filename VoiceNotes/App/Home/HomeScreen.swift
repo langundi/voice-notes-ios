@@ -20,8 +20,8 @@ struct HomeScreen: View {
     
     @Query(animation: .snappy) var recordings: [AudioModel]
     @Query(animation: .snappy) var folders: [FolderModel]
-    @Query(filter: #Predicate<AudioModel> { state in
-        state.isFavorite
+    @Query(filter: #Predicate<AudioModel> {
+        $0.isFavorite
     }, animation: .snappy) var favorites: [AudioModel]
     
     
@@ -111,6 +111,7 @@ struct HomeScreen: View {
                 
                 if #available(iOS 26.0, *) {
                     ToolbarSpacer(.fixed)
+                    
                     ToolbarItem {
                         Button {
                             withAnimation(.snappy) {
@@ -131,6 +132,7 @@ struct HomeScreen: View {
                 } else {
                     ToolbarItemGroup(placement: .bottomBar) {
                         Spacer()
+                        
                         Button {
                             vm.isEditing.toggle()
                         } label: {

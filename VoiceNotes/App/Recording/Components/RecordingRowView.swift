@@ -61,9 +61,15 @@ struct RecordingRowView: View {
                             hideRecordButton = true
                         }
                         Button("Edit Recording", systemImage: "waveform") { }
+                        
                         Divider()
-                        Button("Options", systemImage: "slider.horizontal.3") { }
+                        
+                        Button("Options", systemImage: "slider.horizontal.3") {
+                            vm.showOptionsSheet = true
+                        }
+                        
                         Divider()
+                        
                         Button(recording.isFavorite ? "Unfavorite" : "Favorite",
                                systemImage: recording.isFavorite ? "heart.fill" : "heart") {
                             vm.favoriteRecording(recording: recording)

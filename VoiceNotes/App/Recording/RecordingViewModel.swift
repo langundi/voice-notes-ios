@@ -40,10 +40,8 @@ final class RecordingViewModel {
             }
         }
     }
+    var showOptionsSheet: Bool = false
     var selectedRecordings: Set<AudioModel.ID> = []
-    
-    // Sheet
-    var showSheet: Bool = false
     var expandedRecording: AudioModel.ID? = nil
     
     func resetUI() {
@@ -52,8 +50,11 @@ final class RecordingViewModel {
         isRecording = false
         isPlaying = false
         isEditing = false
-        showSheet = false
         currentTime = 0
+    }
+    
+    func dismissOptionsSheet() {
+        showOptionsSheet = false
     }
     
     func toggleSelection(for id: AudioModel.ID) {
@@ -171,7 +172,6 @@ extension RecordingViewModel {
             
             isRecording = true
             hasStartedRecording = true
-            showSheet = true
             
             startRecordingTimer()
         } catch {
@@ -194,7 +194,6 @@ extension RecordingViewModel {
     func stopRecording() {
         isRecording = false
         hasStartedRecording = false
-        showSheet = false
         
         stopTimer()
         audioManager.stopRecording()

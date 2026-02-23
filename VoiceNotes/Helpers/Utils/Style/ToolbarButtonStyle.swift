@@ -12,7 +12,7 @@ struct ToolBarButtonStyle: ButtonStyle {
         if #available(iOS 26.0, *) {
             configuration.label
                 .frame(minWidth: 48, minHeight: 48)
-                .foregroundStyle(.black)
+                .foregroundStyle(.primary)
                 .font(.title3)
                 .glassEffect(.regular.interactive(true))
         } else {

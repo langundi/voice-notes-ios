@@ -10,6 +10,7 @@ import SwiftUI
 struct RecordingSheet: View {
     
     @Environment(RecordingViewModel.self) private var vm
+    
     @ScaledMetric private var buttonWidth: CGFloat = 44
     
     var body: some View {
