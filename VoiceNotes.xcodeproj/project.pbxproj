@@ -90,10 +90,10 @@
 			isa = PBXGroup;
 			children = (
 				8122CE1C2F3F59050098A422 /* App */,
-				8122CE212F3F591C0098A422 /* Helpers */,
-				8122CE1E2F3F590C0098A422 /* Models */,
 				8156B17B2F40B2D1000447EF /* Repositories */,
 				81BD96712F419B77001135A2 /* Services */,
+				8122CE1E2F3F590C0098A422 /* Models */,
+				8122CE212F3F591C0098A422 /* Helpers */,
 				8122CE0B2F3F58C70098A422 /* Assets.xcassets */,
 			);
 			path = VoiceNotes;

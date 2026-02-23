@@ -31,9 +31,19 @@ func formatTimer(time: TimeInterval) -> String {
 
 
 /// Get URL path
-func getURL(for title: String) -> URL {
+func getURL(for fileName: String) -> URL {
     let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    let url = path.appending(path: title)
+    let url = path.appending(path: fileName)
+    return url
+}
+
+/// Get URL paths for multiple recordings
+func getURLs(for fileNames: [String]) -> [URL] {
+    var url: [URL] = []
+    for title in fileNames {
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        url.append(path.appending(path: title))
+    }
     return url
 }
 

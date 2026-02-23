@@ -16,7 +16,7 @@ struct StartRecordButtonStyle: ButtonStyle {
                 .fontWeight(.semibold)
                 .background {
                     Circle()
-                        .fill(.white)
+                        .fill(.clear)
                 }
                 .glassEffect(.regular.interactive(true))
         } else {

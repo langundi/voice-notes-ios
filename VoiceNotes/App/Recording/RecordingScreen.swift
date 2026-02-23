@@ -141,20 +141,22 @@ struct RecordingScreen: View {
             
             if vm.isEditing {
                 ToolbarItemGroup(placement: .bottomBar) {
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
+                    let items = recordings.filter {
+                        vm.selectedRecordings.contains($0.id)
+                    }
+                    
+                    let fileNames = items.map { audio in
+                        audio.fileName
+                    }
+  
+                    ShareLink(items: getURLs(for: fileNames)) {
+                        Label("Share", systemImage: "square.and.arrow.up")
                     }
                     
                     Spacer()
                     
-                    Button {
-                        let delete = recordings.filter {
-                            vm.selectedRecordings.contains($0.id)
-                        }
-                        
-                        vm.deleteRecording(from: delete)
+                    Button {                      
+                        vm.deleteRecording(from: items)
                         vm.isEditing = false
                     } label: {
                         Image(systemName: "trash")
