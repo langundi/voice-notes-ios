@@ -14,6 +14,7 @@ final class AudioModel {
     var fileName: String
     var duration: Double
     var createdAt: Date
+    var rate: Float = 1.0
     var isFavorite: Bool = false
     var isDeleted: Bool = false
     var deletedAt: Date? = nil

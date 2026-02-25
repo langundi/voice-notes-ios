@@ -58,9 +58,9 @@ struct RecordingScreen: View {
                     LazyVStack(alignment: .center, spacing: 0) {
                         ForEach(recordings) { recording in
                             RecordingRowView(
-                                hideRecordButton: $hideRecordButton,
                                 recording: recording,
-                                isExpanded: vm.expandedRecording == recording.id
+                                isExpanded: vm.expandedRecording == recording.id,
+                                hideRecordButton: $hideRecordButton
                             )
                             .contentShape(.rect)
                             .onTapGesture {
@@ -173,13 +173,13 @@ struct RecordingScreen: View {
                 .presentationBackgroundInteraction(.disabled)
                 .presentationDragIndicator(.hidden)
         }
-        
-        .sheet(isPresented: $vm.showOptionsSheet,
-               onDismiss: vm.dismissOptionsSheet) {
-            OptionsSheet()
-                .presentationDetents([.large])
-                .presentationBackgroundInteraction(.automatic)
-                .presentationDragIndicator(.hidden)
+        .sheet(isPresented: $vm.showOptionsSheet, onDismiss: vm.dismissOptionsSheet) {
+            if let recording = recordings.first(where: { $0.id == vm.expandedRecording }) {
+                OptionsSheet(recording: recording)
+                    .presentationDetents([.large])
+                    .presentationBackgroundInteraction(.automatic)
+                    .presentationDragIndicator(.hidden)
+            }
         }
         .animation(.smooth(duration: 0.2), value: vm.isEditing)
         .environment(vm)

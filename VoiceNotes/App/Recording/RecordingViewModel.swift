@@ -28,7 +28,7 @@ final class RecordingViewModel {
     var timer: Timer?
     var currentTime: TimeInterval = 0
     
-    // UI Attributes
+    // UI Properties
     var hasStartedRecording: Bool = false
     var hasStartedPlaying: Bool = false
     var isRecording: Bool = false
@@ -40,9 +40,15 @@ final class RecordingViewModel {
             }
         }
     }
-    var showOptionsSheet: Bool = false
     var selectedRecordings: Set<AudioModel.ID> = []
     var expandedRecording: AudioModel.ID? = nil
+    
+    // Options Sheet Properties
+    var showOptionsSheet: Bool = false
+    var rate: Float = 1
+    var skipSilenceOn: Bool = false
+    var enhanceRecordingOn: Bool = false
+    var defaultSettings: Bool = true
     
     func resetUI() {
         hasStartedRecording = false
@@ -125,6 +131,14 @@ extension RecordingViewModel {
     
     func renameTitle(for recording: AudioModel, newTitle: String) {
         audioRepository.updateTitle(for: recording, newTitle: newTitle)
+    }
+    
+    func updateRate(for recording: AudioModel, newRate: Float) {
+        audioRepository.updateRate(for: recording, newRate: newRate)
+    }
+    
+    func updateOptionsState(for recording: AudioModel) {
+        rate = recording.rate
     }
     
     func duplicateRecording(recording: AudioModel) {
@@ -222,9 +236,9 @@ extension RecordingViewModel {
         fileURL = url.appending(path: fileName)
         
         do {
-            try audioManager.setupPlayback(fileURL: fileURL!)
+            try audioManager.setupPlayback(fileURL: fileURL!, rate: recording.rate)
             
-            audioManager.onPlaybackFinished = { [weak self] flag in
+            audioManager.onPlaybackFinished = { [weak self] _ in
                 self?.hasStartedPlaying = false
                 self?.isPlaying = false
                 self?.currentTime = 0
@@ -305,5 +319,15 @@ extension RecordingViewModel {
         } catch {
             print("error seeking: \(error.localizedDescription)")
         }
+    }
+    
+    func changeRate(to rate: Float) {
+        audioManager.updateRate(to: rate)
+    }
+    
+    func resetPlaybackOptions(for recording: AudioModel) {
+        let rate: Float = 1.0
+        audioManager.updateRate(to: rate)
+        audioRepository.updateRate(for: recording, newRate: rate)
     }
 }

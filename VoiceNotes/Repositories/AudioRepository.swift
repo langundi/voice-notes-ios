@@ -91,6 +91,11 @@ final class AudioRepository {
         }
     }
     
+    func updateRate(for audio: AudioModel, newRate: Float) {
+        audio.rate = newRate
+        saveContext()
+    }
+    
     func favoriteRecording(for audio: AudioModel) {
         if audio.isFavorite {
             audio.isFavorite = false

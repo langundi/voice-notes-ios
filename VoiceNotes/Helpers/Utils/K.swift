@@ -9,7 +9,8 @@ import Foundation
 
 class K {
     
-    // AppStorage keys
+    // AppStorage/UserDefaults keys
     static let microphoneAccess = "microphoneAccess"
+    static let playbackRate = "playbackRate"
     
 }

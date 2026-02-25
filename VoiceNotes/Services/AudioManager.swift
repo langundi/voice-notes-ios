@@ -26,7 +26,7 @@ final class AudioManager: NSObject {
         recorder?.currentTime ?? 0
     }
     
-    let settings: [String : Any] = [
+    private let settings: [String : Any] = [
         AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
         AVSampleRateKey: 44100.0,
         AVNumberOfChannelsKey: 1,
@@ -45,10 +45,6 @@ final class AudioManager: NSObject {
         }
         
         return granted ? .granted : .denied
-    }
-    
-    private func microphonePermission() -> Bool {
-        return AVAudioApplication.shared.recordPermission == .granted
     }
     
     func checkMicrophonePermission() -> MicrophoneAccessEnum {
@@ -73,10 +69,12 @@ final class AudioManager: NSObject {
         try session.setActive(true)
     }
     
-    func getCurrentTime() -> TimeInterval {
-        return player!.currentTime
+    private func microphonePermission() -> Bool {
+        return AVAudioApplication.shared.recordPermission == .granted
     }
+    
 }
+
 
 // MARK: - Audio Recorder
 
@@ -115,19 +113,26 @@ extension AudioManager: AVAudioRecorderDelegate {
         recorder = nil
     }
     
+    func getCurrentTime() -> TimeInterval {
+        return player!.currentTime
+    }
+    
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         onRecordingFinished?(flag)
     }
 }
 
+
 // MARK: - Audio Player
 
 extension AudioManager: AVAudioPlayerDelegate {
     
-    func setupPlayback(fileURL: URL) throws {
+    func setupPlayback(fileURL: URL, rate: Float) throws {
         player = nil
         player = try AVAudioPlayer(contentsOf: fileURL)
         player?.delegate = self
+        player?.enableRate = true
+        player?.rate = rate
     }
     
     func startPlayback() throws {
@@ -157,6 +162,10 @@ extension AudioManager: AVAudioPlayerDelegate {
     func stopPlayback() {
         player?.stop()
         player = nil
+    }
+    
+    func updateRate(to newRate: Float) {
+        player?.rate = newRate
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {

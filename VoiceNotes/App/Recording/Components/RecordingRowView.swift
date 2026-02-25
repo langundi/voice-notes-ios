@@ -12,17 +12,19 @@ struct RecordingRowView: View {
     
     @Environment(RecordingViewModel.self) private var vm
     
+    // UI Properties
     @State private var isSelected: Bool = false
     @State private var textField: String = ""
     @State private var selection: TextSelection?
-    
-    @Binding var hideRecordButton: Bool
     @FocusState private var isFocused: Bool
-    
     @ScaledMetric private var buttonWidth: CGFloat = 44
     
+    // Passed Values
     let recording: AudioModel
     var isExpanded: Bool
+    @Binding var hideRecordButton: Bool
+    
+    // Computed Properties
     private var isVisuallyExpanded: Bool {
         isExpanded && !vm.isEditing
     }
@@ -224,14 +226,15 @@ struct RecordingRowView: View {
         }
         .transition(.move(edge: .top).combined(with: .blurReplace))
     }
+    
 }
 
 #Preview {
     let vm = DIContainer.shared.makeRecordingViewModel()
     
     ScrollView {
-        RecordingRowView(hideRecordButton: .constant(false), recording: AudioModel.sample, isExpanded: true)
-        RecordingRowView(hideRecordButton: .constant(false), recording: AudioModel.sample, isExpanded: false)
+        RecordingRowView(recording: AudioModel.sample, isExpanded: true, hideRecordButton: .constant(true))
+        RecordingRowView(recording: AudioModel.sample, isExpanded: false, hideRecordButton: .constant(true))
     }
     .modelContainer(DIContainer.shared.makePreviewContainer())
     .environment(vm)

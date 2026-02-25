@@ -9,18 +9,24 @@ import SwiftUI
 
 struct OptionsSheet: View {
     
-    @State private var speed: Double = 1.0
+    @Environment(RecordingViewModel.self) private var vm
+    
+    @State private var rate: Float = 1.0
     @State private var skipSilenceOn: Bool = false
     @State private var enhanceRecordingOn: Bool = false
     @State private var defaultSettings: Bool = true
     
+    let recording: AudioModel
+    
     var body: some View {
+        @Bindable var vm = vm
+        
         NavigationStack {
             VStack {
                 List {
                     Section("Playback Speed") {
                         Slider(
-                            value: $speed,
+                            value: $vm.rate,
                             in: 0.5...2.0,
                             step: 0.25
                         ) {
@@ -32,10 +38,10 @@ struct OptionsSheet: View {
                         }
                         .contentTransition(.symbolEffect)
                         
-                        Toggle("Skip Silence", isOn: $skipSilenceOn)
+                        Toggle("Skip Silence", isOn: $vm.skipSilenceOn)
                     }
                     
-                    Toggle("Enhance Recording", isOn: $enhanceRecordingOn)
+                    Toggle("Enhance Recording", isOn: $vm.enhanceRecordingOn)
                 }
                 .listSectionSpacing(16)
             }
@@ -48,17 +54,21 @@ struct OptionsSheet: View {
                             defaultSettings = true
                             enhanceRecordingOn = false
                             skipSilenceOn = false
-                            speed = 1.0
+                            rate = 1.0
+                            vm.resetPlaybackOptions(for: recording)
                         }
                     }
-                    .disabled(defaultSettings)
+                    .disabled(vm.defaultSettings)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("", systemImage: "checkmark") {
-                        
+                        vm.showOptionsSheet = false
                     }
                 }
+            }
+            .onAppear {
+                vm.updateOptionsState(for: recording)
             }
             .onChange(of: enhanceRecordingOn) { _, newValue in
                 defaultSettings = !newValue
@@ -66,13 +76,16 @@ struct OptionsSheet: View {
             .onChange(of: skipSilenceOn) { _, newValue in
                 defaultSettings = !newValue
             }
-            .onChange(of: speed) { _, newValue in
+            .onChange(of: vm.rate) { _, newValue in
                 defaultSettings = newValue == 1.0
+                vm.changeRate(to: newValue)
+                vm.updateRate(for: recording, newRate: newValue)
+                print("Playback rate: \(vm.rate)")
             }
         }
     }
 }
 
 #Preview {
-    OptionsSheet()
+    OptionsSheet(recording: AudioModel.sample)
 }
