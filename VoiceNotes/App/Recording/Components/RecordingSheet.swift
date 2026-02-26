@@ -45,7 +45,7 @@ struct RecordingSheet: View {
                 
                 HStack(spacing: 32) {
                     Button {
-                        // Rewind 15 seconds
+                        vm.rewind15Seconds()
                     } label: {
                         Image(systemName: "15.arrow.trianglehead.counterclockwise")
                     }
@@ -61,7 +61,7 @@ struct RecordingSheet: View {
                     }
                     
                     Button {
-                        // Fast forward 15 seconds
+                        vm.forward15Seconds()
                     } label: {
                         Image(systemName: "15.arrow.trianglehead.clockwise")
                     }

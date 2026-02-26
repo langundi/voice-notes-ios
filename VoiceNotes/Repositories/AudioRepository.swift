@@ -116,4 +116,17 @@ final class AudioRepository {
             return 0
         }
     }
+    
+    func getLatestRecording() -> [AudioModel] {
+        let sortByDate = [SortDescriptor(\AudioModel.createdAt, order: .reverse)]
+        var descriptor = FetchDescriptor<AudioModel>(sortBy: sortByDate)
+        descriptor.fetchLimit = 1
+        
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            print("error fetching latest: \(error.localizedDescription)")
+            return []
+        }
+    }
 }

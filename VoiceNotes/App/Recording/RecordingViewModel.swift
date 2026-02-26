@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 
 @Observable
 final class RecordingViewModel {
@@ -28,7 +29,7 @@ final class RecordingViewModel {
     var timer: Timer?
     var currentTime: TimeInterval = 0
     
-    // UI Properties
+    // Recording Screen Properties
     var hasStartedRecording: Bool = false
     var hasStartedPlaying: Bool = false
     var isRecording: Bool = false
@@ -184,8 +185,24 @@ extension RecordingViewModel {
         do {
             try audioManager.startRecording(fileURL: fileURL!)
             
-            isRecording = true
+            audioManager.onRecordingFinished = { [weak self] _ in
+                guard let self else { return }
+                
+                hasStartedRecording = false
+                isRecording = false
+                
+                // Set expanded row to most latest recording
+                expandedRecording = nil
+                if let newRecording = audioRepository.getLatestRecording().first {
+                    expandedRecording = newRecording.id
+                    
+                    // Setup playback
+                    setupPlayback(for: newRecording)
+                }
+            }
+            
             hasStartedRecording = true
+            isRecording = true
             
             startRecordingTimer()
         } catch {
@@ -213,6 +230,7 @@ extension RecordingViewModel {
         audioManager.stopRecording()
         saveRecording()
         
+        // Delay UI reset for when recording sheet closes
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.title = nil
             self.fileURL = nil
@@ -231,9 +249,7 @@ extension RecordingViewModel {
             stopAudio()
         }
         
-        let fileName = recording.fileName
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        fileURL = url.appending(path: fileName)
+        fileURL = getURL(for: recording.fileName)
         
         do {
             try audioManager.setupPlayback(fileURL: fileURL!, rate: recording.rate)
