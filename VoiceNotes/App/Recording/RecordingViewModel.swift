@@ -60,6 +60,15 @@ final class RecordingViewModel {
         currentTime = 0
     }
     
+    func dismissRecordingSheet() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.title = nil
+            self.fileURL = nil
+            self.currentTime = 0
+            self.createdAt = nil
+        }
+    }
+    
     func dismissOptionsSheet() {
         showOptionsSheet = false
     }
@@ -122,6 +131,16 @@ extension RecordingViewModel {
             fileName: fileURL!.lastPathComponent,
             duration: currentTime,
             createdAt: createdAt!
+        )
+    }
+    
+    func saveRecordingForFavorites() {
+        audioRepository.addRecording(
+            title: title!,
+            fileName: fileURL!.lastPathComponent,
+            duration: currentTime,
+            createdAt: createdAt!,
+            isFavorite: true
         )
     }
     
@@ -228,15 +247,6 @@ extension RecordingViewModel {
         
         stopTimer()
         audioManager.stopRecording()
-        saveRecording()
-        
-        // Delay UI reset for when recording sheet closes
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.title = nil
-            self.fileURL = nil
-            self.currentTime = 0
-            self.createdAt = nil
-        }
     }
 }
 
@@ -244,6 +254,7 @@ extension RecordingViewModel {
 
 extension RecordingViewModel {
     
+    // Setup playback when a row is expanded
     func setupPlayback(for recording: AudioModel) {
         if isPlaying {
             stopAudio()

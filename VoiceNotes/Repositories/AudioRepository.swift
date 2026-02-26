@@ -41,13 +41,14 @@ final class AudioRepository {
     
     // MARK: - Recording 
     
-    func addRecording(title: String, fileName: String, duration: Double, createdAt: Date) {
+    func addRecording(title: String, fileName: String, duration: Double, createdAt: Date, isFavorite: Bool = false) {
         let recording = AudioModel(
             title: title,
             fileName: fileName,
             duration: duration,
             createdAt: createdAt
         )
+        recording.isFavorite = isFavorite
         
         context.insert(recording)
         saveContext()

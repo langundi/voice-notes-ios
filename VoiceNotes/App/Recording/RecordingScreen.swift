@@ -167,7 +167,7 @@ struct RecordingScreen: View {
             }
         }
         .sheet(isPresented: $vm.hasStartedRecording) {
-            RecordingSheet()
+            RecordingSheet(folderTitle: navigationTitle!)
                 .presentationDetents([.fraction(1)])
                 .interactiveDismissDisabled(true)
                 .presentationBackgroundInteraction(.disabled)

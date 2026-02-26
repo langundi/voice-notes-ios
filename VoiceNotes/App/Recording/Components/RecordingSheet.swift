@@ -13,6 +13,8 @@ struct RecordingSheet: View {
     
     @ScaledMetric private var buttonWidth: CGFloat = 44
     
+    let folderTitle: String
+    
     var body: some View {
         @Bindable var vm = vm
         
@@ -99,6 +101,12 @@ struct RecordingSheet: View {
                     
                     Button {
                         vm.stopRecording()
+                        if folderTitle == "Favorites" {
+                            vm.saveRecordingForFavorites()
+                        } else {
+                            vm.saveRecording()
+                        }
+                        vm.dismissRecordingSheet()
                     } label: {
                         Group {
                             if #available(iOS 26, *) {
@@ -130,6 +138,6 @@ struct RecordingSheet: View {
 
 #Preview {
     let vm = DIContainer.shared.makeRecordingViewModel()
-    RecordingSheet()
+    RecordingSheet(folderTitle: "All Recordings")
         .environment(vm)
 }
