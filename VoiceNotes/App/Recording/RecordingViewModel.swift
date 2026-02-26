@@ -51,6 +51,9 @@ final class RecordingViewModel {
     var enhanceRecordingOn: Bool = false
     var defaultSettings: Bool = true
     
+    // Select Foldet Sheet Properties
+    var showSelectFolderSheet: Bool = false
+    
     func resetUI() {
         hasStartedRecording = false
         hasStartedPlaying = false
@@ -142,6 +145,19 @@ extension RecordingViewModel {
             createdAt: createdAt!,
             isFavorite: true
         )
+    }
+    
+    func saveRecordingToFolder(folderName: String, recording: AudioModel) {
+        audioRepository.addRecording(
+            title: title!,
+            fileName: fileURL!.lastPathComponent,
+            duration: currentTime,
+            createdAt: createdAt!
+        )
+        
+        if let folder = audioRepository.getFolderByName(title: folderName).first {
+            audioRepository.addRecordingToFolder(folder: folder, recording: recording)
+        }
     }
     
     func deleteRecording(from recordings: [AudioModel]) {

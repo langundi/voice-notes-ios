@@ -39,6 +39,19 @@ final class AudioRepository {
         saveContext()
     }
     
+    func getFolderByName(title: String) -> [FolderModel] {
+        let predicate = #Predicate<FolderModel> { $0.title == title }
+        var descriptor = FetchDescriptor(predicate: predicate)
+        descriptor.fetchLimit = 1
+        
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            print("error fetching folder: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
     // MARK: - Recording 
     
     func addRecording(title: String, fileName: String, duration: Double, createdAt: Date, isFavorite: Bool = false) {
@@ -49,8 +62,14 @@ final class AudioRepository {
             createdAt: createdAt
         )
         recording.isFavorite = isFavorite
-        
+
         context.insert(recording)
+        saveContext()
+    }
+    
+    func addRecordingToFolder(folder: FolderModel, recording: AudioModel) {
+        folder.Audios.append(recording)
+        
         saveContext()
     }
     

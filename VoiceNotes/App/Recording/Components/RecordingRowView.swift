@@ -83,7 +83,7 @@ struct RecordingRowView: View {
                         }
                         
                         Button("Move", systemImage: "folder") {
-                            
+                            vm.showSelectFolderSheet = true
                         }
                     } label: {
                         Image(systemName: "ellipsis")
