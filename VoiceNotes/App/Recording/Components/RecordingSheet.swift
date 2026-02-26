@@ -101,11 +101,15 @@ struct RecordingSheet: View {
                     
                     Button {
                         vm.stopRecording()
+                        
                         if folderTitle == "Favorites" {
                             vm.saveRecordingForFavorites()
-                        } else {
+                        } else if folderTitle == "All Recordings" {
                             vm.saveRecording()
+                        } else {
+                            vm.saveRecordingToFolder(folderTitle: folderTitle)
                         }
+                        
                         vm.dismissRecordingSheet()
                     } label: {
                         Group {

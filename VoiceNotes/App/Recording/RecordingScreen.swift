@@ -173,7 +173,7 @@ struct RecordingScreen: View {
                 .presentationBackgroundInteraction(.disabled)
                 .presentationDragIndicator(.hidden)
         }
-        .sheet(isPresented: $vm.showOptionsSheet, onDismiss: vm.dismissOptionsSheet) {
+        .sheet(isPresented: $vm.showOptionsSheet) {
             if let recording = recordings.first(where: { $0.id == vm.expandedRecording }) {
                 OptionsSheet(recording: recording)
                     .presentationDetents([.large])

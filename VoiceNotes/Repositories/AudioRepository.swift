@@ -28,17 +28,32 @@ final class AudioRepository {
     
     // MARK: - Folder
     
+    /// Creates a new folder
     func addNewFolder(title: String) {
         let newFolder = FolderModel(title: title)
         context.insert(newFolder)
         saveContext()
     }
     
+    /// Deletes an existing folder
     func deleteFolder(folder: FolderModel) {
         context.delete(folder)
         saveContext()
     }
     
+    /// Moves an existing recording to a folder
+    func moveRecordingToFolder(recording: AudioModel, folder: FolderModel) {
+        folder.Audios.append(recording)
+        saveContext()
+    }
+    
+    /// Removes an existing recording from a folder
+    func removeRecordingFromFolder(recording: AudioModel, folder: FolderModel) {
+        folder.Audios.removeAll { $0.id == recording.id }
+        saveContext()
+    }
+    
+    /// Returns a folder matching the name
     func getFolderByName(title: String) -> [FolderModel] {
         let predicate = #Predicate<FolderModel> { $0.title == title }
         var descriptor = FetchDescriptor(predicate: predicate)
@@ -54,6 +69,7 @@ final class AudioRepository {
     
     // MARK: - Recording 
     
+    /// Creates a new recording
     func addRecording(title: String, fileName: String, duration: Double, createdAt: Date, isFavorite: Bool = false) {
         let recording = AudioModel(
             title: title,
@@ -67,12 +83,20 @@ final class AudioRepository {
         saveContext()
     }
     
-    func addRecordingToFolder(folder: FolderModel, recording: AudioModel) {
-        folder.Audios.append(recording)
+    func addRecordingToFolder(title: String, fileName: String, duration: Double, createdAt: Date, folder: FolderModel) {
+        let recording = AudioModel(
+            title: title,
+            fileName: fileName,
+            duration: duration,
+            createdAt: createdAt
+        )
         
+        context.insert(recording)
+        moveRecordingToFolder(recording: recording, folder: folder)
         saveContext()
     }
     
+    /// Deletes existing recordings
     func deleteRecording(for recordings: [AudioModel]) {
         for recording in recordings {
             context.delete(recording)
@@ -80,11 +104,7 @@ final class AudioRepository {
         saveContext()
     }
     
-    func removeRecordingFromFolder(folder: FolderModel, recording: AudioModel) {
-        folder.Audios.removeAll { $0.id == recording.id }
-        saveContext()
-    }
-    
+    /// Duplicates existing recording, modifes the title and the file directory
     func duplicateRecording(from audio: AudioModel, newFile fileName: String) {
         let newTitle = "Copy of " + audio.title
         let newDate = Date.now
@@ -99,6 +119,7 @@ final class AudioRepository {
         saveContext()
     }
     
+    /// Updates a recording's title
     func updateTitle(for audio: AudioModel, newTitle: String) {
         guard audio.title != newTitle else { return }
         
@@ -116,11 +137,13 @@ final class AudioRepository {
         }
     }
     
+    /// Updates recording playback rate
     func updateRate(for audio: AudioModel, newRate: Float) {
         audio.rate = newRate
         saveContext()
     }
     
+    /// Favorites a recording
     func favoriteRecording(for audio: AudioModel) {
         if audio.isFavorite {
             audio.isFavorite = false
@@ -130,6 +153,7 @@ final class AudioRepository {
         saveContext()
     }
     
+    /// Returns the amount of all recordings
     func getAudioCount() -> Int {
         let sortByDate = [SortDescriptor(\AudioModel.createdAt, order: .reverse)]
         let descriptor = FetchDescriptor<AudioModel>(sortBy: sortByDate)
@@ -142,6 +166,7 @@ final class AudioRepository {
         }
     }
     
+    /// Returns the latest recording based on date
     func getLatestRecording() -> [AudioModel] {
         let sortByDate = [SortDescriptor(\AudioModel.createdAt, order: .reverse)]
         var descriptor = FetchDescriptor<AudioModel>(sortBy: sortByDate)

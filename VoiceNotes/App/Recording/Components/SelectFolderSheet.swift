@@ -37,7 +37,11 @@ struct SelectFolderSheet: View {
                             }
                             vm.showSelectFolderSheet = false
                         } label: {
-                            ListRow(symbol: "waveform", title: "All Recordings", count: recordings.count)
+                            ListRow(
+                                symbol: "waveform",
+                                title: "All Recordings",
+                                count: recordings.count
+                            )
                         }
                         .disabled(recording.Folder == nil)
                         
@@ -45,7 +49,11 @@ struct SelectFolderSheet: View {
                             Button {
                                 
                             } label: {
-                                ListRow(symbol: "heart", title: "Favorites", count: favorites.count)
+                                ListRow(
+                                    symbol: "heart",
+                                    title: "Favorites",
+                                    count: favorites.count
+                                )
                             }
                         }
                         
@@ -53,7 +61,11 @@ struct SelectFolderSheet: View {
                             Button {
                                 
                             } label: {
-                                ListRow(symbol: "trash", title: "Recently Deleted", count: deleted.count)
+                                ListRow(
+                                    symbol: "trash",
+                                    title: "Recently Deleted",
+                                    count: deleted.count
+                                )
                             }
                         }
                     }
@@ -63,10 +75,14 @@ struct SelectFolderSheet: View {
                         Section("My Folders") {
                             ForEach(folders) { folder in
                                 Button {
-                                    vm.addRecordingToFolder(folder: folder, recording: recording)
+                                    vm.moveRecordingToFolder(folder: folder, recording: recording)
                                     vm.showSelectFolderSheet = false
                                 } label: {
-                                    ListRow(symbol: "folder", title: folder.title, count: folder.Audios.count)
+                                    ListRow(
+                                        symbol: "folder",
+                                        title: folder.title,
+                                        count: folder.Audios.count
+                                    )
                                 }
                                 .foregroundStyle(.primary)
                                 .disabled(recording.Folder == folder)

@@ -72,9 +72,9 @@ final class RecordingViewModel {
         }
     }
     
-    func dismissOptionsSheet() {
-        showOptionsSheet = false
-    }
+//    func dismissOptionsSheet() {
+//        showOptionsSheet = false
+//    }
     
     func toggleSelection(for id: AudioModel.ID) {
         if selectedRecordings.contains(id) {
@@ -125,9 +125,12 @@ final class RecordingViewModel {
     
 }
 
+
 // MARK: - Data
 
 extension RecordingViewModel {
+    
+    // SAVING RECORDINGS
     func saveRecording() {
         audioRepository.addRecording(
             title: title!,
@@ -147,19 +150,37 @@ extension RecordingViewModel {
         )
     }
     
-    func addRecordingToFolder(folder: FolderModel, recording: AudioModel) {
-        audioRepository.addRecordingToFolder(folder: folder, recording: recording)
+    func saveRecordingToFolder(folderTitle: String) {
+        let folder = audioRepository.getFolderByName(title: folderTitle).first
+        
+        audioRepository.addRecordingToFolder(
+            title: title!,
+            fileName: fileURL!.lastPathComponent,
+            duration: currentTime,
+            createdAt: createdAt!,
+            folder: folder!
+        )
+    }
+    
+    
+    // MOVING RECORDINGS FROM FOLDERS
+    func moveRecordingToFolder(folder: FolderModel, recording: AudioModel) {
+        audioRepository.moveRecordingToFolder(recording: recording, folder: folder)
     }
     
     func removeRecordingFromFolder(folder: FolderModel, recording: AudioModel) {
-        audioRepository.removeRecordingFromFolder(folder: folder, recording: recording)
+        audioRepository.removeRecordingFromFolder(recording: recording, folder: folder)
     }
     
+    
+    // DELETE RECORDING
     func deleteRecording(from recordings: [AudioModel]) {
         audioRepository.deleteRecording(for: recordings)
         expandedRecording =  nil
     }
     
+    
+    // UPDATE RECORDINGS ATTRIBUTE
     func renameTitle(for recording: AudioModel, newTitle: String) {
         audioRepository.updateTitle(for: recording, newTitle: newTitle)
     }
@@ -172,6 +193,12 @@ extension RecordingViewModel {
         rate = recording.rate
     }
     
+    func favoriteRecording(recording: AudioModel) {
+        audioRepository.favoriteRecording(for: recording)
+    }
+    
+    
+    // DUPLICATE RECORDING
     func duplicateRecording(recording: AudioModel) {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let sourceFile = path.appending(path: recording.fileName)
@@ -182,11 +209,8 @@ extension RecordingViewModel {
         
         audioRepository.duplicateRecording(from: recording, newFile: copiedFileName)
     }
-    
-    func favoriteRecording(recording: AudioModel) {
-        audioRepository.favoriteRecording(for: recording)
-    }
 }
+
 
 // MARK: - Recording
 
@@ -260,6 +284,7 @@ extension RecordingViewModel {
         audioManager.stopRecording()
     }
 }
+
 
 // MARK: - Playback
 
