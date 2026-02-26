@@ -105,13 +105,13 @@ final class AudioRepository {
     }
     
     /// Duplicates existing recording, modifes the title and the file directory
-    func duplicateRecording(from audio: AudioModel, newFile fileName: String) {
-        let newTitle = "Copy of " + audio.title
+    func duplicateRecording(from recording: AudioModel, newFile fileName: String) {
+        let newTitle = "Copy of " + recording.title
         let newDate = Date.now
         let recording = AudioModel(
             title: newTitle,
             fileName: fileName,
-            duration: audio.duration,
+            duration: recording.duration,
             createdAt: newDate
         )
         
@@ -120,16 +120,16 @@ final class AudioRepository {
     }
     
     /// Updates a recording's title
-    func updateTitle(for audio: AudioModel, newTitle: String) {
-        guard audio.title != newTitle else { return }
+    func updateTitle(for recording: AudioModel, newTitle: String) {
+        guard recording.title != newTitle else { return }
         
-        let oldURL = getURL(for: audio.fileName)
+        let oldURL = getURL(for: recording.fileName)
         let newURL = makeUniqueURL(for: newTitle)
         
         do {
             try FileManager.default.moveItem(at: oldURL, to: newURL)
-            audio.title = newTitle
-            audio.fileName = newURL.lastPathComponent
+            recording.title = newTitle
+            recording.fileName = newURL.lastPathComponent
             
             saveContext()
         } catch {
@@ -138,17 +138,17 @@ final class AudioRepository {
     }
     
     /// Updates recording playback rate
-    func updateRate(for audio: AudioModel, newRate: Float) {
-        audio.rate = newRate
+    func updateRate(for recording: AudioModel, newRate: Float) {
+        recording.rate = newRate
         saveContext()
     }
     
     /// Favorites a recording
-    func favoriteRecording(for audio: AudioModel) {
-        if audio.isFavorite {
-            audio.isFavorite = false
+    func favoriteRecording(for recording: AudioModel) {
+        if recording.isFavorite {
+            recording.isFavorite = false
         } else {
-            audio.isFavorite = true
+            recording.isFavorite = true
         }
         saveContext()
     }
