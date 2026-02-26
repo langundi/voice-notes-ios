@@ -80,6 +80,11 @@ final class AudioRepository {
         saveContext()
     }
     
+    func removeRecordingFromFolder(folder: FolderModel, recording: AudioModel) {
+        folder.Audios.removeAll { $0.id == recording.id }
+        saveContext()
+    }
+    
     func duplicateRecording(from audio: AudioModel, newFile fileName: String) {
         let newTitle = "Copy of " + audio.title
         let newDate = Date.now

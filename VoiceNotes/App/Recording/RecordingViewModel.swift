@@ -147,17 +147,12 @@ extension RecordingViewModel {
         )
     }
     
-    func saveRecordingToFolder(folderName: String, recording: AudioModel) {
-        audioRepository.addRecording(
-            title: title!,
-            fileName: fileURL!.lastPathComponent,
-            duration: currentTime,
-            createdAt: createdAt!
-        )
-        
-        if let folder = audioRepository.getFolderByName(title: folderName).first {
-            audioRepository.addRecordingToFolder(folder: folder, recording: recording)
-        }
+    func addRecordingToFolder(folder: FolderModel, recording: AudioModel) {
+        audioRepository.addRecordingToFolder(folder: folder, recording: recording)
+    }
+    
+    func removeRecordingFromFolder(folder: FolderModel, recording: AudioModel) {
+        audioRepository.removeRecordingFromFolder(folder: folder, recording: recording)
     }
     
     func deleteRecording(from recordings: [AudioModel]) {

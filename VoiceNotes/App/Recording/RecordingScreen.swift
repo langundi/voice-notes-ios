@@ -182,10 +182,12 @@ struct RecordingScreen: View {
             }
         }
         .sheet(isPresented: $vm.showSelectFolderSheet) {
-            SelectFolderSheet()
-                .presentationDetents([.large])
-                .presentationBackgroundInteraction(.disabled)
-                .presentationDragIndicator(.hidden)
+            if let recording = recordings.first(where: { $0.id == vm.expandedRecording }) {
+                SelectFolderSheet(recording: recording)
+                    .presentationDetents([.large])
+                    .presentationBackgroundInteraction(.disabled)
+                    .presentationDragIndicator(.hidden)
+            }
         }
         .animation(.smooth(duration: 0.2), value: vm.isEditing)
         .environment(vm)

@@ -10,8 +10,11 @@ import SwiftData
 
 struct SelectFolderSheet: View {
     
+    let recording: AudioModel
+    
     @Environment(RecordingViewModel.self) private var vm
     
+    @Query(animation: .snappy) var folders: [FolderModel]
     @Query(animation: .snappy) var recordings: [AudioModel]
     @Query(filter: #Predicate<AudioModel> {
         $0.isFavorite
@@ -19,7 +22,7 @@ struct SelectFolderSheet: View {
     @Query(filter: #Predicate<AudioModel> {
         $0.isDeleted
     }, animation: .snappy) var deleted: [AudioModel]
-    @Query(animation: .snappy) var folders: [FolderModel]
+    
     
     var body: some View {
         @Bindable var vm = vm
@@ -29,10 +32,14 @@ struct SelectFolderSheet: View {
                 List {
                     Group {
                         Button {
-                            print("test")
+                            if recording.Folder != nil {
+                                vm.removeRecordingFromFolder(folder: recording.Folder!, recording: recording)
+                            }
+                            vm.showSelectFolderSheet = false
                         } label: {
                             ListRow(symbol: "waveform", title: "All Recordings", count: recordings.count)
                         }
+                        .disabled(recording.Folder == nil)
                         
                         if !favorites.isEmpty {
                             Button {
@@ -56,11 +63,13 @@ struct SelectFolderSheet: View {
                         Section("My Folders") {
                             ForEach(folders) { folder in
                                 Button {
-                                    
+                                    vm.addRecordingToFolder(folder: folder, recording: recording)
+                                    vm.showSelectFolderSheet = false
                                 } label: {
                                     ListRow(symbol: "folder", title: folder.title, count: folder.Audios.count)
                                 }
                                 .foregroundStyle(.primary)
+                                .disabled(recording.Folder == folder)
                             }
                         }
                     }
@@ -107,7 +116,7 @@ struct SelectFolderSheet: View {
 
 #Preview {
     let vm = DIContainer.shared.makeRecordingViewModel()
-    SelectFolderSheet()
+    SelectFolderSheet(recording: AudioModel.sample)
         .modelContainer(DIContainer.shared.makePreviewContainer())
         .environment(vm)
 }
