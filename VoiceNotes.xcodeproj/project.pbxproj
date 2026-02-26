@@ -132,23 +132,15 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		8122CE202F3F59150098A422 /* Utils */ = {
+		8122CE212F3F591C0098A422 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
 				8122CE1F2F3F59100098A422 /* Extensions */,
 				81ED5BFD2F42151E00357F54 /* Error */,
 				81ED5BF62F41F54200357F54 /* Style */,
-				815329C52F42F26600CAB519 /* K.swift */,
-				815329C72F433D5000CAB519 /* Utils.swift */,
-			);
-			path = Utils;
-			sourceTree = "<group>";
-		};
-		8122CE212F3F591C0098A422 /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
 				8122CE242F3F59570098A422 /* DI */,
-				8122CE202F3F59150098A422 /* Utils */,
+				815329C72F433D5000CAB519 /* Utils.swift */,
+				815329C52F42F26600CAB519 /* K.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";

@@ -45,6 +45,7 @@ struct SelectFolderSheet: View {
                         }
                         .disabled(recording.Folder == nil)
                         
+                        //TODO: favorite the recording
                         if !favorites.isEmpty {
                             Button {
                                 
