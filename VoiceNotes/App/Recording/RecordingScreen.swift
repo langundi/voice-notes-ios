@@ -18,16 +18,20 @@ struct RecordingScreen: View {
     @Environment(\.editMode) private var editMode
     
     @State private var vm = DIContainer.shared.makeRecordingViewModel()
-    @State private var hideRecordButton = false
-    
+
     @State private var panGesture: UIPanGestureRecognizer?
     @State private var properties: SelectionProperties = .init()
     @State private var scrollProperties: ScrollProperties = .init()
     
+    // Passed Parameters
     var navigationTitle: String?
     
+    // Computed Properties
     private var selectedRecordings: [AudioModel] {
-        recordings.filter { vm.selectedRecordings.contains($0.id) }
+        let indices = properties.selectedIndices
+        return vm.rowItems.enumerated()
+            .filter { indices.contains($0.offset) }
+            .map { $0.element.recording }
     }
     
     private var shareURLs: [URL] {
@@ -73,32 +77,40 @@ struct RecordingScreen: View {
                             if let index = vm.rowItems.firstIndex(where: { $0.id == recording.id }) {
                                 RecordingRowView(
                                     rowItem: $vm.rowItems[index],
-                                    recording: recording,
+                                    index: index,
                                     isExpanded: vm.expandedRecording == recording.id,
-                                    properties: $properties,
-                                    hideRecordButton: $hideRecordButton
+                                    properties: $properties
                                 )
                                 .contentShape(.rect)
                                 .onTapGesture {
-                                    withAnimation(.smooth(duration: 0.2)) {
-                                        if !vm.isEditing {
+                                    if !vm.isEditing {
+                                        withAnimation(.smooth(duration: 0.2)) {
                                             if vm.expandedRecording != recording.id {
                                                 vm.isPlaying = false
                                                 vm.expandedRecording = recording.id
                                             }
-                                        } else {
-                                            vm.toggleSelection(for: recording.id)
-                                            
-                                            if properties.selectedIndices.contains(index) {
-                                                properties.selectedIndices.removeAll { $0 == index }
-                                            } else {
-                                                properties.selectedIndices.append(index)
-                                            }
-                                            
-                                            properties.previousIndices = properties.selectedIndices
                                         }
+                                        
+                                        vm.setupPlayback(for: recording)
                                     }
-                                    vm.setupPlayback(for: recording)
+                                }
+                                .overlay(alignment: .center) {
+                                    if vm.isEditing {
+                                        Rectangle()
+                                            .foregroundStyle(.green.opacity(0.5))
+                                            .contentShape(.rect)
+                                            .onTapGesture {
+                                                withAnimation(.smooth(duration: 0.2)) {
+                                                    if properties.selectedIndices.contains(index) {
+                                                        properties.selectedIndices.removeAll { $0 == index }
+                                                    } else {
+                                                        properties.selectedIndices.append(index)
+                                                    }
+                                                    
+                                                    properties.previousIndices = properties.selectedIndices
+                                                }
+                                            }
+                                    }
                                 }
                             }
                         }
@@ -108,17 +120,17 @@ struct RecordingScreen: View {
                             .padding(.top, 8)
                     }
                     .padding(.bottom, vm.isEditing ? 0 : size.height * 0.15)
-                    
                 }
             }
             .scrollTargetLayout()
-            .onChange(of: vm.isEditing) { oldValue, newValue in
-                panGesture?.isEnabled = newValue
-            }
             .onScrollGeometryChange(for: CGFloat.self, of: { $0.contentOffset.y + $0.contentInsets.top }) { oldValue, newValue in
                 scrollProperties.currentScrollOffset = newValue
             }
+            .onChange(of: vm.isEditing) { oldValue, newValue in
+                panGesture?.isEnabled = newValue
+            }
             .onChange(of: scrollProperties.direction) { oldValue, newValue in
+                // Scroll while dragging
                 if newValue != .none {
                     guard scrollProperties.timer == nil else { return }
                     scrollProperties.manualScrollOffset = scrollProperties.currentScrollOffset
@@ -141,12 +153,13 @@ struct RecordingScreen: View {
                 }
             }
             .overlay(alignment: .leading) {
+                // Area to drag select items
                 GeometryReader { geo in
                     if vm.isEditing {
                         Rectangle()
-                            .foregroundStyle(.clear)
+                            .foregroundStyle(.red.opacity(0.5))
                             .contentShape(.rect)
-                            .frame(width: geo.size.width / 5)
+                            .frame(width: geo.size.width / 6)
                             .gesture(
                                 PanGesture { gesture in
                                     if panGesture == nil {
@@ -165,10 +178,12 @@ struct RecordingScreen: View {
                     }
                 }
             }
-            
         }
         .scrollPosition($scrollProperties.position)
-        .onAppear {
+        .onChange(of: recordings) {
+            vm.syncItems(recordings: recordings)
+        }
+        .task {
             vm.syncItems(recordings: recordings)
         }
         .overlay(alignment: .top) {
@@ -177,14 +192,8 @@ struct RecordingScreen: View {
         .overlay(alignment: .bottom) {
             ScrollDetectionRegion(false)
         }
-        .onChange(of: recordings) {
-            vm.syncItems(recordings: recordings)
-            print("this")
-            print(vm.rowItems.count)
-        }
-        .navigationTitle(navigationTitle!)
         .overlay(alignment: .bottom) {
-            if !vm.isEditing && !hideRecordButton {
+            if !vm.isEditing && !vm.hideRecordButton {
                 Button {
                     vm.toggleRecording()
                 } label: {
@@ -195,6 +204,7 @@ struct RecordingScreen: View {
                 .transition(.move(edge: .bottom).combined(with: .blurReplace))
             }
         }
+        .navigationTitle(navigationTitle!)
         .toolbar {
             if #available(iOS 26.0, *) {
                 ToolbarItem {
@@ -209,21 +219,15 @@ struct RecordingScreen: View {
                 
                 ToolbarItem {
                     Button {
-                        withAnimation(.snappy) {
+                        withAnimation(.smooth(duration: 0.2)) {
                             vm.isEditing.toggle()
                             if !vm.isEditing {
                                 properties = .init()
                             }
                         }
                     } label: {
-                        Group {
-                            if vm.isEditing {
-                                Text("Cancel")
-                            } else {
-                                Text("Select")
-                            }
-                        }
-                        .fontWeight(.medium)
+                        Text(vm.isEditing ? "Cancel" : "Select")
+                            .fontWeight(.medium)
                     }
                 }
             } else {
@@ -238,7 +242,6 @@ struct RecordingScreen: View {
                         Text(vm.isEditing ? "Cancel" : "Edit")
                             .fontWeight(vm.isEditing ? .medium : .regular)
                             .contentTransition(.symbolEffect(.replace))
-                            .animation(.smooth(duration: 0.1), value: vm.isEditing)
                     }
                     .disabled(recordings.isEmpty)
                 }
@@ -249,15 +252,20 @@ struct RecordingScreen: View {
                     ShareLink(items: shareURLs) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
+                    .disabled(properties.selectedIndices.isEmpty)
                     
                     Spacer()
                     
-                    Button {                      
+                    Button {
                         vm.deleteRecording(from: selectedRecordings)
+                        
+                        properties = .init()
+                        
                         vm.isEditing = false
                     } label: {
                         Image(systemName: "trash")
                     }
+                    .disabled(properties.selectedIndices.isEmpty)
                 }
             }
         }
@@ -289,7 +297,7 @@ struct RecordingScreen: View {
     }
     
     @ViewBuilder
-    func ScrollDetectionRegion(_ isTop: Bool = true) -> some View {
+    private func ScrollDetectionRegion(_ isTop: Bool = true) -> some View {
         Rectangle()
             .foregroundStyle(.clear)
             .frame(height: 100)
@@ -303,8 +311,6 @@ struct RecordingScreen: View {
                     scrollProperties.bottomRegion = newValue
                 }
             }
-
-        
     }
     
     private func onGestureChange(_ gesture: UIPanGestureRecognizer) {

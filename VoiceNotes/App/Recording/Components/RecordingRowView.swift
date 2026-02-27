@@ -13,7 +13,7 @@ struct RecordingRowView: View {
     @Environment(RecordingViewModel.self) private var vm
     
     // UI Properties
-    @State private var isSelected: Bool = false
+    @State private var isSelected2: Bool = false
     @State private var textField: String = ""
     @State private var selection: TextSelection?
     @FocusState private var isFocused: Bool
@@ -21,66 +21,35 @@ struct RecordingRowView: View {
     
     // Passed Values
     @Binding var rowItem: RowModel
-    let recording: AudioModel
+    var index: Int
     var isExpanded: Bool
     @Binding var properties: SelectionProperties
-    @Binding var hideRecordButton: Bool
     
     // Computed Properties
     private var isVisuallyExpanded: Bool {
         isExpanded && !vm.isEditing
     }
     
+    private var isSelected: Bool {
+        properties.selectedIndices.contains(index) && !properties.toBeDeletedIndices.contains(index)
+    }
+    
+    private var isFavorite: Bool {
+        rowItem.recording.isFavorite
+    }
+    
     var body: some View {
         @Bindable var vm = vm
-        
-        if let index = vm.rowItems.firstIndex(where: { $0.id == recording.id }) {
             VStack(spacing: 6) {
                 Divider()
                 
                 HStack(alignment: .center, spacing: 8) {
                     if vm.isEditing {
-                        Button {
-                            vm.toggleSelection(for: recording.id)
-                            //                        vm.toggleRowSelection(for: recording.id)
-                        } label: {
-                            HStack {
-                                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                                    .font(.title2)
-                                    .foregroundStyle(isSelected ? .blue : Color.secondary)
-                                    .contentTransition(.symbolEffect(.replace))
-                            }
-                            
-                            HStack {
-                                let isSelected = properties.selectedIndices.contains(index) && !properties.toBeDeletedIndices.contains(index)
-                                
-                                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                                    .font(.title2)
-                                    .foregroundStyle(isSelected ? .blue : Color.secondary)
-                                    .contentTransition(.symbolEffect(.replace))
-                            }
-                            
-                        }
-                        .overlay(alignment: .center) {
-                            if vm.isEditing {
-                                Rectangle()
-                                    .padding()
-                                    .foregroundStyle(.green)
-                                    .opacity(0.5)
-                                    .contentShape(.rect)
-                                    .onTapGesture {
-                                        if properties.selectedIndices.contains(index) {
-                                            properties.selectedIndices.removeAll { $0 == index }
-                                        } else {
-                                            properties.selectedIndices.append(index)
-                                        }
-                                        
-                                        properties.previousIndices = properties.selectedIndices
-                                    }
-                            }
-                        }
-                        .transition(.move(edge: .leading).combined(with: .opacity))
-                        .animation(.snappy(duration: 0.2), value: isSelected)
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                            .font(.title2)
+                            .foregroundStyle(isSelected ? .blue : Color.secondary)
+                            .contentTransition(.symbolEffect(.replace))
+                            .transition(.move(edge: .leading).combined(with: .opacity))
                     }
                     
                     titleAndDateView()
@@ -89,14 +58,17 @@ struct RecordingRowView: View {
                     
                     if isVisuallyExpanded {
                         Menu {
-                            ShareLink(item: getURL(for: recording.fileName)) {
+                            ShareLink(item: getURL(for: rowItem.recording.fileName)) {
                                 Label("Share", systemImage: "square.and.arrow.up")
                             }
+                            
                             Divider()
+                            
                             Button("Rename", systemImage: "pencil") {
                                 isFocused = true
-                                hideRecordButton = true
+                                vm.hideRecordButton = true
                             }
+                            
                             Button("Edit Recording", systemImage: "waveform") { }
                             
                             Divider()
@@ -107,14 +79,13 @@ struct RecordingRowView: View {
                             
                             Divider()
                             
-                            Button(recording.isFavorite ? "Unfavorite" : "Favorite",
-                                   systemImage: recording.isFavorite ? "heart.fill" : "heart") {
-                                vm.favoriteRecording(recording: recording)
+                            Button(isFavorite ? "Unfavorite" : "Favorite", systemImage: isFavorite ? "heart.fill" : "heart") {
+                                vm.favoriteRecording(recording: rowItem.recording)
                             }
-                                   .contentTransition(.symbolEffect)
+                            .contentTransition(.symbolEffect)
                             
                             Button("Duplicate", systemImage: "plus.square.on.square") {
-                                vm.duplicateRecording(recording: recording)
+                                vm.duplicateRecording(recording: rowItem.recording)
                             }
                             
                             Button("Move", systemImage: "folder") {
@@ -127,7 +98,7 @@ struct RecordingRowView: View {
                                 .padding(.leading)
                         }
                     } else {
-                        Text(formatTime(time: recording.duration))
+                        Text(formatTime(time: rowItem.recording.duration))
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                             .vSpacing(.bottom)
@@ -141,24 +112,17 @@ struct RecordingRowView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 6)
-            .animation(.snappy(duration: 0.3), value: isVisuallyExpanded)
+            .animation(.snappy(duration: 0.2), value: isVisuallyExpanded)
+            .animation(.smooth(duration: 0.2), value: vm.isPlaying)
+            .animation(.snappy(duration: 0.2), value: isSelected)
             .onGeometryChange(for: CGRect.self) {
                 $0.frame(in: .global)
             } action: { newValue in
                 rowItem.location = newValue
             }
-            .onChange(of: vm.selectedRecordings) { oldValue, newValue in
-                let currentlyInSet = newValue.contains(recording.id)
-                if isSelected != currentlyInSet {
-                    isSelected = currentlyInSet
-                }
+            .task {
+                textField = rowItem.recording.title
             }
-            .onAppear {
-                isSelected = vm.selectedRecordings.contains(recording.id)
-                //            isSelected = vm.selectedRow.contains(recording.id)
-                textField = recording.title
-            }
-        }
     }
     
     @ViewBuilder
@@ -169,25 +133,26 @@ struct RecordingRowView: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .focused($isFocused)
-                .disabled(!isExpanded)
-                .disabled(vm.isEditing)
+                .disabled(!isExpanded || vm.isEditing)
                 .onChange(of: isFocused) { oldValue, newValue in
                     if isFocused {
                         selection = .init(range: textField.startIndex..<textField.endIndex)
+                        vm.hideRecordButton = true
                     }
                 }
                 .onSubmit {
+                    // Reset name when text field left empty
                     if textField.isEmpty {
-                        textField = recording.title
+                        textField = rowItem.recording.title
                     } else {
-                        vm.renameTitle(for: recording, newTitle: textField)
+                        vm.renameTitle(for: rowItem.recording, newTitle: textField)
                     }
                     vm.isEditing = false
-                    hideRecordButton = false
+                    vm.hideRecordButton = false
                 }
             
             HStack(alignment: .center) {
-                Text(formatDate(date: recording.createdAt, format: "HH.mm"))
+                Text(formatDate(date: rowItem.recording.createdAt, format: "HH.mm"))
                     .font(.footnote)
                     .fontWeight(.medium)
                 
@@ -207,8 +172,10 @@ struct RecordingRowView: View {
             
             HStack {
                 Text(formatTime(time: vm.currentTime))
+                
                 Spacer()
-                Text(formatTime(time: recording.duration))
+                
+                Text(formatTime(time: rowItem.recording.duration))
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -238,7 +205,6 @@ struct RecordingRowView: View {
                         Image(systemName: vm.isPlaying ? "pause.fill" : "play.fill")
                             .font(.largeTitle)
                             .contentTransition(.symbolEffect(.replace))
-                            .animation(.smooth, value: vm.isPlaying)
                             .frame(width: buttonWidth)
                     }
                     
@@ -254,7 +220,7 @@ struct RecordingRowView: View {
                 
                 Button {
                     withAnimation(.snappy(duration: 0.2)) {
-                        vm.deleteRecording(from: [recording])
+                        vm.deleteRecording(from: [rowItem.recording])
                     }
                 } label: {
                     Image(systemName: "trash")
@@ -270,7 +236,6 @@ struct RecordingRowView: View {
         }
         .transition(.move(edge: .top).combined(with: .blurReplace))
     }
-    
 }
 
 #Preview {
@@ -279,8 +244,8 @@ struct RecordingRowView: View {
     let vm = DIContainer.shared.makeRecordingViewModel()
     
     ScrollView {
-        RecordingRowView(rowItem: $item, recording: AudioModel.sample, isExpanded: true, properties: $properties, hideRecordButton: .constant(true))
-        RecordingRowView(rowItem: $item, recording: AudioModel.sample, isExpanded: false, properties: $properties, hideRecordButton: .constant(true))
+        RecordingRowView(rowItem: $item, index: 0, isExpanded: true, properties: $properties)
+        RecordingRowView(rowItem: $item, index: 1, isExpanded: false, properties: $properties)
     }
     .modelContainer(DIContainer.shared.makePreviewContainer())
     .environment(vm)

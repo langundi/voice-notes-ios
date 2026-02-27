@@ -171,7 +171,6 @@ struct HomeScreen: View {
                 Text("Enter a name for this folder.")
             }
             .alert("Microphone Access Needed", isPresented: $vm.showMicrophoneAlert) {
-                
                 Button("Cancel", role: .cancel) {
                     vm.showMicrophoneAlert = false
                 }

@@ -34,16 +34,8 @@ final class RecordingViewModel {
     var hasStartedPlaying: Bool = false
     var isRecording: Bool = false
     var isPlaying: Bool = false
-    var isEditing: Bool = false {
-        didSet {
-            if !isEditing {
-                selectedRecordings.removeAll()
-//                selectedRow.removeAll()
-            }
-        }
-    }
-    var selectedRecordings: Set<AudioModel.ID> = []
-    var selectedRow: [RowModel] = []
+    var isEditing: Bool = false
+    var hideRecordButton = false
     var rowItems: [RowModel] = []
     var expandedRecording: AudioModel.ID? = nil
     
@@ -66,6 +58,7 @@ final class RecordingViewModel {
         currentTime = 0
     }
     
+    // Inserts SwiftData Query into rowItems
     func syncItems(recordings: [AudioModel]) {
         let existingIDs = Set(rowItems.map(\.id))
         
@@ -77,38 +70,20 @@ final class RecordingViewModel {
     }
     
     func dismissRecordingSheet() {
+        currentTime = 0
+        
+        // Delay to compensate sheet closing animation
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.title = nil
             self.fileURL = nil
-            self.currentTime = 0
             self.createdAt = nil
         }
     }
     
-//    func dismissOptionsSheet() {
-//        showOptionsSheet = false
-//    }
-    
-    func toggleSelection(for id: AudioModel.ID) {
-        if selectedRecordings.contains(id) {
-            selectedRecordings.remove(id)
-        } else {
-            selectedRecordings.insert(id)
-        }
-    }
-    
-//    func toggleRowSelection(for row: RowModel) {
-//        if selectedRow.contains(row) {
-//            selectedRow.removeAll { $0.id == row.id }
-//        } else {
-//            selectedRow.append(row)
-//        }
-//    }
-    
     private func duplicateFile(sourceURL: URL, destinationURL: URL) {
         let fileManager = FileManager.default
-        
         let destinationDirectory = destinationURL.deletingLastPathComponent()
+        
         if !fileManager.fileExists(atPath: destinationDirectory.path) {
             do {
                 try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: nil)
@@ -220,7 +195,7 @@ extension RecordingViewModel {
     func favoriteRecording(recording: AudioModel) {
         audioRepository.favoriteRecording(for: recording)
     }
-    
+
     
     // DUPLICATE RECORDING
     func duplicateRecording(recording: AudioModel) {
