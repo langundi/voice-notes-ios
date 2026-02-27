@@ -23,6 +23,7 @@ final class RecordingViewModel {
         resetUI()
     }
     
+    // Recording Sheet and Row Properties
     var title: String?
     var fileURL: URL?
     var createdAt: Date?
@@ -46,7 +47,7 @@ final class RecordingViewModel {
     var enhanceRecordingOn: Bool = false
     var defaultSettings: Bool = true
     
-    // Select Foldet Sheet Properties
+    // Select Folder Sheet Properties
     var showSelectFolderSheet: Bool = false
     
     func resetUI() {

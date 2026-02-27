@@ -116,7 +116,7 @@ struct RecordingScreen: View {
                                 .overlay(alignment: .center) {
                                     if vm.isEditing {
                                         Rectangle()
-                                            .foregroundStyle(.green.opacity(0.5))
+                                            .foregroundStyle(.clear)
                                             .contentShape(.rect)
                                             .onTapGesture {
                                                 withAnimation(.smooth(duration: K.animDuration)) {
@@ -176,7 +176,7 @@ struct RecordingScreen: View {
                 GeometryReader { geo in
                     if vm.isEditing {
                         Rectangle()
-                            .foregroundStyle(.red.opacity(0.5))
+                            .foregroundStyle(.clear)
                             .contentShape(.rect)
                             .frame(width: geo.size.width / 6)
                             .gesture(

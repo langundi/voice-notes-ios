@@ -125,6 +125,7 @@
 		8122CE1E2F3F590C0098A422 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				81ED5BFD2F42151E00357F54 /* Error */,
 				8122CE252F3F59620098A422 /* Enums */,
 				8156B1592F407AD1000447EF /* AudioModel.swift */,
 				8156B15B2F407B7C000447EF /* FolderModel.swift */,
@@ -146,7 +147,6 @@
 			children = (
 				8152BEED2F50AC7E0055DD6C /* PanGesture */,
 				8122CE1F2F3F59100098A422 /* Extensions */,
-				81ED5BFD2F42151E00357F54 /* Error */,
 				81ED5BF62F41F54200357F54 /* Style */,
 				8122CE242F3F59570098A422 /* DI */,
 				815329C72F433D5000CAB519 /* Utils.swift */,

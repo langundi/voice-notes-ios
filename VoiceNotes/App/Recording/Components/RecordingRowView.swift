@@ -14,7 +14,7 @@ struct RecordingRowView: View {
     
     // UI Properties
     @State private var textField: String = ""
-    @State private var selection: TextSelection?
+    @State private var textSelection: TextSelection?
     @FocusState private var isFocused: Bool
     @ScaledMetric private var buttonWidth: CGFloat = 44
     
@@ -51,7 +51,7 @@ struct RecordingRowView: View {
                             .transition(.move(edge: .leading).combined(with: .opacity))
                     }
                     
-                    titleAndDateView()
+                    TitleAndDateView()
                     
                     Spacer()
                     
@@ -106,7 +106,7 @@ struct RecordingRowView: View {
                 }
                 
                 if isVisuallyExpanded {
-                    playbackControlView()
+                    PlaybackControlView()
                 }
             }
             .padding(.horizontal)
@@ -125,9 +125,9 @@ struct RecordingRowView: View {
     }
     
     @ViewBuilder
-    private func titleAndDateView() -> some View {
+    private func TitleAndDateView() -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            TextField("", text: $textField, selection: $selection)
+            TextField("", text: $textField, selection: $textSelection)
                 .fontWeight(.semibold)
                 .lineLimit(1)
                 .truncationMode(.tail)
@@ -135,7 +135,7 @@ struct RecordingRowView: View {
                 .disabled(!isExpanded || vm.isEditing)
                 .onChange(of: isFocused) { oldValue, newValue in
                     if isFocused {
-                        selection = .init(range: textField.startIndex..<textField.endIndex)
+                        textSelection = .init(range: textField.startIndex..<textField.endIndex)
                         vm.hideRecordButton = true
                     }
                 }
@@ -162,7 +162,7 @@ struct RecordingRowView: View {
     }
     
     @ViewBuilder
-    private func playbackControlView() -> some View {
+    private func PlaybackControlView() -> some View {
         VStack(alignment: .center, spacing: 4) {
             RoundedRectangle(cornerRadius: 50)
                 .fill(.quaternary)
