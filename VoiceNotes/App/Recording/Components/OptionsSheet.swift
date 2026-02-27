@@ -50,7 +50,7 @@ struct OptionsSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Reset") {
-                        withAnimation(.snappy(duration: 0.2)) {
+                        withAnimation(.snappy(duration: K.animDuration)) {
                             defaultSettings = true
                             enhanceRecordingOn = false
                             skipSilenceOn = false

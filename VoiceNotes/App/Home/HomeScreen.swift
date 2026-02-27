@@ -114,9 +114,7 @@ struct HomeScreen: View {
                     
                     ToolbarItem {
                         Button {
-                            withAnimation(.snappy) {
-                                vm.isEditing.toggle()
-                            }
+                            vm.isEditing.toggle()
                         } label: {
                             Group {
                                 if vm.isEditing {
@@ -138,7 +136,6 @@ struct HomeScreen: View {
                         } label: {
                             Text(vm.isEditing ? "Done" : "Edit")
                                 .contentTransition(.symbolEffect(.replace))
-                                .animation(.smooth, value: vm.isEditing)
                         }
                     }
                 }
@@ -205,6 +202,7 @@ struct HomeScreen: View {
                     print("microphone: \(microphoneAccess)")
                 }
             }
+            .animation(.smooth(duration: K.animDuration), value: vm.isEditing)
             .environment(\.editMode, .constant(vm.isEditing ? .active : .inactive))
         }
     }

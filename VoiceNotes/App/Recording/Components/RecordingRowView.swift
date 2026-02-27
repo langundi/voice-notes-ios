@@ -13,7 +13,6 @@ struct RecordingRowView: View {
     @Environment(RecordingViewModel.self) private var vm
     
     // UI Properties
-    @State private var isSelected2: Bool = false
     @State private var textField: String = ""
     @State private var selection: TextSelection?
     @FocusState private var isFocused: Bool
@@ -112,9 +111,9 @@ struct RecordingRowView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 6)
-            .animation(.snappy(duration: 0.2), value: isVisuallyExpanded)
-            .animation(.smooth(duration: 0.2), value: vm.isPlaying)
-            .animation(.snappy(duration: 0.2), value: isSelected)
+            .animation(.snappy(duration: K.animDuration), value: isVisuallyExpanded)
+            .animation(.smooth(duration: K.animDuration), value: vm.isPlaying)
+            .animation(.snappy(duration: K.animDuration), value: isSelected)
             .onGeometryChange(for: CGRect.self) {
                 $0.frame(in: .global)
             } action: { newValue in

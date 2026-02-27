@@ -42,19 +42,38 @@ struct RecordingScreen: View {
     init(folderTitle: FolderEnum) {
         switch folderTitle {
         case .all:
-            _recordings = Query(sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
+            _recordings = Query(
+                sort: \.createdAt,
+                order: .reverse,
+                animation: .smooth(duration: K.animDuration)
+            )
+            
             navigationTitle = folderTitle.title
         case .favorites:
             let predicate = #Predicate<AudioModel> { state in
                 state.isFavorite
             }
-            _recordings = Query(filter: predicate, sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
+            
+            _recordings = Query(
+                filter: predicate,
+                sort: \.createdAt,
+                order: .reverse,
+                animation: .smooth(duration: K.animDuration)
+            )
+            
             navigationTitle = folderTitle.title
         case .custom(let name):
             let predicate = #Predicate<AudioModel> { audio in
                 audio.Folder?.title == name
             }
-            _recordings = Query(filter: predicate, sort: \.createdAt, order: .reverse, animation: .smooth(duration: 0.2))
+            
+            _recordings = Query(
+                filter: predicate,
+                sort: \.createdAt,
+                order: .reverse,
+                animation: .smooth(duration: K.animDuration)
+            )
+            
             navigationTitle = name
         }
     }
@@ -84,7 +103,7 @@ struct RecordingScreen: View {
                                 .contentShape(.rect)
                                 .onTapGesture {
                                     if !vm.isEditing {
-                                        withAnimation(.smooth(duration: 0.2)) {
+                                        withAnimation(.smooth(duration: K.animDuration)) {
                                             if vm.expandedRecording != recording.id {
                                                 vm.isPlaying = false
                                                 vm.expandedRecording = recording.id
@@ -100,7 +119,7 @@ struct RecordingScreen: View {
                                             .foregroundStyle(.green.opacity(0.5))
                                             .contentShape(.rect)
                                             .onTapGesture {
-                                                withAnimation(.smooth(duration: 0.2)) {
+                                                withAnimation(.smooth(duration: K.animDuration)) {
                                                     if properties.selectedIndices.contains(index) {
                                                         properties.selectedIndices.removeAll { $0 == index }
                                                     } else {
@@ -219,7 +238,7 @@ struct RecordingScreen: View {
                 
                 ToolbarItem {
                     Button {
-                        withAnimation(.smooth(duration: 0.2)) {
+                        withAnimation(.smooth(duration: K.animDuration)) {
                             vm.isEditing.toggle()
                             if !vm.isEditing {
                                 properties = .init()
@@ -292,7 +311,7 @@ struct RecordingScreen: View {
                     .presentationDragIndicator(.hidden)
             }
         }
-        .animation(.smooth(duration: 0.2), value: vm.isEditing)
+        .animation(.smooth(duration: K.animDuration), value: vm.isEditing)
         .environment(vm)
     }
     

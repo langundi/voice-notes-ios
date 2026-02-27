@@ -58,7 +58,7 @@ struct RecordingSheet: View {
                         Image(systemName: vm.isPlaying ? "pause.fill" : "play.fill")
                             .font(.largeTitle)
                             .contentTransition(.symbolEffect(.replace))
-                            .animation(.smooth, value: vm.isPlaying)
+                            .animation(.smooth(duration: K.animDuration), value: vm.isPlaying)
                             .frame(width: buttonWidth)
                     }
                     
