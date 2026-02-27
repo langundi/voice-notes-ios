@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+internal import CoreGraphics
 
 @Model
 final class AudioModel {

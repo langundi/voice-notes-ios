@@ -10,17 +10,30 @@ import SwiftData
 
 struct RecordingScreen: View {
     
-    @State private var vm = DIContainer.shared.makeRecordingViewModel()
-    @State private var hideRecordButton = false
-    
-    @Environment(\.modelContext) private var context
-    @Environment(\.editMode) private var editMode
-    
     @Namespace private var namespace
     
     @Query var recordings: [AudioModel]
     
+    @Environment(\.modelContext) private var context
+    @Environment(\.editMode) private var editMode
+    
+    @State private var vm = DIContainer.shared.makeRecordingViewModel()
+    @State private var hideRecordButton = false
+    
+    @State private var panGesture: UIPanGestureRecognizer?
+    @State private var properties: SelectionProperties = .init()
+    @State private var scrollProperties: ScrollProperties = .init()
+    
     var navigationTitle: String?
+    
+    private var selectedRecordings: [AudioModel] {
+        recordings.filter { vm.selectedRecordings.contains($0.id) }
+    }
+    
+    private var shareURLs: [URL] {
+        let fileNames = selectedRecordings.map { $0.fileName }
+        return getURLs(for: fileNames)
+    }
     
     init(folderTitle: FolderEnum) {
         switch folderTitle {
@@ -57,24 +70,36 @@ struct RecordingScreen: View {
                 } else {
                     LazyVStack(alignment: .center, spacing: 0) {
                         ForEach(recordings) { recording in
-                            RecordingRowView(
-                                recording: recording,
-                                isExpanded: vm.expandedRecording == recording.id,
-                                hideRecordButton: $hideRecordButton
-                            )
-                            .contentShape(.rect)
-                            .onTapGesture {
-                                withAnimation(.smooth(duration: 0.2)) {
-                                    if !vm.isEditing {
-                                        if vm.expandedRecording != recording.id {
-                                            vm.isPlaying = false
-                                            vm.expandedRecording = recording.id
+                            if let index = vm.rowItems.firstIndex(where: { $0.id == recording.id }) {
+                                RecordingRowView(
+                                    rowItem: $vm.rowItems[index],
+                                    recording: recording,
+                                    isExpanded: vm.expandedRecording == recording.id,
+                                    properties: $properties,
+                                    hideRecordButton: $hideRecordButton
+                                )
+                                .contentShape(.rect)
+                                .onTapGesture {
+                                    withAnimation(.smooth(duration: 0.2)) {
+                                        if !vm.isEditing {
+                                            if vm.expandedRecording != recording.id {
+                                                vm.isPlaying = false
+                                                vm.expandedRecording = recording.id
+                                            }
+                                        } else {
+                                            vm.toggleSelection(for: recording.id)
+                                            
+                                            if properties.selectedIndices.contains(index) {
+                                                properties.selectedIndices.removeAll { $0 == index }
+                                            } else {
+                                                properties.selectedIndices.append(index)
+                                            }
+                                            
+                                            properties.previousIndices = properties.selectedIndices
                                         }
-                                    } else {
-                                        vm.toggleSelection(for: recording.id)
                                     }
+                                    vm.setupPlayback(for: recording)
                                 }
-                                vm.setupPlayback(for: recording)
                             }
                         }
                         
@@ -83,8 +108,79 @@ struct RecordingScreen: View {
                             .padding(.top, 8)
                     }
                     .padding(.bottom, vm.isEditing ? 0 : size.height * 0.15)
+                    
                 }
             }
+            .scrollTargetLayout()
+            .onChange(of: vm.isEditing) { oldValue, newValue in
+                panGesture?.isEnabled = newValue
+            }
+            .onScrollGeometryChange(for: CGFloat.self, of: { $0.contentOffset.y + $0.contentInsets.top }) { oldValue, newValue in
+                scrollProperties.currentScrollOffset = newValue
+            }
+            .onChange(of: scrollProperties.direction) { oldValue, newValue in
+                if newValue != .none {
+                    guard scrollProperties.timer == nil else { return }
+                    scrollProperties.manualScrollOffset = scrollProperties.currentScrollOffset
+                    
+                    scrollProperties.timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { _ in
+                        if newValue == .up {
+                            scrollProperties.manualScrollOffset += 15
+                        }
+                        
+                        if newValue == .down {
+                            scrollProperties.manualScrollOffset -= 15
+                        }
+                        
+                        scrollProperties.position.scrollTo(y: scrollProperties.manualScrollOffset)
+                    }
+                    
+                    scrollProperties.timer?.fire()
+                } else {
+                    resetTimer()
+                }
+            }
+            .overlay(alignment: .leading) {
+                GeometryReader { geo in
+                    if vm.isEditing {
+                        Rectangle()
+                            .foregroundStyle(.clear)
+                            .contentShape(.rect)
+                            .frame(width: geo.size.width / 5)
+                            .gesture(
+                                PanGesture { gesture in
+                                    if panGesture == nil {
+                                        panGesture = gesture
+                                        gesture.isEnabled = vm.isEditing
+                                    }
+                                    let state = gesture.state
+                                    
+                                    if state == .began || state == .changed {
+                                        onGestureChange(gesture)
+                                    } else {
+                                        onGestureEnded(gesture)
+                                    }
+                                }
+                            )
+                    }
+                }
+            }
+            
+        }
+        .scrollPosition($scrollProperties.position)
+        .onAppear {
+            vm.syncItems(recordings: recordings)
+        }
+        .overlay(alignment: .top) {
+            ScrollDetectionRegion()
+        }
+        .overlay(alignment: .bottom) {
+            ScrollDetectionRegion(false)
+        }
+        .onChange(of: recordings) {
+            vm.syncItems(recordings: recordings)
+            print("this")
+            print(vm.rowItems.count)
         }
         .navigationTitle(navigationTitle!)
         .overlay(alignment: .bottom) {
@@ -115,6 +211,9 @@ struct RecordingScreen: View {
                     Button {
                         withAnimation(.snappy) {
                             vm.isEditing.toggle()
+                            if !vm.isEditing {
+                                properties = .init()
+                            }
                         }
                     } label: {
                         Group {
@@ -131,6 +230,10 @@ struct RecordingScreen: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         vm.isEditing.toggle()
+                        
+                        if !vm.isEditing {
+                            properties = .init()
+                        }
                     } label: {
                         Text(vm.isEditing ? "Cancel" : "Edit")
                             .fontWeight(vm.isEditing ? .medium : .regular)
@@ -143,22 +246,14 @@ struct RecordingScreen: View {
             
             if vm.isEditing {
                 ToolbarItemGroup(placement: .bottomBar) {
-                    let items = recordings.filter {
-                        vm.selectedRecordings.contains($0.id)
-                    }
-                    
-                    let fileNames = items.map { audio in
-                        audio.fileName
-                    }
-  
-                    ShareLink(items: getURLs(for: fileNames)) {
+                    ShareLink(items: shareURLs) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
                     
                     Spacer()
                     
                     Button {                      
-                        vm.deleteRecording(from: items)
+                        vm.deleteRecording(from: selectedRecordings)
                         vm.isEditing = false
                     } label: {
                         Image(systemName: "trash")
@@ -191,6 +286,71 @@ struct RecordingScreen: View {
         }
         .animation(.smooth(duration: 0.2), value: vm.isEditing)
         .environment(vm)
+    }
+    
+    @ViewBuilder
+    func ScrollDetectionRegion(_ isTop: Bool = true) -> some View {
+        Rectangle()
+            .foregroundStyle(.clear)
+            .frame(height: 100)
+            .ignoresSafeArea()
+            .onGeometryChange(for: CGRect.self) {
+                $0.frame(in: .global)
+            } action: { newValue in
+                if isTop {
+                    scrollProperties.topRegion = newValue
+                } else {
+                    scrollProperties.bottomRegion = newValue
+                }
+            }
+
+        
+    }
+    
+    private func onGestureChange(_ gesture: UIPanGestureRecognizer) {
+        let position = gesture.location(in: gesture.view)
+        if let fallingIndex = vm.rowItems.firstIndex(where: { $0.location.contains(position) }) {
+            if properties.start == nil {
+                properties.start = fallingIndex
+                properties.isDeleteDrag = properties.previousIndices.contains(fallingIndex)
+            }
+            
+            properties.end = fallingIndex
+            
+            if let start = properties.start, let end = properties.end {
+                if properties.isDeleteDrag {
+                    let indices = (start > end ? end...start : start...end).compactMap { $0 }
+                    properties.toBeDeletedIndices = Set(properties.previousIndices).intersection(indices).compactMap({ $0 })
+                } else {
+                    let indices = (start > end ? end...start : start...end).compactMap { $0 }
+                    properties.selectedIndices = Set(properties.previousIndices).union(indices).compactMap({ $0 })
+                }
+            }
+            
+            scrollProperties.direction = scrollProperties.topRegion.contains(position) ? .down : scrollProperties.bottomRegion.contains(position) ? .up : .none
+        }
+    }
+    
+    private func onGestureEnded(_ gesture: UIPanGestureRecognizer) {
+        /// Deleting Indices that must be deleted
+        for index in properties.toBeDeletedIndices {
+            properties.selectedIndices.removeAll { $0 == index }
+        }
+        properties.toBeDeletedIndices = []
+        
+        properties.previousIndices = properties.selectedIndices
+        properties.start = nil
+        properties.end = nil
+        properties.isDeleteDrag = false
+        
+        resetTimer()
+    }
+    
+    private func resetTimer() {
+        scrollProperties.manualScrollOffset = 0
+        scrollProperties.timer?.invalidate()
+        scrollProperties.timer = nil
+        scrollProperties.direction = .none
     }
 }
 

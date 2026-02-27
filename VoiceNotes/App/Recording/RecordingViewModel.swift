@@ -38,10 +38,13 @@ final class RecordingViewModel {
         didSet {
             if !isEditing {
                 selectedRecordings.removeAll()
+//                selectedRow.removeAll()
             }
         }
     }
     var selectedRecordings: Set<AudioModel.ID> = []
+    var selectedRow: [RowModel] = []
+    var rowItems: [RowModel] = []
     var expandedRecording: AudioModel.ID? = nil
     
     // Options Sheet Properties
@@ -61,6 +64,16 @@ final class RecordingViewModel {
         isPlaying = false
         isEditing = false
         currentTime = 0
+    }
+    
+    func syncItems(recordings: [AudioModel]) {
+        let existingIDs = Set(rowItems.map(\.id))
+        
+        for recording in recordings {
+            if !existingIDs.contains(recording.id) {
+                rowItems.append(RowModel(id: recording.id, recording: recording))
+            }
+        }
     }
     
     func dismissRecordingSheet() {
@@ -83,6 +96,14 @@ final class RecordingViewModel {
             selectedRecordings.insert(id)
         }
     }
+    
+//    func toggleRowSelection(for row: RowModel) {
+//        if selectedRow.contains(row) {
+//            selectedRow.removeAll { $0.id == row.id }
+//        } else {
+//            selectedRow.append(row)
+//        }
+//    }
     
     private func duplicateFile(sourceURL: URL, destinationURL: URL) {
         let fileManager = FileManager.default
@@ -175,6 +196,9 @@ extension RecordingViewModel {
     
     // DELETE RECORDING
     func deleteRecording(from recordings: [AudioModel]) {
+        for recording in recordings {
+            rowItems.removeAll { $0.id == recording.id }
+        }
         audioRepository.deleteRecording(for: recordings)
         expandedRecording =  nil
     }
