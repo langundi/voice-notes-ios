@@ -18,7 +18,9 @@ struct RecordingScreen: View {
     @Environment(\.editMode) private var editMode
     
     @State private var vm = DIContainer.shared.makeRecordingViewModel()
-
+    
+    @State private var searchText: String = ""
+    @State private var isSearchActive: Bool = false
     @State private var panGesture: UIPanGestureRecognizer?
     @State private var properties: SelectionProperties = .init()
     @State private var scrollProperties: ScrollProperties = .init()
@@ -37,6 +39,17 @@ struct RecordingScreen: View {
     private var shareURLs: [URL] {
         let fileNames = selectedRecordings.map { $0.fileName }
         return getURLs(for: fileNames)
+    }
+    
+    private var filteredRecordings: [AudioModel] {
+        let text = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !text.isEmpty else { return Array(recordings) }
+        
+        return recordings.filter { recording in
+            let title = recording.title
+            return title.localizedStandardContains(text)
+        }
     }
     
     init(folderTitle: FolderEnum) {
@@ -92,7 +105,7 @@ struct RecordingScreen: View {
                     .padding(.top, 200)
                 } else {
                     LazyVStack(alignment: .center, spacing: 0) {
-                        ForEach(recordings) { recording in
+                        ForEach(filteredRecordings) { recording in
                             if let index = vm.rowItems.firstIndex(where: { $0.id == recording.id }) {
                                 RecordingRowView(
                                     rowItem: $vm.rowItems[index],
@@ -133,6 +146,7 @@ struct RecordingScreen: View {
                                 }
                             }
                         }
+                        .searchable(text: $searchText, isPresented: $isSearchActive, placement: .navigationBarDrawer, prompt: "Title, Date")
                         
                         Divider()
                             .padding(.horizontal, 16)
@@ -212,7 +226,7 @@ struct RecordingScreen: View {
             ScrollDetectionRegion(false)
         }
         .overlay(alignment: .bottom) {
-            if !vm.isEditing && !vm.hideRecordButton {
+            if !vm.isEditing && !vm.hideRecordButton && !isSearchActive {
                 Button {
                     vm.toggleRecording()
                 } label: {
@@ -225,44 +239,46 @@ struct RecordingScreen: View {
         }
         .navigationTitle(navigationTitle!)
         .toolbar {
-            if #available(iOS 26.0, *) {
-                ToolbarItem {
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "magnifyingglass")
+            if !recordings.isEmpty {
+                if #available(iOS 26.0, *) {
+                    ToolbarItem {
+                        Button {
+                            isSearchActive.toggle()
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                        }
                     }
-                }
-                
-                ToolbarSpacer(.fixed)
-                
-                ToolbarItem {
-                    Button {
-                        withAnimation(.smooth(duration: K.animDuration)) {
+                    
+                    ToolbarSpacer(.fixed)
+                    
+                    ToolbarItem {
+                        Button {
+                            withAnimation(.smooth(duration: K.animDuration)) {
+                                vm.isEditing.toggle()
+                                if !vm.isEditing {
+                                    properties = .init()
+                                }
+                            }
+                        } label: {
+                            Text(vm.isEditing ? "Cancel" : "Select")
+                                .fontWeight(.medium)
+                        }
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
                             vm.isEditing.toggle()
+                            
                             if !vm.isEditing {
                                 properties = .init()
                             }
+                        } label: {
+                            Text(vm.isEditing ? "Cancel" : "Edit")
+                                .fontWeight(vm.isEditing ? .medium : .regular)
+                                .contentTransition(.symbolEffect(.replace))
                         }
-                    } label: {
-                        Text(vm.isEditing ? "Cancel" : "Select")
-                            .fontWeight(.medium)
+                        .disabled(recordings.isEmpty)
                     }
-                }
-            } else {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        vm.isEditing.toggle()
-                        
-                        if !vm.isEditing {
-                            properties = .init()
-                        }
-                    } label: {
-                        Text(vm.isEditing ? "Cancel" : "Edit")
-                            .fontWeight(vm.isEditing ? .medium : .regular)
-                            .contentTransition(.symbolEffect(.replace))
-                    }
-                    .disabled(recordings.isEmpty)
                 }
             }
             
