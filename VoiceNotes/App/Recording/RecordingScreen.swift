@@ -40,8 +40,9 @@ struct RecordingScreen: View {
         guard !text.isEmpty else { return Array(recordings) }
         
         return recordings.filter { recording in
-            let title = recording.title
-            return title.localizedStandardContains(text)
+            let title = recording.title.localizedStandardContains(text)
+            let month = formatDate(date: recording.createdAt).localizedStandardContains(text)
+            return title || month
         }
     }
     
