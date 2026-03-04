@@ -15,6 +15,8 @@ struct HomeScreen: View {
     @Environment(\.modelContext) private var context
     @Environment(\.editMode) private var editMode
     
+    @ScaledMetric private var buttonWidth: CGFloat = 24
+    
     @AppStorage(K.microphoneAccess)
     private var microphoneAccess: MicrophoneAccessEnum = .undetermined
     
@@ -23,11 +25,14 @@ struct HomeScreen: View {
     @Query(filter: #Predicate<AudioModel> {
         $0.isFavorite
     }, animation: .snappy) var favorites: [AudioModel]
+    @Query(filter: #Predicate<AudioModel> {
+        $0.isDeleted
+    }, animation: .snappy) var trash: [AudioModel]
     
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .leading, spacing: 16) {
                 List {
                     NavigationLink {
                         RecordingScreen(folderTitle: .all)
@@ -37,6 +42,7 @@ struct HomeScreen: View {
                                 .fontWeight(.light)
                                 .font(.title3)
                                 .foregroundStyle(.blue)
+                                .frame(width: buttonWidth)
                             
                             Text("All Recordings")
                             
@@ -56,6 +62,7 @@ struct HomeScreen: View {
                                     .fontWeight(.light)
                                     .font(.title3)
                                     .foregroundStyle(.blue)
+                                    .frame(width: buttonWidth)
                                 
                                 Text("Favorites")
                                 
@@ -67,32 +74,56 @@ struct HomeScreen: View {
                         }
                     }
                     
-                    Section(folders.isEmpty ? "" : "My Folders") {
-                        ForEach(folders) { folder in
-                            let count = folder.Audios.count
-                            
-                            NavigationLink {
-                                RecordingScreen(folderTitle: .custom(folder.title))
-                            } label: {
-                                HStack(spacing: 16) {
-                                    Image(systemName: "folder")
-                                        .fontWeight(.light)
-                                        .font(.title3)
-                                        .foregroundStyle(.blue)
-                                    
-                                    Text(folder.title)
-                                    
-                                    Spacer()
-                                    
-                                    Text("\(count)")
-                                        .foregroundStyle(.secondary)
-                                }
+                    if !trash.isEmpty {
+                        NavigationLink {
+                            RecordingScreen(folderTitle: .trash)
+                        } label: {
+                            HStack(spacing: 16) {
+                                Image(systemName: "trash")
+                                    .fontWeight(.light)
+                                    .font(.title3)
+                                    .foregroundStyle(.blue)
+                                    .frame(width: buttonWidth)
+                                
+                                Text("Recently Deleted")
+                                
+                                Spacer()
+                                
+                                Text("\(trash.count)")
+                                    .foregroundStyle(.secondary)
                             }
                         }
-                        .onDelete { index in
-                            for offset in index {
-                                let folder = folders[offset]
-                                vm.deleteFolder(folder: folder)
+                    }
+                    
+                    if !folders.isEmpty {
+                        Section("My Folders") {
+                            ForEach(folders) { folder in
+                                let count = folder.Audios.count
+                                
+                                NavigationLink {
+                                    RecordingScreen(folderTitle: .custom(folder.title))
+                                } label: {
+                                    HStack(spacing: 16) {
+                                        Image(systemName: "folder")
+                                            .fontWeight(.light)
+                                            .font(.title3)
+                                            .foregroundStyle(.blue)
+                                            .frame(width: buttonWidth)
+                                        
+                                        Text(folder.title)
+                                        
+                                        Spacer()
+                                        
+                                        Text("\(count)")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                            .onDelete { index in
+                                for offset in index {
+                                    let folder = folders[offset]
+                                    vm.deleteFolder(folder: folder)
+                                }
                             }
                         }
                     }

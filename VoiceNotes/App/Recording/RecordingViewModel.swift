@@ -182,10 +182,22 @@ extension RecordingViewModel {
     
     
     // DELETE RECORDING
-    func deleteRecording(from recordings: [AudioModel]) {
+    func deleteRecording(for recordings: [AudioModel]) {
         stopAudio()
         audioRepository.deleteRecording(for: recordings)
         expandedRecording =  nil
+    }
+    
+    func moveToTrash(for recordings: [AudioModel]) {
+        stopAudio()
+        audioRepository.moveToTrash(for: recordings)
+        expandedRecording = nil
+    }
+    
+    func recoverRecordings(for recordings: [AudioModel]) {
+        stopAudio()
+        audioRepository.recoverRecordings(for: recordings)
+        expandedRecording = nil
     }
     
     

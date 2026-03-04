@@ -23,6 +23,7 @@ struct RecordingScreen: View {
     
     // Passed Parameters
     var navigationTitle: String?
+    var folderTitle: FolderEnum?
     
     // Computed Properties
     private var selectedRecordings: [AudioModel] {
@@ -49,16 +50,8 @@ struct RecordingScreen: View {
     init(folderTitle: FolderEnum) {
         switch folderTitle {
         case .all:
-            _recordings = Query(
-                sort: \.createdAt,
-                order: .reverse,
-                animation: .smooth(duration: K.animDuration)
-            )
-            
-            navigationTitle = folderTitle.title
-        case .favorites:
-            let predicate = #Predicate<AudioModel> { state in
-                state.isFavorite
+            let predicate = #Predicate<AudioModel> {
+                !$0.isDeleted
             }
             
             _recordings = Query(
@@ -69,9 +62,24 @@ struct RecordingScreen: View {
             )
             
             navigationTitle = folderTitle.title
+            self.folderTitle = folderTitle
+        case .favorites:
+            let predicate = #Predicate<AudioModel> {
+                $0.isFavorite && !$0.isDeleted
+            }
+            
+            _recordings = Query(
+                filter: predicate,
+                sort: \.createdAt,
+                order: .reverse,
+                animation: .smooth(duration: K.animDuration)
+            )
+            
+            navigationTitle = folderTitle.title
+            self.folderTitle = folderTitle
         case .custom(let name):
-            let predicate = #Predicate<AudioModel> { audio in
-                audio.Folder?.title == name
+            let predicate = #Predicate<AudioModel> {
+                $0.Folder?.title == name && !$0.isDeleted
             }
             
             _recordings = Query(
@@ -82,6 +90,21 @@ struct RecordingScreen: View {
             )
             
             navigationTitle = name
+            self.folderTitle = folderTitle
+        case .trash:
+            let predicate = #Predicate<AudioModel> {
+                $0.isDeleted
+            }
+            
+            _recordings = Query(
+                filter: predicate,
+                sort: \.createdAt,
+                order: .reverse,
+                animation: .smooth(duration: K.animDuration)
+            )
+            
+            navigationTitle = folderTitle.title
+            self.folderTitle = folderTitle
         }
     }
     
@@ -135,7 +158,7 @@ struct RecordingScreen: View {
                 prompt: "Title, Date"
             )
             .overlay(alignment: .bottom) {
-                if !vm.isEditing && !vm.hideRecordButton && !isSearchActive {
+                if !vm.isEditing && !vm.hideRecordButton && !isSearchActive && folderTitle?.title != FolderEnum.trash.title {
                     Button {
                         vm.toggleRecording()
                     } label: {
@@ -186,20 +209,35 @@ struct RecordingScreen: View {
                 
                 if vm.isEditing {
                     ToolbarItemGroup(placement: .bottomBar) {
-                        ShareLink(items: shareURLs) {
-                            Label("Share", systemImage: "square.and.arrow.up")
+                        if folderTitle?.title == FolderEnum.trash.title {
+                            Button("Recover") {
+                                vm.recoverRecordings(for: selectedRecordings)
+                                vm.isEditing = false
+                            }
+                        } else {
+                            ShareLink(items: shareURLs) {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                            .disabled(selectedRecordings.isEmpty)
                         }
-                        .disabled(selectedRecordings.isEmpty)
+                        
                         
                         Spacer()
                         
-                        Button {
-                            vm.deleteRecording(from: selectedRecordings)
-                            vm.isEditing = false
-                        } label: {
-                            Image(systemName: "trash")
+                        if folderTitle?.title == FolderEnum.trash.title {
+                            Button("Delete") {
+                                vm.deleteRecording(for: selectedRecordings)
+                                vm.isEditing = false
+                            }
+                        } else {
+                            Button {
+                                vm.moveToTrash(for: selectedRecordings)
+                                vm.isEditing = false
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .disabled(selectedRecordings.isEmpty)
                         }
-                        .disabled(selectedRecordings.isEmpty)
                     }
                 }
             }

@@ -263,7 +263,7 @@ struct RecordingRowView: View {
                 
                 Button {
                     withAnimation(.snappy(duration: 0.2)) {
-                        vm.deleteRecording(from: [recording])
+                        vm.moveToTrash(for: [recording])
                     }
                 } label: {
                     Image(systemName: "trash")

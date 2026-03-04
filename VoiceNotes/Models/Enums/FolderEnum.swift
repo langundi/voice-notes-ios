@@ -11,6 +11,7 @@ enum FolderEnum {
     case all
     case favorites
     case custom(String)
+    case trash
     
     var title: String {
         switch self {
@@ -20,6 +21,8 @@ enum FolderEnum {
             return "Favorites"
         case .custom(let name):
             return name
+        case .trash:
+            return "Recently Deleted"
         }
     }
 }

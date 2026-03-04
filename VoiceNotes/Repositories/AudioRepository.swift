@@ -104,6 +104,22 @@ final class AudioRepository {
         saveContext()
     }
     
+    /// Move to trash
+    func moveToTrash(for recordings: [AudioModel]) {
+        for recording in recordings {
+            recording.isDeleted = true
+        }
+        saveContext()
+    }
+    
+    /// Recover recordings
+    func recoverRecordings(for recordings: [AudioModel]) {
+        for recording in recordings {
+            recording.isDeleted = false
+        }
+        saveContext()
+    }
+    
     /// Duplicates existing recording, modifes the title and the file directory
     func duplicateRecording(from recording: AudioModel, newFile fileName: String) {
         let newTitle = "Copy of " + recording.title
