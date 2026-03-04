@@ -138,8 +138,9 @@ struct RecordingScreen: View {
                     Button {
                         vm.toggleRecording()
                     } label: {
-                        Image(systemName: "circle.fill")
-                            .font(.largeTitle)
+                        Circle()
+                            .fill(.red)
+                            .frame(width: 64, height: 64)
                     }
                     .buttonStyle(StartRecordButtonStyle())
                     .transition(.move(edge: .bottom).combined(with: .blurReplace))
