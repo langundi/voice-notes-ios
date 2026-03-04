@@ -119,6 +119,7 @@ struct RecordingRowView: View {
         .animation(.snappy(duration: K.animDuration), value: isVisuallyExpanded)
         .animation(.smooth(duration: K.animDuration), value: vm.isPlaying)
         .animation(.snappy(duration: K.animDuration), value: isSelected)
+        .animation(.snappy(duration: K.animDuration), value: vm.currentTime)
         .onChange(of: vm.selectedRecordings) { oldValue, newValue in
             let currentlyInSet = newValue.contains(recording.id)
             if isSelected != currentlyInSet {

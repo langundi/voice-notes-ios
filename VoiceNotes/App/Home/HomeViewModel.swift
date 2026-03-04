@@ -39,11 +39,9 @@ final class HomeViewModel {
         }
     }
     
-    func requestMicrophonePermissions(onFinish: @escaping () -> Void) async {
+    func requestMicrophonePermissions() async {
         let status = await audioManager.requestMircophonePermission()
         microphoneAccess = status
-        
-        onFinish()
     }
     
     func setupAudioSession() {

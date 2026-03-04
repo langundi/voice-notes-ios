@@ -188,16 +188,18 @@ struct HomeScreen: View {
             .task {
                 vm.checkMicrophonePermission()
                 if vm.microphoneAccess == .undetermined {
-                    await vm.requestMicrophonePermissions {
-                        microphoneAccess = vm.microphoneAccess
-                    }
+                    await vm.requestMicrophonePermissions()
                     print("microphone: \(microphoneAccess)")
-                } else if vm.microphoneAccess == .granted {
-                    microphoneAccess = vm.microphoneAccess
+                }
+                
+                microphoneAccess = vm.microphoneAccess
+                
+                if microphoneAccess == .granted {
+//                    microphoneAccess = vm.microphoneAccess
                     vm.setupAudioSession()
                     print("microphone: \(microphoneAccess)")
-                } else if vm.microphoneAccess == .denied {
-                    microphoneAccess = vm.microphoneAccess
+                } else if microphoneAccess == .denied {
+//                    microphoneAccess = vm.microphoneAccess
                     vm.showMicrophoneAlert = true
                     print("microphone: \(microphoneAccess)")
                 }

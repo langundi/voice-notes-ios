@@ -60,6 +60,13 @@ struct LineScrubber: View {
                     onEditingChanged?(false)  // add this
                 }
         )
+        .onTapGesture { location in
+            let x = max(min((location.x / viewSize.width), 1), 0)
+            current = TimeInterval(x) * total
+            onEditingChanged?(true)
+            onScrub?(current)
+            onEditingChanged?(false)
+        }
         .onGeometryChange(for: CGSize.self) {
             $0.size
         } action: { newValue in

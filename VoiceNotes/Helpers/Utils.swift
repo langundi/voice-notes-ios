@@ -8,37 +8,36 @@
 import Foundation
 
 /// Format date into string, use "dd MMM yyy" for the "format" value
-func formatDate(date: Date, format: String) -> String {
+nonisolated func formatDate(date: Date, format: String) -> String {
     let formatter = DateFormatter()
     formatter.dateFormat = format
     return formatter.string(from: date)
 }
 
 /// Format time into string to have minutes and seconds
-func formatTime(time: TimeInterval) -> String {
+nonisolated func formatTime(time: TimeInterval) -> String {
     let minutes = Int(time) / 60
     let seconds = Int(time) % 60
     return String(format: "%1d.%02d", minutes, seconds)
 }
 
 /// Format timer
-func formatTimer(time: TimeInterval) -> String {
+nonisolated func formatTimer(time: TimeInterval) -> String {
     let minutes = Int(time) / 60
     let seconds = Int(time) % 60
     let milliseconds = Int(time * 100) % 100
     return String(format: "%02d.%02d,%02d", minutes, seconds, milliseconds)
 }
 
-
 /// Get URL path
-func getURL(for fileName: String) -> URL {
+nonisolated func getURL(for fileName: String) -> URL {
     let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     let url = path.appending(path: fileName)
     return url
 }
 
 /// Get URL paths for multiple recordings
-func getURLs(for fileNames: [String]) -> [URL] {
+nonisolated func getURLs(for fileNames: [String]) -> [URL] {
     var url: [URL] = []
     for title in fileNames {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -48,7 +47,7 @@ func getURLs(for fileNames: [String]) -> [URL] {
 }
 
 /// Make unique URL path
-func makeUniqueURL(for title: String) -> URL {
+nonisolated func makeUniqueURL(for title: String) -> URL {
     let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     var fileName = "\(title).m4a"
     var url = path.appending(path: fileName)
