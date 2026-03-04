@@ -159,7 +159,7 @@ struct RecordingRowView: View {
                 }
             
             HStack(alignment: .center) {
-                Text(formatDate(date: recording.createdAt, format: "HH.mm"))
+                Text(formatDate(date: recording.createdAt))
                     .font(.footnote)
                     .fontWeight(.medium)
                 

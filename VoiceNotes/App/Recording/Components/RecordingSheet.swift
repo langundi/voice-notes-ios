@@ -25,7 +25,7 @@ struct RecordingSheet: View {
                     .fontWeight(.bold)
                 
                 HStack(alignment: .center, spacing: 8) {
-                    Text("\(formatDate(date: vm.createdAt ?? Date.now, format: "dd MMM yyyy"))")
+                    Text("\(formatDate(date: vm.createdAt ?? Date.now))")
                         .foregroundStyle(.secondary)
                         .fontWeight(.semibold)
                     
