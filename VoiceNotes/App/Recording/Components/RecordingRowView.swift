@@ -11,6 +11,7 @@ import SwiftData
 struct RecordingRowView: View {
     
     @Environment(RecordingViewModel.self) private var vm
+    @Environment(\.colorScheme) private var colorScheme
     
     // UI Properties
     @State private var textField: String = ""
@@ -39,7 +40,7 @@ struct RecordingRowView: View {
     
     var body: some View {
         @Bindable var vm = vm
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 Divider()
                 
                 HStack(alignment: .center, spacing: 8) {
@@ -110,7 +111,7 @@ struct RecordingRowView: View {
                 }
             }
             .padding(.horizontal)
-            .padding(.vertical, 6)
+            .padding(.bottom, 6)
             .animation(.snappy(duration: K.animDuration), value: isVisuallyExpanded)
             .animation(.smooth(duration: K.animDuration), value: vm.isPlaying)
             .animation(.snappy(duration: K.animDuration), value: isSelected)
@@ -163,14 +164,37 @@ struct RecordingRowView: View {
     
     @ViewBuilder
     private func PlaybackControlView() -> some View {
-        VStack(alignment: .center, spacing: 4) {
-            RoundedRectangle(cornerRadius: 50)
-                .fill(.quaternary)
-                .frame(maxWidth: .infinity, maxHeight: 6)
-                .padding(.top, 24)
+        VStack(alignment: .center, spacing: 8) {
+            @Bindable var vm = vm
+            
+            let totalDuration = rowItem.recording.duration
+            let config: LineScrubber.Config = .init(activeTint: colorScheme == .dark ? .white : .black)
+            
+            LineScrubber(
+                config: config,
+                current: $vm.currentTime,
+                total: totalDuration,
+                onEditingChanged: { editing in
+                    if editing {
+                        vm.startScrubbing()
+                    } else {
+                        vm.endScrubbing()
+                    }
+                },
+                onScrub: { newTime in
+                    if vm.isScrubbing {
+                        vm.updateScrubbingPosition(to: newTime)
+                    }
+                }
+            )
+            .scaleEffect(y: vm.isScrubbing ? 1.5 : 1, anchor: .center)
+            .animation(.bouncy, value: vm.isScrubbing)
+            .padding(.top, 24)
             
             HStack {
                 Text(formatTime(time: vm.currentTime))
+                    .contentTransition(.numericText())
+                    .animation(.snappy, value: vm.currentTime)
                 
                 Spacer()
                 
@@ -231,7 +255,6 @@ struct RecordingRowView: View {
             .fontWeight(.medium)
             .foregroundStyle(.primary)
             .padding(.top, 24)
-            .padding(.bottom, 4)
         }
         .transition(.move(edge: .top).combined(with: .blurReplace))
     }
@@ -244,6 +267,8 @@ struct RecordingRowView: View {
     
     ScrollView {
         RecordingRowView(rowItem: $item, index: 0, isExpanded: true, properties: $properties)
+        RecordingRowView(rowItem: $item, index: 1, isExpanded: false, properties: $properties)
+        RecordingRowView(rowItem: $item, index: 1, isExpanded: false, properties: $properties)
         RecordingRowView(rowItem: $item, index: 1, isExpanded: false, properties: $properties)
     }
     .modelContainer(DIContainer.shared.makePreviewContainer())

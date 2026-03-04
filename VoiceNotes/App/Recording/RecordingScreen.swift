@@ -327,6 +327,9 @@ struct RecordingScreen: View {
                     .presentationDragIndicator(.hidden)
             }
         }
+        .onDisappear {
+            vm.stopAudio()
+        }
         .animation(.smooth(duration: K.animDuration), value: vm.isEditing)
         .environment(vm)
     }

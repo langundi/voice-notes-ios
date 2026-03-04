@@ -37,6 +37,8 @@ final class RecordingViewModel {
     var isPlaying: Bool = false
     var isEditing: Bool = false
     var hideRecordButton = false
+    var isScrubbing = false
+    var wasPlayingBeforeScrub = false
     var rowItems: [RowModel] = []
     var expandedRecording: AudioModel.ID? = nil
     
@@ -302,10 +304,14 @@ extension RecordingViewModel {
             try audioManager.setupPlayback(fileURL: fileURL!, rate: recording.rate)
             
             audioManager.onPlaybackFinished = { [weak self] _ in
-                self?.hasStartedPlaying = false
-                self?.isPlaying = false
-                self?.currentTime = 0
-                self?.stopTimer()
+                DispatchQueue.main.async {
+                    self?.hasStartedPlaying = false
+                    self?.isScrubbing = false
+                    self?.wasPlayingBeforeScrub = false
+                    self?.isPlaying = false
+                    self?.currentTime = 0
+                    self?.stopTimer()
+                }
             }
         } catch {
             print("error setup playback: \(error.localizedDescription)")
@@ -355,6 +361,7 @@ extension RecordingViewModel {
         fileURL = nil
         hasStartedPlaying = false
         isPlaying = false
+        currentTime = 0
     }
     
     func play(at time: TimeInterval) {
@@ -362,26 +369,45 @@ extension RecordingViewModel {
         isPlaying = true
     }
     
+    func startScrubbing() {
+        isScrubbing = true
+        wasPlayingBeforeScrub = isPlaying
+        
+        // Pause playback while scrubbing
+        if isPlaying {
+            pauseAudio()
+        }
+    }
+    
+    func endScrubbing() {
+        isScrubbing = false
+        
+        // Seek to the final position
+        audioManager.seek(to: currentTime)
+        
+        // Resume playback if it was playing before
+        if wasPlayingBeforeScrub {
+            resumeAudio()
+        }
+    }
+    
+    func updateScrubbingPosition(to time: TimeInterval) {
+        // Update UI, not seek yet
+        currentTime = time
+    }
+    
     func rewind15Seconds() {
         let newTime = currentTime - 15
         currentTime = newTime
         
-        do {
-            try audioManager.seek(at: newTime)
-        } catch {
-            print("error seeking: \(error.localizedDescription)")
-        }
+        audioManager.seek(to: newTime)
     }
     
     func forward15Seconds() {
         let newTime = currentTime + 15
         currentTime = newTime
         
-        do {
-            try audioManager.seek(at: newTime)
-        } catch {
-            print("error seeking: \(error.localizedDescription)")
-        }
+        audioManager.seek(to: newTime)
     }
     
     func changeRate(to rate: Float) {

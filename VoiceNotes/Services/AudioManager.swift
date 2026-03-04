@@ -26,6 +26,10 @@ final class AudioManager: NSObject {
         recorder?.currentTime ?? 0
     }
     
+    var totalDuration: TimeInterval {
+        player?.duration ?? 0
+    }
+    
     private let settings: [String : Any] = [
         AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
         AVSampleRateKey: 44100.0,
@@ -144,11 +148,10 @@ extension AudioManager: AVAudioPlayerDelegate {
         player?.play(atTime: time)
     }
     
-    func seek(at time: TimeInterval) throws { 
-        if let currentTime = player?.currentTime {
-            let newTime = currentTime + time
-            player?.currentTime = newTime
-        }
+    func seek(to time: TimeInterval) {
+        // Ensure the minimum time is not below 0 and the maxium time not above the total duration
+        let clampedTime = max(0, (min(time, totalDuration)))
+        player?.currentTime = clampedTime
     }
     
     func pausePlayback() {
