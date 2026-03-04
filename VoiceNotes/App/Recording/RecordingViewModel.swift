@@ -35,11 +35,18 @@ final class RecordingViewModel {
     var hasStartedPlaying: Bool = false
     var isRecording: Bool = false
     var isPlaying: Bool = false
-    var isEditing: Bool = false
+    var isEditing: Bool = false {
+        didSet {
+            if !isEditing {
+                selectedRecordings.removeAll()
+            }
+        }
+    }
     var hideRecordButton = false
     var isScrubbing = false
     var wasPlayingBeforeScrub = false
-    var rowItems: [RowModel] = []
+    
+    var selectedRecordings: Set<AudioModel.ID> = []
     var expandedRecording: AudioModel.ID? = nil
     
     // Options Sheet Properties
@@ -61,14 +68,11 @@ final class RecordingViewModel {
         currentTime = 0
     }
     
-    // Inserts SwiftData Query into rowItems
-    func syncItems(recordings: [AudioModel]) {
-        let existingIDs = Set(rowItems.map(\.id))
-        
-        for recording in recordings {
-            if !existingIDs.contains(recording.id) {
-                rowItems.append(RowModel(id: recording.id, recording: recording))
-            }
+    func toggleSelection(for id: AudioModel.ID) {
+        if selectedRecordings.contains(id) {
+            selectedRecordings.remove(id)
+        } else {
+            selectedRecordings.insert(id)
         }
     }
     
@@ -174,9 +178,6 @@ extension RecordingViewModel {
     
     // DELETE RECORDING
     func deleteRecording(from recordings: [AudioModel]) {
-        for recording in recordings {
-            rowItems.removeAll { $0.id == recording.id }
-        }
         audioRepository.deleteRecording(for: recordings)
         expandedRecording =  nil
     }
@@ -307,7 +308,6 @@ extension RecordingViewModel {
                 DispatchQueue.main.async {
                     self?.hasStartedPlaying = false
                     self?.isScrubbing = false
-                    self?.wasPlayingBeforeScrub = false
                     self?.isPlaying = false
                     self?.currentTime = 0
                     self?.stopTimer()
@@ -370,6 +370,8 @@ extension RecordingViewModel {
     }
     
     func startScrubbing() {
+        guard !isScrubbing else { return }
+        
         isScrubbing = true
         wasPlayingBeforeScrub = isPlaying
         
@@ -380,6 +382,8 @@ extension RecordingViewModel {
     }
     
     func endScrubbing() {
+        guard isScrubbing else { return }
+        
         isScrubbing = false
         
         // Seek to the final position
