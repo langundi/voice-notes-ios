@@ -22,12 +22,12 @@ final class AudioManager: NSObject {
         player?.currentTime ?? 0
     }
     
-    var currentRecordingTime: TimeInterval {
-        recorder?.currentTime ?? 0
-    }
-    
     var totalDuration: TimeInterval {
         player?.duration ?? 0
+    }
+    
+    var currentRecordingTime: TimeInterval {
+        recorder?.currentTime ?? 0
     }
     
     private let settings: [String : Any] = [

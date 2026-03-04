@@ -29,6 +29,9 @@ final class RecordingViewModel {
     var createdAt: Date?
     var timer: Timer?
     var currentTime: TimeInterval = 0
+    var countdown: TimeInterval {
+        max(0, audioManager.totalDuration - currentTime)
+    }
     
     // Recording Screen Properties
     var hasStartedRecording: Bool = false
@@ -168,16 +171,19 @@ extension RecordingViewModel {
     
     // MOVING RECORDINGS FROM FOLDERS
     func moveRecordingToFolder(folder: FolderModel, recording: AudioModel) {
+        stopAudio()
         audioRepository.moveRecordingToFolder(recording: recording, folder: folder)
     }
     
     func removeRecordingFromFolder(folder: FolderModel, recording: AudioModel) {
+        stopAudio()
         audioRepository.removeRecordingFromFolder(recording: recording, folder: folder)
     }
     
     
     // DELETE RECORDING
     func deleteRecording(from recordings: [AudioModel]) {
+        stopAudio()
         audioRepository.deleteRecording(for: recordings)
         expandedRecording =  nil
     }
@@ -232,6 +238,8 @@ extension RecordingViewModel {
     }
     
     func startRecording() {
+        guard !isRecording else { return }
+        
         let count = audioRepository.getAudioCount()
         
         title = "New Recording \(count)"
@@ -268,18 +276,24 @@ extension RecordingViewModel {
     }
     
     func pauseRecording() {
+        guard isRecording else { return }
+        
         isRecording = false
         audioManager.pauseRecording()
         stopTimer()
     }
     
     func resumeRecording() {
+        guard !isRecording else { return }
+        
         isRecording = true
         audioManager.resumeRecording()
         startRecordingTimer()
     }
     
     func stopRecording() {
+        guard isRecording else { return }
+        
         isRecording = false
         hasStartedRecording = false
         
@@ -422,5 +436,10 @@ extension RecordingViewModel {
         let rate: Float = 1.0
         audioManager.updateRate(to: rate)
         audioRepository.updateRate(for: recording, newRate: rate)
+    }
+    
+    private func stopPlaybackIfNeeded() {
+        guard isPlaying else { return }
+        stopAudio()
     }
 }

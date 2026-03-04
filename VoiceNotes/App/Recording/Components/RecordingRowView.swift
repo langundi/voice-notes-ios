@@ -33,6 +33,10 @@ struct RecordingRowView: View {
         recording.isFavorite
     }
     
+    private var disableButtons: Bool {
+        isFocused
+    }
+    
     var body: some View {
         @Bindable var vm = vm
         VStack(spacing: 8) {
@@ -137,8 +141,9 @@ struct RecordingRowView: View {
                 .disabled(!isExpanded || vm.isEditing)
                 .onChange(of: isFocused) { oldValue, newValue in
                     if isFocused {
-                        textSelection = .init(range: textField.startIndex..<textField.endIndex)
+                        vm.stopAudio()
                         vm.hideRecordButton = true
+                        textSelection = .init(range: textField.startIndex..<textField.endIndex)
                     }
                 }
                 .onSubmit {
@@ -199,6 +204,7 @@ struct RecordingRowView: View {
                 }
             }
             .padding(.top, 24)
+            .allowsHitTesting(!isFocused)
             
             /// Timestamp and Duration
             HStack {
@@ -208,7 +214,9 @@ struct RecordingRowView: View {
                 
                 Spacer()
                 
-                Text(formatTime(time: recording.duration))
+                Text("-" + formatTime(time: vm.countdown))
+                    .contentTransition(.numericText())
+                    .animation(.snappy, value: vm.countdown)
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -267,6 +275,7 @@ struct RecordingRowView: View {
             .foregroundStyle(.primary)
             .padding(.top, 24)
             .padding(.bottom, 8)
+            .allowsHitTesting(!isFocused)
         }
         .transition(.move(edge: .top).combined(with: .blurReplace))
     }
