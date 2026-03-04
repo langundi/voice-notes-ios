@@ -14,115 +14,116 @@ struct RecordingRowView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     // UI Properties
+    @State private var isSelected: Bool = false
     @State private var textField: String = ""
     @State private var textSelection: TextSelection?
     @FocusState private var isFocused: Bool
     @ScaledMetric private var buttonWidth: CGFloat = 44
     
     // Passed Values
-    @Binding var rowItem: RowModel
-    var index: Int
+    var recording: AudioModel
     var isExpanded: Bool
-    @Binding var properties: SelectionProperties
     
     // Computed Properties
     private var isVisuallyExpanded: Bool {
         isExpanded && !vm.isEditing
     }
     
-    private var isSelected: Bool {
-        properties.selectedIndices.contains(index) && !properties.toBeDeletedIndices.contains(index)
-    }
-    
     private var isFavorite: Bool {
-        rowItem.recording.isFavorite
+        recording.isFavorite
     }
     
     var body: some View {
         @Bindable var vm = vm
-            VStack(spacing: 8) {
-                Divider()
-                
-                HStack(alignment: .center, spacing: 8) {
-                    if vm.isEditing {
+        VStack(spacing: 8) {
+            Divider()
+            
+            HStack(alignment: .center, spacing: 8) {
+                if vm.isEditing {
+                    Button {
+                        vm.toggleSelection(for: recording.id)
+                    } label: {
                         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                             .font(.title2)
                             .foregroundStyle(isSelected ? .blue : Color.secondary)
                             .contentTransition(.symbolEffect(.replace))
-                            .transition(.move(edge: .leading).combined(with: .opacity))
                     }
-                    
-                    TitleAndDateView()
-                    
-                    Spacer()
-                    
-                    if isVisuallyExpanded {
-                        Menu {
-                            ShareLink(item: getURL(for: rowItem.recording.fileName)) {
-                                Label("Share", systemImage: "square.and.arrow.up")
-                            }
-                            
-                            Divider()
-                            
-                            Button("Rename", systemImage: "pencil") {
-                                isFocused = true
-                                vm.hideRecordButton = true
-                            }
-                            
-                            Button("Edit Recording", systemImage: "waveform") { }
-                            
-                            Divider()
-                            
-                            Button("Options", systemImage: "slider.horizontal.3") {
-                                vm.showOptionsSheet = true
-                            }
-                            
-                            Divider()
-                            
-                            Button(isFavorite ? "Unfavorite" : "Favorite", systemImage: isFavorite ? "heart.fill" : "heart") {
-                                vm.favoriteRecording(recording: rowItem.recording)
-                            }
-                            .contentTransition(.symbolEffect)
-                            
-                            Button("Duplicate", systemImage: "plus.square.on.square") {
-                                vm.duplicateRecording(recording: rowItem.recording)
-                            }
-                            
-                            Button("Move", systemImage: "folder") {
-                                vm.showSelectFolderSheet = true
-                            }
-                        } label: {
-                            Image(systemName: "ellipsis")
-                                .font(.title2)
-                                .padding(.vertical)
-                                .padding(.leading)
-                        }
-                    } else {
-                        Text(formatTime(time: rowItem.recording.duration))
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .vSpacing(.bottom)
-                            .transition(.blurReplace)
-                    }
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                    .animation(.snappy(duration: 0.2), value: isSelected)
                 }
                 
+                TitleAndDateView()
+                
+                Spacer()
+                
                 if isVisuallyExpanded {
-                    PlaybackControlView()
+                    Menu {
+                        ShareLink(item: getURL(for: recording.fileName)) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        
+                        Divider()
+                        
+                        Button("Rename", systemImage: "pencil") {
+                            isFocused = true
+                            vm.hideRecordButton = true
+                        }
+                        
+                        Button("Edit Recording", systemImage: "waveform") { }
+                        
+                        Divider()
+                        
+                        Button("Options", systemImage: "slider.horizontal.3") {
+                            vm.showOptionsSheet = true
+                        }
+                        
+                        Divider()
+                        
+                        Button(isFavorite ? "Unfavorite" : "Favorite", systemImage: isFavorite ? "heart.fill" : "heart") {
+                            vm.favoriteRecording(recording: recording)
+                        }
+                        .contentTransition(.symbolEffect)
+                        
+                        Button("Duplicate", systemImage: "plus.square.on.square") {
+                            vm.duplicateRecording(recording: recording)
+                        }
+                        
+                        Button("Move", systemImage: "folder") {
+                            vm.showSelectFolderSheet = true
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.title2)
+                            .padding(.vertical)
+                            .padding(.leading)
+                    }
+                } else {
+                    Text(formatTime(time: recording.duration))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .vSpacing(.bottom)
+                        .transition(.blurReplace)
                 }
             }
-            .padding(.horizontal)
-            .padding(.bottom, 6)
-            .animation(.snappy(duration: K.animDuration), value: isVisuallyExpanded)
-            .animation(.smooth(duration: K.animDuration), value: vm.isPlaying)
-            .animation(.snappy(duration: K.animDuration), value: isSelected)
-            .onGeometryChange(for: CGRect.self) {
-                $0.frame(in: .global)
-            } action: { newValue in
-                rowItem.location = newValue
+            
+            if isVisuallyExpanded {
+                PlaybackControlView()
             }
-            .task {
-                textField = rowItem.recording.title
+        }
+        .padding(.horizontal)
+        .padding(.bottom, 8)
+        .animation(.snappy(duration: K.animDuration), value: isVisuallyExpanded)
+        .animation(.smooth(duration: K.animDuration), value: vm.isPlaying)
+        .animation(.snappy(duration: K.animDuration), value: isSelected)
+        .onChange(of: vm.selectedRecordings) { oldValue, newValue in
+            let currentlyInSet = newValue.contains(recording.id)
+            if isSelected != currentlyInSet {
+                isSelected = currentlyInSet
             }
+        }
+        .task {
+            textField = recording.title
+        }
     }
     
     @ViewBuilder
@@ -143,16 +144,16 @@ struct RecordingRowView: View {
                 .onSubmit {
                     // Reset name when text field left empty
                     if textField.isEmpty {
-                        textField = rowItem.recording.title
+                        textField = recording.title
                     } else {
-                        vm.renameTitle(for: rowItem.recording, newTitle: textField)
+                        vm.renameTitle(for: recording, newTitle: textField)
                     }
                     vm.isEditing = false
                     vm.hideRecordButton = false
                 }
             
             HStack(alignment: .center) {
-                Text(formatDate(date: rowItem.recording.createdAt, format: "HH.mm"))
+                Text(formatDate(date: recording.createdAt, format: "HH.mm"))
                     .font(.footnote)
                     .fontWeight(.medium)
                 
@@ -167,30 +168,39 @@ struct RecordingRowView: View {
         VStack(alignment: .center, spacing: 8) {
             @Bindable var vm = vm
             
-            let totalDuration = rowItem.recording.duration
+            let totalDuration = recording.duration
             let config: LineScrubber.Config = .init(activeTint: colorScheme == .dark ? .white : .black)
             
-            LineScrubber(
-                config: config,
-                current: $vm.currentTime,
-                total: totalDuration,
-                onEditingChanged: { editing in
-                    if editing {
-                        vm.startScrubbing()
-                    } else {
-                        vm.endScrubbing()
-                    }
-                },
-                onScrub: { newTime in
-                    if vm.isScrubbing {
-                        vm.updateScrubbingPosition(to: newTime)
-                    }
+            Group {
+                if !vm.isRecording {
+                    LineScrubber(
+                        config: config,
+                        current: $vm.currentTime,
+                        total: totalDuration,
+                        onEditingChanged: { editing in
+                            if editing {
+                                vm.startScrubbing()
+                            } else {
+                                vm.endScrubbing()
+                            }
+                        },
+                        onScrub: { newTime in
+                            if vm.isScrubbing {
+                                vm.updateScrubbingPosition(to: newTime)
+                            }
+                        }
+                    )
+                    .scaleEffect(y: vm.isScrubbing ? 2 : 1, anchor: .center)
+                    .animation(.bouncy, value: vm.isScrubbing)
+                } else {
+                    Capsule()
+                        .fill(config.inActiveTint)
+                        .frame(height: config.trackHeight)
                 }
-            )
-            .scaleEffect(y: vm.isScrubbing ? 1.5 : 1, anchor: .center)
-            .animation(.bouncy, value: vm.isScrubbing)
+            }
             .padding(.top, 24)
             
+            /// Timestamp and Duration
             HStack {
                 Text(formatTime(time: vm.currentTime))
                     .contentTransition(.numericText())
@@ -198,12 +208,13 @@ struct RecordingRowView: View {
                 
                 Spacer()
                 
-                Text(formatTime(time: rowItem.recording.duration))
+                Text(formatTime(time: recording.duration))
             }
             .font(.caption)
             .foregroundStyle(.secondary)
             .monospacedDigit()
             
+            /// Control Buttons
             HStack(alignment: .center, spacing: 36) {
                 Button {
                     // Open sheet
@@ -243,7 +254,7 @@ struct RecordingRowView: View {
                 
                 Button {
                     withAnimation(.snappy(duration: 0.2)) {
-                        vm.deleteRecording(from: [rowItem.recording])
+                        vm.deleteRecording(from: [recording])
                     }
                 } label: {
                     Image(systemName: "trash")
@@ -255,6 +266,7 @@ struct RecordingRowView: View {
             .fontWeight(.medium)
             .foregroundStyle(.primary)
             .padding(.top, 24)
+            .padding(.bottom, 8)
         }
         .transition(.move(edge: .top).combined(with: .blurReplace))
     }
@@ -266,10 +278,10 @@ struct RecordingRowView: View {
     let vm = DIContainer.shared.makeRecordingViewModel()
     
     ScrollView {
-        RecordingRowView(rowItem: $item, index: 0, isExpanded: true, properties: $properties)
-        RecordingRowView(rowItem: $item, index: 1, isExpanded: false, properties: $properties)
-        RecordingRowView(rowItem: $item, index: 1, isExpanded: false, properties: $properties)
-        RecordingRowView(rowItem: $item, index: 1, isExpanded: false, properties: $properties)
+        RecordingRowView(recording: AudioModel.sample, isExpanded: true)
+        RecordingRowView(recording: AudioModel.sample, isExpanded: false)
+        RecordingRowView(recording: AudioModel.sample, isExpanded: false)
+        RecordingRowView(recording: AudioModel.sample, isExpanded: false)
     }
     .modelContainer(DIContainer.shared.makePreviewContainer())
     .environment(vm)
