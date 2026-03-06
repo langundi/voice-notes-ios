@@ -260,7 +260,7 @@ extension RecordingViewModel {
         createdAt = Date.now
         
         do {
-            try audioManager.startRecording(fileURL: fileURL!)
+            try audioManager.startRecording2(for: fileURL!)
             
             audioManager.onRecordingFinished = { [weak self] _ in
                 guard let self else { return }
@@ -291,16 +291,20 @@ extension RecordingViewModel {
         guard isRecording else { return }
         
         isRecording = false
-        audioManager.pauseRecording()
+        audioManager.pauseRecording2()
         stopTimer()
     }
     
     func resumeRecording() {
         guard !isRecording else { return }
         
-        isRecording = true
-        audioManager.resumeRecording()
-        startRecordingTimer()
+        do {
+            isRecording = true
+            try audioManager.resumeRecording2()
+            startRecordingTimer()
+        } catch {
+            print("error resuming: \(error.localizedDescription)")
+        }
     }
     
     func stopRecording() {
@@ -310,7 +314,7 @@ extension RecordingViewModel {
         hasStartedRecording = false
         
         stopTimer()
-        audioManager.stopRecording()
+        audioManager.stopRecording2()
     }
 }
 

@@ -8,11 +8,17 @@
 import Foundation
 import AVFoundation
 
+@Observable
 final class AudioManager: NSObject {
     
     private let session = AVAudioSession.sharedInstance()
+    private let audioEngine = AVAudioEngine()
+    
+    private var audioFile: AVAudioFile?
     private var recorder: AVAudioRecorder?
     private var player: AVAudioPlayer?
+    
+    private let bufferSize: UInt32 = 1024
     
     // Callbacks
     var onRecordingFinished: ((Bool) -> Void)?
@@ -30,9 +36,11 @@ final class AudioManager: NSObject {
         recorder?.currentTime ?? 0
     }
     
+    var samples: [Float] = []
+    
     private let settings: [String : Any] = [
         AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-        AVSampleRateKey: 44100.0,
+        AVSampleRateKey: 44_100.0,
         AVNumberOfChannelsKey: 1,
         AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
     ]
@@ -174,4 +182,85 @@ extension AudioManager: AVAudioPlayerDelegate {
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         onPlaybackFinished?(flag)
     }
+}
+
+
+// MARK: - Audio Engine
+
+extension AudioManager {
+    
+    func startRecording2(for fileURL: URL) throws {
+        audioEngine.reset()
+        
+        let inputNode = audioEngine.inputNode
+        let format = audioEngine.inputNode.outputFormat(forBus: 0)
+        
+        audioFile = try! AVAudioFile(
+            forWriting: fileURL,
+            settings: settings,
+            commonFormat: .pcmFormatFloat32,
+            interleaved: false
+        )
+        
+        inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: format) { [weak self] buffer, _ in
+            guard let self else { return }
+            
+            try? self.audioFile?.write(from: buffer)
+//            processSamples(buffer: buffer)
+        }
+        
+        audioEngine.prepare()
+        
+        do {
+            try audioEngine.start()
+        } catch {
+            throw AudioManagerError.audioEngineFailed(error)
+        }
+    }
+    
+    func pauseRecording2() {
+        audioEngine.pause()
+    }
+    
+    func resumeRecording2() throws {
+        do {
+            try audioEngine.start()
+        } catch {
+            throw AudioManagerError.audioEngineFailed(error)
+        }
+    }
+    
+    func stopRecording2() {
+        audioFile?.close()
+        audioFile = nil
+        
+        audioEngine.stop()
+        audioEngine.inputNode.removeTap(onBus: 0)
+        audioEngine.reset()
+    }
+    
+//    private func processSamples(buffer: AVAudioPCMBuffer) {
+//        guard let channelData = buffer.floatChannelData?[0] else { return }
+//        let frameCount = Int(buffer.frameLength)
+//        
+//        // Calculate RMS (Root Mean Square) amplitude for smooth waveform
+//        var sum: Float = 0
+//        for i in 0..<frameCount {
+//            let sample = channelData[i]
+//            sum += sample * sample
+//        }
+//        let rms = sqrt(sum / Float(frameCount))
+//        
+//        // Normalize to 0.0 - 1.0 range
+//        let normalizedValue = min(rms * 10, 1.0) // Adjust multiplier for sensitivity
+//        
+//        DispatchQueue.main.async {
+//            self.samples.append(normalizedValue)
+//            // Keep a rolling window (e.g., last 100 samples for display)
+//            if self.samples.count > 100 {
+//                self.samples.removeFirst()
+//            }
+//        }
+//    }
+    
 }
