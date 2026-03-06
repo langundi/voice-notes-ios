@@ -19,6 +19,7 @@ final class AudioModel {
     var isFavorite: Bool = false
     var isDeleted: Bool = false
     var deletedAt: Date? = nil
+    var samples: [Float] = []
     var Folder: FolderModel?
     
     init(title: String, fileName: String, duration: Double, createdAt: Date) {
