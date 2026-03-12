@@ -13,6 +13,20 @@ final class RecordingViewModel {
     
     private let audioRepository: AudioRepository
     private let audioManager: AudioManager
+    private var anyTranscriptionManager: Any?
+    private(set) var transcriptionModel = TranscriptionModel()
+    
+    @available(iOS 26.0, *)
+    private var transcriptionManager: TranscriptionManager? {
+        anyTranscriptionManager as? TranscriptionManager
+    }
+    
+    @available(iOS 26.0, *)
+    init(audioRepository: AudioRepository, audioManager: AudioManager, transcriptionManager: TranscriptionManager? = nil) {
+        self.audioRepository = audioRepository
+        self.audioManager = audioManager
+        self.anyTranscriptionManager = transcriptionManager
+    }
     
     init(audioRepository: AudioRepository, audioManager: AudioManager) {
         self.audioRepository = audioRepository
@@ -90,6 +104,11 @@ final class RecordingViewModel {
         }
     }
     
+    private func clearTranscript() {
+        transcriptionModel.finalizedText = ""
+        transcriptionModel.currentText = ""
+    }
+    
     private func duplicateFile(sourceURL: URL, destinationURL: URL) {
         let fileManager = FileManager.default
         let destinationDirectory = destinationURL.deletingLastPathComponent()
@@ -113,7 +132,7 @@ final class RecordingViewModel {
     private func startRecordingTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [weak self] _ in
             guard let self else { return }
-            self.currentTime = self.audioManager.currentRecordingTime
+            self.currentTime += 0.01
         }
     }
     
@@ -142,7 +161,8 @@ extension RecordingViewModel {
             title: title!,
             fileName: fileURL!.lastPathComponent,
             duration: currentTime,
-            createdAt: createdAt!
+            createdAt: createdAt!,
+            transcript: transcriptionModel.displayText
         )
     }
     
@@ -237,7 +257,7 @@ extension RecordingViewModel {
 
 extension RecordingViewModel {
     
-    func toggleRecording() {
+    func toggleRecording() async {
         if hasStartedRecording {
             if isRecording {
                 pauseRecording()
@@ -245,11 +265,11 @@ extension RecordingViewModel {
                 resumeRecording()
             }
         } else {
-            startRecording()
+            await startRecording()
         }
     }
     
-    func startRecording() {
+    func startRecording() async {
         guard !isRecording else { return }
         
         let count = audioRepository.getAudioCount()
@@ -260,7 +280,44 @@ extension RecordingViewModel {
         createdAt = Date.now
         
         do {
-            try audioManager.startRecording2(for: fileURL!)
+            if #available(iOS 26.0, *) {
+                try await transcriptionManager!.startTranscription { [weak self] text, isFinal in
+                    Task { @MainActor in
+                        guard let self = self else { return }
+                        if isFinal {
+                            
+                            // Prevent double space after .
+                            if self.transcriptionModel.finalizedText.contains(".") {
+                                self.transcriptionModel.finalizedText += text
+                            } else {
+                                self.transcriptionModel.finalizedText += text + " "
+                            }
+                            
+                            self.transcriptionModel.currentText = ""
+                        } else {
+                            self.transcriptionModel.currentText = text
+                        }
+                    }
+                }
+                
+                try audioManager.startRecording2(for: fileURL!) { [weak self] buffer in
+                    guard let self else { return }
+                    
+                    // Transcribe buffer
+                    do {
+                        try self.transcriptionManager!.processAudioBuffer(buffer)
+                    } catch {
+                        print("error transcribing: \(error.localizedDescription)")
+                    }
+                    
+                    transcriptionModel.isRecording = true
+                }
+            } else {
+                try audioManager.startRecording2(for: fileURL!) { [weak self] buffer in
+                    guard self != nil else { return }
+                    
+                }
+            }
             
             audioManager.onRecordingFinished = { [weak self] _ in
                 guard let self else { return }
@@ -280,7 +337,6 @@ extension RecordingViewModel {
             
             hasStartedRecording = true
             isRecording = true
-            
             startRecordingTimer()
         } catch {
             print("error start recording: \(error.localizedDescription)")
@@ -307,7 +363,7 @@ extension RecordingViewModel {
         }
     }
     
-    func stopRecording() {
+    func stopRecording() async {
         guard isRecording else { return }
         
         isRecording = false
@@ -315,6 +371,11 @@ extension RecordingViewModel {
         
         stopTimer()
         audioManager.stopRecording2()
+        if #available(iOS 26.0, *) {
+            await transcriptionManager?.stopTranscription()
+            transcriptionModel.isRecording = false
+            clearTranscript()
+        }
     }
 }
 

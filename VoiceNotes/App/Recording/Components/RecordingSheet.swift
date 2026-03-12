@@ -35,10 +35,29 @@ struct RecordingSheet: View {
                 }
                 .frame(maxWidth: .infinity)
                 
-                Rectangle()
-                    .fill(.gray.tertiary)
-                    .frame(height: 320)
-                    .padding(.bottom, 24)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 10) {
+                        if !vm.transcriptionModel.displayText.isEmpty {
+                            Text(vm.transcriptionModel.displayText)
+                                .font(.body)
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(10)
+                        } else {
+                            Text("Tap the microphone to start recording...")
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                                .padding()
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+//                Rectangle()
+//                    .fill(.gray.tertiary)
+//                    .frame(height: 320)
+//                    .padding(.bottom, 24)
                 
                 Text("\(formatTimer(time: vm.currentTime))")
                     .font(.largeTitle)
@@ -84,7 +103,9 @@ struct RecordingSheet: View {
                     Spacer()
                     
                     Button {
-                        vm.toggleRecording()
+                        Task {
+                            await vm.toggleRecording()
+                        }
                     } label: {
                         Group {
                             if vm.isRecording {
@@ -100,7 +121,9 @@ struct RecordingSheet: View {
                     Spacer()
                     
                     Button {
-                        vm.stopRecording()
+                        Task {
+                            await vm.stopRecording()
+                        }
                         
                         if folderTitle == "Favorites" {
                             vm.saveRecordingForFavorites()

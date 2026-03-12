@@ -189,7 +189,7 @@ extension AudioManager: AVAudioPlayerDelegate {
 
 extension AudioManager {
     
-    func startRecording2(for fileURL: URL) throws {
+    func startRecording2(for fileURL: URL, onBuffer: @escaping (AVAudioPCMBuffer) -> Void) throws {
         audioEngine.reset()
         
         let inputNode = audioEngine.inputNode
@@ -206,6 +206,7 @@ extension AudioManager {
             guard let self else { return }
             
             try? self.audioFile?.write(from: buffer)
+            onBuffer(buffer)
 //            processSamples(buffer: buffer)
         }
         

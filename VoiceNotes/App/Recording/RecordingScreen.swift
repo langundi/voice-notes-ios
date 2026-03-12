@@ -160,7 +160,9 @@ struct RecordingScreen: View {
             .overlay(alignment: .bottom) {
                 if !vm.isEditing && !vm.hideRecordButton && !isSearchActive && folderTitle?.title != FolderEnum.trash.title {
                     Button {
-                        vm.toggleRecording()
+                        Task {
+                            await vm.toggleRecording()
+                        }
                     } label: {
                         Circle()
                             .fill(.red)
