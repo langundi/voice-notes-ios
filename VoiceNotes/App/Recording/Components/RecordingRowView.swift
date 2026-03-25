@@ -216,8 +216,6 @@ struct RecordingRowView: View {
                 Spacer()
                 
                 Text("-" + formatTime(time: vm.countdown))
-                    .contentTransition(.numericText())
-                    .animation(.snappy, value: vm.countdown)
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -283,8 +281,6 @@ struct RecordingRowView: View {
 }
 
 #Preview {
-    @Previewable @State var item = RowModel(id: AudioModel.sample.id, recording: AudioModel.sample)
-    @Previewable @State var properties = SelectionProperties.init()
     let vm = DIContainer.shared.makeRecordingViewModel()
     
     ScrollView {

@@ -12,6 +12,9 @@ import SwiftData
 final class DIContainer {
     
     static let shared = DIContainer()
+    
+    private var transcriptionManager: Any?
+    
     private init() { }
     
     lazy var container: ModelContainer = makeContainer()
@@ -20,12 +23,21 @@ final class DIContainer {
     
     lazy var audioManager = AudioManager()
     
+    
     func makeHomeViewModel() -> HomeViewModel {
         HomeViewModel(audioRepository: audioRepository, audioManager: audioManager)
     }
     
     func makeRecordingViewModel() -> RecordingViewModel {
-        RecordingViewModel(audioRepository: audioRepository, audioManager: audioManager)
+        if #available(iOS 26.0, *) {
+            RecordingViewModel(
+                audioRepository: audioRepository,
+                audioManager: audioManager,
+                transcriptionManager: TranscriptionManager()
+            )
+        } else {
+            RecordingViewModel(audioRepository: audioRepository, audioManager: audioManager)
+        }
     }
 }
 

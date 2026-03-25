@@ -14,6 +14,7 @@ enum AudioManagerError: LocalizedError {
     case playerInitFailed(Error)
     case noActiveRecording
     case noActivePlayback
+    case audioEngineFailed(Error)
     
     var errorDescription: String? {
         switch self {
@@ -23,6 +24,8 @@ enum AudioManagerError: LocalizedError {
         case .playerInitFailed(let e):     return "Failed to initialize player: \(e.localizedDescription)"
         case .noActiveRecording:           return "No active recording in progress."
         case .noActivePlayback:            return "No active playback in progress."
+        case .audioEngineFailed(let e):
+            return "Failed to start audio engine: \(e.localizedDescription)"
         }
     }
 }
