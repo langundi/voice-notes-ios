@@ -30,8 +30,10 @@ class TranscriptionManager {
     
     
     func startTranscription(onResult: @escaping (String, Bool) -> Void) async throws {
+        let locale = Locale(identifier: "en_US")
+        
         transcriber = SpeechTranscriber(
-            locale: Locale(identifier: "en_US"),
+            locale: locale,
             transcriptionOptions: [],
             reportingOptions: [.volatileResults],
             attributeOptions: [.audioTimeRange]
