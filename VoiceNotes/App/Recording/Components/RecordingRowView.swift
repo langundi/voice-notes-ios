@@ -224,7 +224,7 @@ struct RecordingRowView: View {
             /// Control Buttons
             HStack(alignment: .center, spacing: 36) {
                 Button {
-                    // Open sheet
+                    vm.showRecordingSheet = true
                 } label: {
                     Image(systemName: "waveform")
                         .fontWeight(.light)

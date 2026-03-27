@@ -16,6 +16,7 @@ struct RecordingSheet: View {
     @State private var showTranscription: Bool = false
     
     let folderTitle: String
+    var recording: AudioModel?
     
     var body: some View {
         @Bindable var vm = vm
@@ -43,22 +44,41 @@ struct RecordingSheet: View {
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("", systemImage: "checkmark") { }
+                    Button("", systemImage: "checkmark") {
+                        if vm.hasStartedRecording {
+                            Task {
+                                await vm.stopRecording()
+                            }
+                            
+                            if folderTitle == "Favorites" {
+                                vm.saveRecordingForFavorites()
+                            } else if folderTitle == "All Recordings" {
+                                vm.saveRecording()
+                            } else {
+                                vm.saveRecordingToFolder(folderTitle: folderTitle)
+                            }
+                            
+                            vm.dismissRecordingSheet()
+                        } else {
+                            vm.dismissRecordingSheet()
+                        }
+                    }
                 }
             }
             .background(.gray.opacity(0.05))
+            .animation(.smooth(duration: 0.2), value: showTranscription)
         }
     }
     
     @ViewBuilder
     private func SheetHeader() -> some View {
         VStack(spacing: 2) {
-            Text(vm.title ?? "Title")
+            Text((vm.title ?? recording?.title) ?? "-")
                 .font(.title2)
                 .fontWeight(.bold)
             
             HStack(alignment: .center, spacing: 8) {
-                Text("\(formatDate(date: vm.createdAt ?? Date.now))")
+                Text("\(formatDate(date: (vm.createdAt ?? recording?.createdAt) ?? Date.now))")
                     .foregroundStyle(.secondary)
                     .fontWeight(.semibold)
                 
@@ -74,15 +94,36 @@ struct RecordingSheet: View {
     private func TranscriptionView() -> some View {
         ScrollViewReader { proxy in
             ScrollView(.vertical) {
-                if !vm.transcriptionModel.displayText.isEmpty {
-                    Text(vm.transcriptionModel.displayText)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity, alignment: .topLeading)
-                        .padding(.horizontal, 36)
-                        .id("transcriptionText")
+                if recording == nil {
+                    if !vm.transcriptionModel.displayText.isEmpty {
+                        Text(vm.transcriptionModel.displayText)
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                            .padding(.horizontal, 36)
+                            .id("transcriptionText")
+                    } else {
+                        EmptyView()
+                    }
                 } else {
-                    EmptyView()
+                    if let recording = recording {
+                        Text(recording.transcript)
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                            .padding(.horizontal, 36)
+                        
+                        if !vm.transcriptionModel.displayText.isEmpty {
+                            Text(vm.transcriptionModel.displayText)
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .frame(maxWidth: .infinity, alignment: .topLeading)
+                                .padding(.horizontal, 36)
+                                .id("transcriptionText")
+                        } else {
+                            EmptyView()
+                        }
+                    }
                 }
             }
             .onChange(of: vm.transcriptionModel.displayText) { _, _ in
@@ -182,7 +223,9 @@ struct RecordingSheet: View {
                     }
                     .foregroundStyle(.red)
                 }
+                .allowsHitTesting(vm.hasStartedRecording)
                 .buttonStyle(ToolBarButtonStyle())
+
             }
             .padding(.horizontal, 36)
         }

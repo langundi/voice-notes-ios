@@ -243,12 +243,22 @@ struct RecordingScreen: View {
                     }
                 }
             }
-            .sheet(isPresented: $vm.hasStartedRecording) {
-                RecordingSheet(folderTitle: navigationTitle!)
-                    .presentationDetents([.fraction(1)])
-                    .interactiveDismissDisabled(true)
-                    .presentationBackgroundInteraction(.disabled)
-                    .presentationDragIndicator(.hidden)
+            .sheet(isPresented: $vm.showRecordingSheet) {
+                if vm.expandedRecording == nil {
+                    RecordingSheet(folderTitle: navigationTitle!)
+                        .presentationDetents([.fraction(1)])
+                        .interactiveDismissDisabled(true)
+                        .presentationBackgroundInteraction(.disabled)
+                        .presentationDragIndicator(.hidden)
+                } else {
+                    if let recording = recordings.first(where: { $0.id == vm.expandedRecording }) {
+                        RecordingSheet(folderTitle: navigationTitle!, recording: recording)
+                            .presentationDetents([.fraction(1)])
+                            .interactiveDismissDisabled(true)
+                            .presentationBackgroundInteraction(.disabled)
+                            .presentationDragIndicator(.hidden)
+                    }
+                }
             }
             .sheet(isPresented: $vm.showOptionsSheet) {
                 if let recording = recordings.first(where: { $0.id == vm.expandedRecording }) {

@@ -50,6 +50,7 @@ final class RecordingViewModel {
     // Recording Screen Properties
     var hasStartedRecording: Bool = false
     var hasStartedPlaying: Bool = false
+    var showRecordingSheet: Bool = false
     var isRecording: Bool = false
     var isPlaying: Bool = false
     var isEditing: Bool = false {
@@ -94,6 +95,7 @@ final class RecordingViewModel {
     }
     
     func dismissRecordingSheet() {
+        showRecordingSheet = false
         currentTime = 0
         
         // Delay to compensate sheet closing animation
@@ -271,6 +273,9 @@ extension RecordingViewModel {
     
     func startRecording() async {
         guard !isRecording else { return }
+        
+        expandedRecording = nil
+        showRecordingSheet = true
         
         let count = audioRepository.getAudioCount()
         
