@@ -11,11 +11,6 @@ struct OptionsSheet: View {
     
     @Environment(RecordingViewModel.self) private var vm
     
-    @State private var rate: Float = 1.0
-    @State private var skipSilenceOn: Bool = false
-    @State private var enhanceRecordingOn: Bool = false
-    @State private var defaultSettings: Bool = true
-    
     let recording: AudioModel
     
     var body: some View {
@@ -37,11 +32,7 @@ struct OptionsSheet: View {
                             Image(systemName: "hare")
                         }
                         .contentTransition(.symbolEffect)
-                        
-                        Toggle("Skip Silence", isOn: $vm.skipSilenceOn)
                     }
-                    
-                    Toggle("Enhance Recording", isOn: $vm.enhanceRecordingOn)
                 }
                 .listSectionSpacing(16)
             }
@@ -51,10 +42,7 @@ struct OptionsSheet: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Reset") {
                         withAnimation(.snappy(duration: K.animDuration)) {
-                            defaultSettings = true
-                            enhanceRecordingOn = false
-                            skipSilenceOn = false
-                            rate = 1.0
+                            vm.defaultSettings = true
                             vm.resetPlaybackOptions(for: recording)
                         }
                     }
@@ -70,14 +58,8 @@ struct OptionsSheet: View {
             .onAppear {
                 vm.updateOptionsState(for: recording)
             }
-            .onChange(of: enhanceRecordingOn) { _, newValue in
-                defaultSettings = !newValue
-            }
-            .onChange(of: skipSilenceOn) { _, newValue in
-                defaultSettings = !newValue
-            }
             .onChange(of: vm.rate) { _, newValue in
-                defaultSettings = newValue == 1.0
+                vm.defaultSettings = newValue == 1.0
                 vm.changeRate(to: newValue)
                 vm.updateRate(for: recording, newRate: newValue)
                 print("Playback rate: \(vm.rate)")

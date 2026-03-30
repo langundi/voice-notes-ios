@@ -29,7 +29,6 @@
 		8156B17D2F40B2DE000447EF /* AudioRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B17C2F40B2DE000447EF /* AudioRepository.swift */; };
 		8156B17F2F40B4AD000447EF /* RecordingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B17E2F40B4AD000447EF /* RecordingScreen.swift */; };
 		8156B1812F40B4B4000447EF /* RecordingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B1802F40B4B4000447EF /* RecordingViewModel.swift */; };
-		8176864E2F73E70B005CE735 /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8176864D2F73E70B005CE735 /* SwiftUIView.swift */; };
 		81BD96732F419B88001135A2 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BD96722F419B88001135A2 /* AudioManager.swift */; };
 		81BD967D2F41B2ED001135A2 /* AudioManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BD967C2F41B2ED001135A2 /* AudioManagerError.swift */; };
 		81ED5BF02F41E22800357F54 /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ED5BEF2F41E22800357F54 /* View+Extensions.swift */; };
@@ -63,7 +62,6 @@
 		8156B17C2F40B2DE000447EF /* AudioRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRepository.swift; sourceTree = "<group>"; };
 		8156B17E2F40B4AD000447EF /* RecordingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingScreen.swift; sourceTree = "<group>"; };
 		8156B1802F40B4B4000447EF /* RecordingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewModel.swift; sourceTree = "<group>"; };
-		8176864D2F73E70B005CE735 /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; };
 		81BD96722F419B88001135A2 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		81BD967C2F41B2ED001135A2 /* AudioManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManagerError.swift; sourceTree = "<group>"; };
 		81ED5BEF2F41E22800357F54 /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
@@ -197,7 +195,6 @@
 			children = (
 				815329C92F434F5300CAB519 /* RecordingRowView.swift */,
 				81ED5BF42F41F46C00357F54 /* RecordingSheet.swift */,
-				8176864D2F73E70B005CE735 /* SwiftUIView.swift */,
 				811AF7B52F4C9D9300EDAA4C /* OptionsSheet.swift */,
 				8152BEA82F5033C60055DD6C /* SelectFolderSheet.swift */,
 				81544E642F5721A70072B8B2 /* LineScrubber.swift */,
@@ -339,7 +336,6 @@
 				81ED5BF82F41F57200357F54 /* RecordButtonStyle.swift in Sources */,
 				8122CE122F3F58C70098A422 /* VoiceNotesApp.swift in Sources */,
 				81ED5BFC2F42139F00357F54 /* ToolbarButtonStyle.swift in Sources */,
-				8176864E2F73E70B005CE735 /* SwiftUIView.swift in Sources */,
 				8152BEA92F5033C60055DD6C /* SelectFolderSheet.swift in Sources */,
 				810A7B112F62A572002A30C6 /* TranscriptionManager.swift in Sources */,
 			);

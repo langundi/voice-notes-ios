@@ -70,8 +70,6 @@ final class RecordingViewModel {
     // Options Sheet Properties
     var showOptionsSheet: Bool = false
     var rate: Float = 1
-    var skipSilenceOn: Bool = false
-    var enhanceRecordingOn: Bool = false
     var defaultSettings: Bool = true
     
     // Select Folder Sheet Properties
@@ -515,7 +513,7 @@ extension RecordingViewModel {
     }
     
     func resetPlaybackOptions(for recording: AudioModel) {
-        let rate: Float = 1.0
+        rate = 1.0
         audioManager.updateRate(to: rate)
         audioRepository.updateRate(for: recording, newRate: rate)
     }

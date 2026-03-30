@@ -19,7 +19,7 @@ struct RecordButtonStyle: ButtonStyle {
                 .fontWeight(.semibold)
                 .background {
                     RoundedRectangle(cornerRadius: 50, style: .continuous)
-                        .fill(isRecording ? .red : .white)
+                        .fill(isRecording ? .red : .clear)
                 }
                 .glassEffect(.regular.interactive(true))
                 .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)

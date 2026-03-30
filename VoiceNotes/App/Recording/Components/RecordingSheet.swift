@@ -82,7 +82,7 @@ struct RecordingSheet: View {
                     .foregroundStyle(.secondary)
                     .fontWeight(.semibold)
                 
-                Text("\(formatTime(time: vm.currentTime))")
+                Text("\(formatTime(time: max(0, vm.currentTime)))")
                     .foregroundStyle(.gray)
                     .monospacedDigit()
             }
@@ -137,7 +137,7 @@ struct RecordingSheet: View {
     @ViewBuilder
     private func SheetControls() -> some View {
         VStack(spacing: 36) {
-            Text("\(formatTimer(time: vm.currentTime))")
+            Text("\(formatTimer(time: max(0,vm.currentTime)))")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .monospacedDigit()
