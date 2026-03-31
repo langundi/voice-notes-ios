@@ -15,7 +15,7 @@ nonisolated func formatDate(date: Date) -> String {
     
     if calendar.isDateInToday(date) {
         formatter.dateFormat = "HH:mm"
-    } else if let daysAgo = calendar.dateComponents([.day], from: date, to: now).day, daysAgo < 7 {
+    } else if let daysAgo = calendar.dateComponents([.day], from: date, to: now).day, daysAgo < 3 {
         formatter.dateFormat = "EEEE"
     } else {
         formatter.dateFormat = "dd MMM yyyy"
