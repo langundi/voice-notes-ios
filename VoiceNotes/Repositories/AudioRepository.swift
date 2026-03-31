@@ -76,7 +76,8 @@ final class AudioRepository {
         duration: Double,
         createdAt: Date,
         isFavorite: Bool = false,
-        transcript: String = ""
+        transcript: String = "",
+        samples: [Float] = []
     ) {
         let recording = AudioModel(
             title: title,
@@ -86,18 +87,27 @@ final class AudioRepository {
         )
         recording.isFavorite = isFavorite
         recording.transcript = transcript
+        recording.samples = samples
 
         context.insert(recording)
         saveContext()
     }
     
-    func addRecordingToFolder(title: String, fileName: String, duration: Double, createdAt: Date, folder: FolderModel) {
+    func addRecordingToFolder(
+        title: String,
+        fileName: String,
+        duration: Double,
+        createdAt: Date,
+        samples: [Float] = [],
+        folder: FolderModel
+    ) {
         let recording = AudioModel(
             title: title,
             fileName: fileName,
             duration: duration,
             createdAt: createdAt
         )
+        recording.samples = samples
         
         context.insert(recording)
         moveRecordingToFolder(recording: recording, folder: folder)

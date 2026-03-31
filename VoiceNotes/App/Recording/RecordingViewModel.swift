@@ -165,8 +165,11 @@ extension RecordingViewModel {
             fileName: fileURL!.lastPathComponent,
             duration: currentTime,
             createdAt: createdAt!,
-            transcript: transcriptionModel.displayText
+            transcript: transcriptionModel.displayText,
+            samples: samples
         )
+        
+        audioManager.removeSamples()
     }
     
     func saveRecordingForFavorites() {
@@ -175,8 +178,11 @@ extension RecordingViewModel {
             fileName: fileURL!.lastPathComponent,
             duration: currentTime,
             createdAt: createdAt!,
-            isFavorite: true
+            isFavorite: true,
+            samples: samples
         )
+        
+        audioManager.removeSamples()
     }
     
     func saveRecordingToFolder(folderTitle: String) {
@@ -187,8 +193,11 @@ extension RecordingViewModel {
             fileName: fileURL!.lastPathComponent,
             duration: currentTime,
             createdAt: createdAt!,
+            samples: samples,
             folder: folder!
         )
+        
+        audioManager.removeSamples()
     }
     
     
@@ -379,6 +388,7 @@ extension RecordingViewModel {
         hasStartedRecording = false
         
         stopTimer()
+        
         audioManager.stopRecording2()
         if #available(iOS 26.0, *) {
             await transcriptionManager?.stopTranscription()

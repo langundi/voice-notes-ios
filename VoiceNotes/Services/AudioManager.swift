@@ -234,11 +234,14 @@ extension AudioManager {
     func stopRecording2() {
         audioFile?.close()
         audioFile = nil
-        samples.removeAll()
         
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         audioEngine.reset()
+    }
+    
+    func removeSamples() {
+        samples.removeAll()
     }
     
     private func processSamples(buffer: AVAudioPCMBuffer) {
