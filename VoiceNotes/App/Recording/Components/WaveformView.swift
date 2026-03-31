@@ -19,7 +19,7 @@ struct WaveformView: View {
     private let minBarHeight: CGFloat = 3
     
     // Max barheight ratio from view height
-    private let maxBarHeightRatio: CGFloat = 0.65
+    private let maxBarHeightRatio: CGFloat = 0.6
     
     var dotRadius: CGFloat = 5
     

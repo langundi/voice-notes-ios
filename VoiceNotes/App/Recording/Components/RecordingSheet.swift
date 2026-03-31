@@ -30,9 +30,17 @@ struct RecordingSheet: View {
                         .frame(maxHeight: .infinity, alignment: .top)
                         .padding(.bottom, 24)
                 } else {
-                    WaveformView(samples: vm.samples, isRecording: vm.isRecording)
-                        .frame(maxHeight: .infinity)
-                        .padding(.bottom, 24)
+                    if recording == nil {
+                        WaveformView(samples: vm.samples, isRecording: vm.isRecording)
+                            .frame(maxHeight: .infinity)
+                            .padding(.bottom, 24)
+                    } else {
+                        if let recording = recording {
+                            WaveformView(samples: recording.samples + vm.samples, isRecording: vm.isRecording)
+                                .frame(maxHeight: .infinity)
+                                .padding(.bottom, 24)
+                        }
+                    }
                     
 //                    Rectangle()
 //                        .fill(.gray.secondary)
@@ -43,12 +51,16 @@ struct RecordingSheet: View {
                 SheetControls()
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("", systemImage: "ellipsis") { }
+                if recording != nil {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Rename", systemImage: "pencil") {
+                            print("rename title")
+                        }
+                    }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("", systemImage: "checkmark") {
+                    Button("Done", systemImage: "checkmark") {
                         if vm.hasStartedRecording {
                             Task {
                                 await vm.stopRecording()
@@ -184,55 +196,56 @@ struct RecordingSheet: View {
                 
                 Spacer()
                 
-                Button {
-                    Task {
-                        await vm.toggleRecording()
-                    }
-                } label: {
-                    Group {
-                        if vm.isRecording {
-                            Image(systemName: "pause.fill")
-                        } else {
-                            Text("RESUME")
-                        }
-                    }
-                    .transition(.blurReplace)
-                }
-                .buttonStyle(RecordButtonStyle(isRecording: vm.isRecording))
-                
-                Spacer()
-                
-                Button {
-                    if vm.hasStartedRecording {
+                if recording == nil {
+                    Button {
                         Task {
-                            await vm.stopRecording()
+                            await vm.toggleRecording()
                         }
-                        
-                        if folderTitle == "Favorites" {
-                            vm.saveRecordingForFavorites()
-                        } else if folderTitle == "All Recordings" {
-                            vm.saveRecording()
-                        } else {
-                            vm.saveRecordingToFolder(folderTitle: folderTitle)
+                    } label: {
+                        Group {
+                            if vm.isRecording {
+                                Image(systemName: "pause.fill")
+                            } else {
+                                Text("RESUME")
+                            }
                         }
-                        
-                        vm.dismissRecordingSheet()
-                    } else {
-                        vm.dismissRecordingSheet()
+                        .transition(.blurReplace)
                     }
-                } label: {
-                    Group {
-                        if #available(iOS 26, *) {
-                            Image(systemName: "stop.fill")
+                    .buttonStyle(RecordButtonStyle(isRecording: vm.isRecording))
+                    
+                    Spacer()
+                    
+                    Button {
+                        if vm.hasStartedRecording {
+                            Task {
+                                await vm.stopRecording()
+                            }
+                            
+                            if folderTitle == "Favorites" {
+                                vm.saveRecordingForFavorites()
+                            } else if folderTitle == "All Recordings" {
+                                vm.saveRecording()
+                            } else {
+                                vm.saveRecordingToFolder(folderTitle: folderTitle)
+                            }
+                            
+                            vm.dismissRecordingSheet()
                         } else {
-                            Image(systemName: "stop.circle")
-                                .font(.title)
+                            vm.dismissRecordingSheet()
                         }
+                    } label: {
+                        Group {
+                            if #available(iOS 26, *) {
+                                Image(systemName: "stop.fill")
+                            } else {
+                                Image(systemName: "stop.circle")
+                                    .font(.title)
+                            }
+                        }
+                        .foregroundStyle(.red)
                     }
-                    .foregroundStyle(.red)
+                    .buttonStyle(ToolBarButtonStyle())
                 }
-                .buttonStyle(ToolBarButtonStyle())
-
             }
             .padding(.horizontal, 36)
         }
