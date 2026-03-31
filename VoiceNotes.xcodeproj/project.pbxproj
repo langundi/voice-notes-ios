@@ -29,6 +29,7 @@
 		8156B17D2F40B2DE000447EF /* AudioRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B17C2F40B2DE000447EF /* AudioRepository.swift */; };
 		8156B17F2F40B4AD000447EF /* RecordingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B17E2F40B4AD000447EF /* RecordingScreen.swift */; };
 		8156B1812F40B4B4000447EF /* RecordingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B1802F40B4B4000447EF /* RecordingViewModel.swift */; };
+		81683F9A2F7B767A0044E782 /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81683F992F7B767A0044E782 /* WaveformView.swift */; };
 		81BD96732F419B88001135A2 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BD96722F419B88001135A2 /* AudioManager.swift */; };
 		81BD967D2F41B2ED001135A2 /* AudioManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BD967C2F41B2ED001135A2 /* AudioManagerError.swift */; };
 		81ED5BF02F41E22800357F54 /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ED5BEF2F41E22800357F54 /* View+Extensions.swift */; };
@@ -62,6 +63,7 @@
 		8156B17C2F40B2DE000447EF /* AudioRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRepository.swift; sourceTree = "<group>"; };
 		8156B17E2F40B4AD000447EF /* RecordingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingScreen.swift; sourceTree = "<group>"; };
 		8156B1802F40B4B4000447EF /* RecordingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewModel.swift; sourceTree = "<group>"; };
+		81683F992F7B767A0044E782 /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
 		81BD96722F419B88001135A2 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		81BD967C2F41B2ED001135A2 /* AudioManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManagerError.swift; sourceTree = "<group>"; };
 		81ED5BEF2F41E22800357F54 /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
@@ -198,6 +200,7 @@
 				811AF7B52F4C9D9300EDAA4C /* OptionsSheet.swift */,
 				8152BEA82F5033C60055DD6C /* SelectFolderSheet.swift */,
 				81544E642F5721A70072B8B2 /* LineScrubber.swift */,
+				81683F992F7B767A0044E782 /* WaveformView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -333,6 +336,7 @@
 				8130BBD72F475C1800A6C283 /* FolderEnum.swift in Sources */,
 				81BD96732F419B88001135A2 /* AudioManager.swift in Sources */,
 				81ED5BF02F41E22800357F54 /* View+Extensions.swift in Sources */,
+				81683F9A2F7B767A0044E782 /* WaveformView.swift in Sources */,
 				81ED5BF82F41F57200357F54 /* RecordButtonStyle.swift in Sources */,
 				8122CE122F3F58C70098A422 /* VoiceNotesApp.swift in Sources */,
 				81ED5BFC2F42139F00357F54 /* ToolbarButtonStyle.swift in Sources */,

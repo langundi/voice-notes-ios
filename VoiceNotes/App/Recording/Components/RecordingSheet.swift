@@ -30,10 +30,14 @@ struct RecordingSheet: View {
                         .frame(maxHeight: .infinity, alignment: .top)
                         .padding(.bottom, 24)
                 } else {
-                    Rectangle()
-                        .fill(.gray.secondary)
+                    WaveformView(samples: vm.samples, isRecording: vm.isRecording)
                         .frame(maxHeight: .infinity)
                         .padding(.bottom, 24)
+                    
+//                    Rectangle()
+//                        .fill(.gray.secondary)
+//                        .frame(maxHeight: .infinity)
+//                        .padding(.bottom, 24)
                 }
                 
                 SheetControls()
@@ -199,19 +203,23 @@ struct RecordingSheet: View {
                 Spacer()
                 
                 Button {
-                    Task {
-                        await vm.stopRecording()
-                    }
-                    
-                    if folderTitle == "Favorites" {
-                        vm.saveRecordingForFavorites()
-                    } else if folderTitle == "All Recordings" {
-                        vm.saveRecording()
+                    if vm.hasStartedRecording {
+                        Task {
+                            await vm.stopRecording()
+                        }
+                        
+                        if folderTitle == "Favorites" {
+                            vm.saveRecordingForFavorites()
+                        } else if folderTitle == "All Recordings" {
+                            vm.saveRecording()
+                        } else {
+                            vm.saveRecordingToFolder(folderTitle: folderTitle)
+                        }
+                        
+                        vm.dismissRecordingSheet()
                     } else {
-                        vm.saveRecordingToFolder(folderTitle: folderTitle)
+                        vm.dismissRecordingSheet()
                     }
-                    
-                    vm.dismissRecordingSheet()
                 } label: {
                     Group {
                         if #available(iOS 26, *) {
@@ -223,7 +231,6 @@ struct RecordingSheet: View {
                     }
                     .foregroundStyle(.red)
                 }
-                .allowsHitTesting(vm.hasStartedRecording)
                 .buttonStyle(ToolBarButtonStyle())
 
             }

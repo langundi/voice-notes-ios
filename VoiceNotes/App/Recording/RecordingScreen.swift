@@ -42,8 +42,8 @@ struct RecordingScreen: View {
         
         return recordings.filter { recording in
             let title = recording.title.localizedStandardContains(text)
-            let month = recording.createdAt.formatted(.dateTime.day().month(.wide)).localizedStandardContains(text)
-            return title || month
+            let date = recording.createdAt.formatted(.dateTime.day().month(.wide)).localizedStandardContains(text)
+            return title || date
         }
     }
     

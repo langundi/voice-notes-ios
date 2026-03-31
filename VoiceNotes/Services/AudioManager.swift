@@ -207,7 +207,7 @@ extension AudioManager {
             
             try? self.audioFile?.write(from: buffer)
             onBuffer(buffer)
-//            processSamples(buffer: buffer)
+            processSamples(buffer: buffer)
         }
         
         audioEngine.prepare()
@@ -234,34 +234,35 @@ extension AudioManager {
     func stopRecording2() {
         audioFile?.close()
         audioFile = nil
+        samples.removeAll()
         
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         audioEngine.reset()
     }
     
-//    private func processSamples(buffer: AVAudioPCMBuffer) {
-//        guard let channelData = buffer.floatChannelData?[0] else { return }
-//        let frameCount = Int(buffer.frameLength)
-//        
-//        // Calculate RMS (Root Mean Square) amplitude for smooth waveform
-//        var sum: Float = 0
-//        for i in 0..<frameCount {
-//            let sample = channelData[i]
-//            sum += sample * sample
-//        }
-//        let rms = sqrt(sum / Float(frameCount))
-//        
-//        // Normalize to 0.0 - 1.0 range
-//        let normalizedValue = min(rms * 10, 1.0) // Adjust multiplier for sensitivity
-//        
-//        DispatchQueue.main.async {
-//            self.samples.append(normalizedValue)
+    private func processSamples(buffer: AVAudioPCMBuffer) {
+        guard let channelData = buffer.floatChannelData?[0] else { return }
+        let frameCount = Int(buffer.frameLength)
+        
+        // Calculate RMS (Root Mean Square) amplitude for smooth waveform
+        var sum: Float = 0
+        for i in 0..<frameCount {
+            let sample = channelData[i]
+            sum += sample * sample
+        }
+        let rms = sqrt(sum / Float(frameCount))
+        
+        // Normalize to 0.0 - 1.0 range
+        let normalizedValue = min(rms * 10, 1.0) // Adjust multiplier for sensitivity
+        
+        DispatchQueue.main.async {
+            self.samples.append(normalizedValue)
 //            // Keep a rolling window (e.g., last 100 samples for display)
-//            if self.samples.count > 100 {
+//            if self.samples.count > 1000 {
 //                self.samples.removeFirst()
 //            }
-//        }
-//    }
+        }
+    }
     
 }

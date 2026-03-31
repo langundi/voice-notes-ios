@@ -63,6 +63,9 @@ final class RecordingViewModel {
     var hideRecordButton = false
     var isScrubbing = false
     var wasPlayingBeforeScrub = false
+    var samples: [Float] {
+        audioManager.samples
+    }
     
     var selectedRecordings: Set<AudioModel.ID> = []
     var expandedRecording: AudioModel.ID? = nil
@@ -367,7 +370,10 @@ extension RecordingViewModel {
     }
     
     func stopRecording() async {
-        guard isRecording else { return }
+        guard hasStartedRecording else {
+            dismissRecordingSheet()
+            return
+        }
         
         isRecording = false
         hasStartedRecording = false

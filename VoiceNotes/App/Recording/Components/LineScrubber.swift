@@ -22,7 +22,7 @@ struct LineScrubber: View {
         guard total > 0 else { return 0 }
         
         // Converts current time into CGFloat value
-        // Set clamped value of 0 - 1 to avoid out of bounds value
+        // Set clamped value of 0 - 1
         return max(0, min(CGFloat(current / total), 1))
     }
     
@@ -57,7 +57,7 @@ struct LineScrubber: View {
                 }
                 .onEnded { _ in
                     lastProgress = progress
-                    onEditingChanged?(false)  // add this
+                    onEditingChanged?(false)
                 }
         )
         .onTapGesture { location in
