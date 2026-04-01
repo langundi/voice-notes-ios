@@ -43,6 +43,8 @@ final class RecordingViewModel {
     var createdAt: Date?
     var timer: Timer?
     var currentTime: TimeInterval = 0
+    var recordingTimer: Timer?
+    var recordingTime: TimeInterval = 0
     var countdown: TimeInterval {
         max(0, audioManager.totalDuration - currentTime)
     }
@@ -139,6 +141,11 @@ final class RecordingViewModel {
             guard let self else { return }
             self.currentTime += 0.01
         }
+        
+        recordingTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.recordingTime += 0.01
+        }
     }
     
     private func startPlaybackTimer() {
@@ -151,8 +158,10 @@ final class RecordingViewModel {
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+        
+        recordingTimer?.invalidate()
+        recordingTimer = nil
     }
-    
 }
 
 
@@ -294,6 +303,7 @@ extension RecordingViewModel {
         title = "New Recording \(count)"
         fileURL = makeUniqueURL(for: title!)
         currentTime = 0
+        recordingTime = 0
         createdAt = Date.now
         
         do {
@@ -367,15 +377,19 @@ extension RecordingViewModel {
         audioManager.pauseRecording()
         stopTimer()
         
+        print("current = \(currentTime)")
+        
 //        setupPlaybackForCurrentlyRecording()
     }
     
     func resumeRecording() {
         guard !isRecording else { return }
         
+        currentTime = recordingTime
+        
         do {
-            isRecording = true
             try audioManager.resumeRecording()
+            isRecording = true
             startRecordingTimer()
         } catch {
             print("error resuming: \(error.localizedDescription)")
@@ -394,6 +408,7 @@ extension RecordingViewModel {
         stopTimer()
         
         audioManager.stopRecording()
+        
         if #available(iOS 26.0, *) {
             await transcriptionManager?.stopTranscription()
             transcriptionModel.isRecording = false

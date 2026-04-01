@@ -31,7 +31,7 @@ struct RecordingSheet: View {
                         .padding(.bottom, 24)
                 } else {
                     if recording == nil {
-                        WaveformView(samples: vm.samples, isRecording: vm.isRecording, duration: vm.currentTime)
+                        WaveformView(samples: vm.samples, isRecording: vm.isRecording, duration: vm.recordingTime)
                             .frame(maxHeight: .infinity)
                             .padding(.bottom, 24)
                     } else {
