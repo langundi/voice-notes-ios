@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct WaveformView: View {
+    
+    @Environment(RecordingViewModel.self) private var vm
+    
     var samples: [Float]
     var isRecording: Bool
+    var duration: TimeInterval?
     
     private let barWidth: CGFloat = 2
     private let barGap: CGFloat = 2
     private var barStep: CGFloat { barWidth + barGap }
-    
     // Shortest visible bar height
     private let minBarHeight: CGFloat = 3
-    
     // Max barheight ratio from view height
     private let maxBarHeightRatio: CGFloat = 0.6
     
@@ -26,10 +28,18 @@ struct WaveformView: View {
     // Drag scroll state
     @State private var dragOffset: CGFloat = 0
     @State private var lastDragOffset: CGFloat = 0
-    
     // When recording, auto-follow the newest sample
     // When dragging, freeze the view at the drag position
     @State private var isDragging = false
+    
+    private var playbackProgress: CGFloat {
+        let maxOffset = CGFloat(samples.count) * barStep
+        guard maxOffset > 0 else { return 0 }
+        
+        // Since 0 is the end and maxOffset is the start:
+        // We invert it so that Start = 0 and End = 1
+        return 1.0 - (dragOffset / maxOffset)
+    }
     
     var body: some View {
         GeometryReader { geo in
@@ -44,6 +54,27 @@ struct WaveformView: View {
                     dragOffset = 0
                     lastDragOffset = 0
                 }
+            }
+            .onChange(of: vm.currentTime) { _, newTime in
+                guard !isRecording && !vm.isScrubbing else { return }
+                
+                if let totalDuration = duration, totalDuration > 0 {
+                    let maxOffset = CGFloat(samples.count) * barStep
+                    let progress = CGFloat(newTime / totalDuration)
+                    
+                    // 2. Map progress (0...1) to offset (maxOffset...0)
+                    let targetOffset = maxOffset * (1.0 - progress)
+                    
+                    // 3. Update the view state
+                    // Use withAnimation if you want the movement to be buttery smooth
+                    dragOffset = targetOffset
+                    lastDragOffset = targetOffset
+                }
+            }
+            
+            .onAppear {
+                print("Max offset = \(CGFloat(samples.count) * barStep)")
+                print("Progress = \(playbackProgress)")
             }
         }
     }
@@ -118,11 +149,18 @@ struct WaveformView: View {
         DragGesture(minimumDistance: 4)
             .onChanged { value in
                 guard !isRecording else { return }
+                
                 dragOffset = clamped(lastDragOffset + value.translation.width)
+                
+                let currentTime = playbackProgress * duration!
+                vm.startScrubbing()
+                vm.updateScrubbingPosition(to: currentTime)
             }
             .onEnded { _ in
                 guard !isRecording else { return }
+                
                 lastDragOffset = dragOffset
+                vm.endScrubbing()
             }
     }
     
@@ -130,8 +168,4 @@ struct WaveformView: View {
         let maxOffset = CGFloat(samples.count) * barStep
         return min(max(offset, 0), maxOffset)
     }
-}
-
-#Preview {
-    //    WaveformView()
 }

@@ -72,3 +72,9 @@ nonisolated func makeUniqueURL(for title: String) -> URL {
     
     return url
 }
+
+/// Make segment URL path
+nonisolated func makeSegmentURL() -> URL {
+    let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    return docs.appendingPathComponent("segment_\(UUID().uuidString).m4a")
+}

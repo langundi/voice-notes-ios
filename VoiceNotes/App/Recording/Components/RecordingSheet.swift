@@ -31,21 +31,16 @@ struct RecordingSheet: View {
                         .padding(.bottom, 24)
                 } else {
                     if recording == nil {
-                        WaveformView(samples: vm.samples, isRecording: vm.isRecording)
+                        WaveformView(samples: vm.samples, isRecording: vm.isRecording, duration: vm.currentTime)
                             .frame(maxHeight: .infinity)
                             .padding(.bottom, 24)
                     } else {
                         if let recording = recording {
-                            WaveformView(samples: recording.samples + vm.samples, isRecording: vm.isRecording)
+                            WaveformView(samples: recording.samples + vm.samples, isRecording: vm.isRecording, duration: recording.duration)
                                 .frame(maxHeight: .infinity)
                                 .padding(.bottom, 24)
                         }
                     }
-                    
-//                    Rectangle()
-//                        .fill(.gray.secondary)
-//                        .frame(maxHeight: .infinity)
-//                        .padding(.bottom, 24)
                 }
                 
                 SheetControls()

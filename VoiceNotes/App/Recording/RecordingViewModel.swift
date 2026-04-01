@@ -84,6 +84,8 @@ final class RecordingViewModel {
         isRecording = false
         isPlaying = false
         isEditing = false
+        isScrubbing = false
+        wasPlayingBeforeScrub = false
         currentTime = 0
     }
     
@@ -315,7 +317,7 @@ extension RecordingViewModel {
                     }
                 }
                 
-                try audioManager.startRecording2(for: fileURL!) { [weak self] buffer in
+                try audioManager.startRecording(for: fileURL!) { [weak self] buffer in
                     guard let self else { return }
                     
                     // Transcribe buffer
@@ -328,7 +330,7 @@ extension RecordingViewModel {
                     transcriptionModel.isRecording = true
                 }
             } else {
-                try audioManager.startRecording2(for: fileURL!) { [weak self] buffer in
+                try audioManager.startRecording(for: fileURL!) { [weak self] buffer in
                     guard self != nil else { return }
                     
                 }
@@ -362,8 +364,10 @@ extension RecordingViewModel {
         guard isRecording else { return }
         
         isRecording = false
-        audioManager.pauseRecording2()
+        audioManager.pauseRecording()
         stopTimer()
+        
+//        setupPlaybackForCurrentlyRecording()
     }
     
     func resumeRecording() {
@@ -371,7 +375,7 @@ extension RecordingViewModel {
         
         do {
             isRecording = true
-            try audioManager.resumeRecording2()
+            try audioManager.resumeRecording()
             startRecordingTimer()
         } catch {
             print("error resuming: \(error.localizedDescription)")
@@ -389,7 +393,7 @@ extension RecordingViewModel {
         
         stopTimer()
         
-        audioManager.stopRecording2()
+        audioManager.stopRecording()
         if #available(iOS 26.0, *) {
             await transcriptionManager?.stopTranscription()
             transcriptionModel.isRecording = false
@@ -413,6 +417,28 @@ extension RecordingViewModel {
         
         do {
             try audioManager.setupPlayback(fileURL: fileURL!, rate: recording.rate)
+            
+            audioManager.onPlaybackFinished = { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.hasStartedPlaying = false
+                    self?.isScrubbing = false
+                    self?.isPlaying = false
+                    self?.currentTime = 0
+                    self?.stopTimer()
+                }
+            }
+        } catch {
+            print("error setup playback: \(error.localizedDescription)")
+        }
+    }
+    
+    func setupPlaybackForCurrentlyRecording() {
+        if isPlaying {
+            stopAudio()
+        }
+        
+        do {
+            try audioManager.setupPlayback(fileURL: fileURL!, rate: 1.0)
             
             audioManager.onPlaybackFinished = { [weak self] _ in
                 DispatchQueue.main.async {
@@ -475,7 +501,8 @@ extension RecordingViewModel {
     }
     
     func play(at time: TimeInterval) {
-        audioManager.play(at: time)
+        audioManager.seek(to: currentTime)
+        hasStartedPlaying = true
         isPlaying = true
     }
     

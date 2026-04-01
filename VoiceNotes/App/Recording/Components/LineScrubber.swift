@@ -27,7 +27,6 @@ struct LineScrubber: View {
     }
     
     var body: some View {
-        
         ZStack(alignment: .leading) {
             Capsule()
                 .fill(config.inActiveTint)

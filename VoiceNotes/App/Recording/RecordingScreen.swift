@@ -135,6 +135,7 @@ struct RecordingScreen: View {
                                             vm.isPlaying = false
                                             vm.expandedRecording = recording.id
                                         }
+                                        vm.resetUI()
                                         vm.setupPlayback(for: recording)
                                     } else {
                                         vm.toggleSelection(for: recording.id)
