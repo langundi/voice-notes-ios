@@ -306,7 +306,6 @@ extension RecordingViewModel {
     func startRecording() async {
         guard !isRecording else { return }
         
-        expandedRecording = nil
         showRecordingSheet = true
         
         let count = audioRepository.getAudioCount()
