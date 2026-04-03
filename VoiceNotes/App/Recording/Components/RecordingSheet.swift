@@ -14,6 +14,9 @@ struct RecordingSheet: View {
     @ScaledMetric private var buttonWidth: CGFloat = 44
     
     @State private var showTranscription: Bool = false
+    @State private var textField: String = ""
+    @State private var textSelection: TextSelection?
+    @FocusState private var isFocused: Bool
     
     let folderTitle: String
     var recording: AudioModel?
@@ -49,7 +52,7 @@ struct RecordingSheet: View {
                 if recording != nil {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Rename", systemImage: "pencil") {
-                            print("rename title")
+                            isFocused = true
                         }
                     }
                 }
@@ -85,10 +88,41 @@ struct RecordingSheet: View {
     
     @ViewBuilder
     private func SheetHeader() -> some View {
-        VStack(spacing: 2) {
-            Text((vm.title ?? recording?.title) ?? "-")
-                .font(.title2)
-                .fontWeight(.bold)
+        VStack(alignment: .center, spacing: 2) {
+            if recording == nil {
+                Text((vm.title ?? recording?.title) ?? "-")
+                    .font(.title2)
+                    .fontWeight(.bold)
+            } else {
+                if let recording = recording {
+                    TextField("", text: $textField, selection: $textSelection)
+                        .multilineTextAlignment(.center)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .focused($isFocused)
+                        .onChange(of: isFocused) { oldValue, newValue in
+                            if isFocused {
+                                vm.stopAudio()
+                                vm.hideRecordButton = true
+                                textSelection = .init(range: textField.startIndex..<textField.endIndex)
+                            }
+                        }
+                        .onSubmit {
+                            // Reset name when text field left empty
+                            if textField.isEmpty {
+                                textField = recording.title
+                            } else {
+                                print("rename to : \(textField)")
+                                vm.renameTitle(for: recording, newTitle: textField)
+                                vm.setupPlayback(for: recording)
+                            }
+                            vm.isEditing = false
+                            vm.hideRecordButton = false
+                        }
+                }
+            }
             
             HStack(alignment: .center, spacing: 8) {
                 Text("\(formatDate(date: (vm.createdAt ?? recording?.createdAt) ?? Date.now))")
@@ -100,6 +134,11 @@ struct RecordingSheet: View {
                     .monospacedDigit()
             }
             .frame(maxWidth: .infinity)
+            .task {
+                if let recording = recording {
+                    textField = recording.title
+                }
+            }
         }
     }
     

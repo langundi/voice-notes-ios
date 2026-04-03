@@ -82,6 +82,5 @@ nonisolated func makeSegmentURL() -> URL {
 
 /// Rename URL
 nonisolated func moveURL(from oldURL: URL, to newURL: URL) throws {
-    let destinationDirectory = newURL.deletingLastPathComponent()
     try FileManager.default.moveItem(at: oldURL, to: newURL)
 }

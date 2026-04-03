@@ -140,6 +140,10 @@ struct RecordingRowView: View {
                 .truncationMode(.tail)
                 .focused($isFocused)
                 .disabled(!isExpanded || vm.isEditing)
+                .onChange(of: recording.title) { oldValue, newValue in
+                    // Update textfield for when renamed on rececoding sheet
+                    textField = newValue
+                }
                 .onChange(of: isFocused) { oldValue, newValue in
                     if isFocused {
                         vm.stopAudio()
@@ -153,6 +157,7 @@ struct RecordingRowView: View {
                         textField = recording.title
                     } else {
                         vm.renameTitle(for: recording, newTitle: textField)
+                        vm.setupPlayback(for: recording)
                     }
                     vm.isEditing = false
                     vm.hideRecordButton = false

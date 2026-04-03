@@ -181,8 +181,6 @@ extension RecordingViewModel {
     
     // SAVING RECORDINGS
     func saveRecording() {
-        print("is it nil: \(fileURL)")
-        
         audioRepository.addRecording(
             title: title!,
             fileName: fileURL!.lastPathComponent,
@@ -469,14 +467,7 @@ extension RecordingViewModel {
         
         currentTime = recordingTime
         
-        do {
-            await startRecording()
-//            try audioManager.resumeRecording()
-//            isRecording = true
-//            startRecordingTimer()
-        } catch {
-            print("error resuming: \(error.localizedDescription)")
-        }
+        await startRecording()
     }
     
     func stopRecording() async throws {
@@ -494,7 +485,6 @@ extension RecordingViewModel {
             segmentsURLs.append(fileURL!)
             try await audioManager.mergeSegments(segmentsURLs, into: finalURL)
             fileURL = finalURL
-            print("save this: \(fileURL)")
         } else {
             try moveURL(from: finalizedURL!, to: finalURL)
             fileURL = finalURL
@@ -514,8 +504,6 @@ extension RecordingViewModel {
     func stopAndSave(folderTitle: String) async {
         do {
             try await stopRecording()
-            
-            print("file: \(fileURL)")
             
             if folderTitle == "Favorites" {
                 saveRecordingForFavorites()
