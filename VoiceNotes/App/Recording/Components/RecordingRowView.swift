@@ -163,7 +163,9 @@ struct RecordingRowView: View {
                     .font(.footnote)
                     .fontWeight(.medium)
                 
-                Image(systemName: "quote.bubble")
+                if !recording.transcript.isEmpty {
+                    Image(systemName: "quote.bubble")
+                }
             }
             .foregroundStyle(.secondary)
         }

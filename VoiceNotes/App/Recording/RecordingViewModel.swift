@@ -40,6 +40,9 @@ final class RecordingViewModel {
     // Recording Sheet and Row Properties
     var title: String?
     var fileURL: URL?
+    var finalizedURL: URL?
+    var mergedFileURL: URL?
+    var segmentsURLs: [URL] = []
     var createdAt: Date?
     var timer: Timer?
     var currentTime: TimeInterval = 0
@@ -101,7 +104,14 @@ final class RecordingViewModel {
     
     func dismissRecordingSheet() {
         showRecordingSheet = false
+        hasStartedPlaying = false
+        hasStartedRecording = false
+        isRecording = false
+        isPlaying = false
+        isScrubbing = false
         currentTime = 0
+        recordingTime = 0
+        clearTranscript()
         
         // Delay to compensate sheet closing animation
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -171,10 +181,12 @@ extension RecordingViewModel {
     
     // SAVING RECORDINGS
     func saveRecording() {
+        print("is it nil: \(fileURL)")
+        
         audioRepository.addRecording(
             title: title!,
             fileName: fileURL!.lastPathComponent,
-            duration: currentTime,
+            duration: recordingTime,
             createdAt: createdAt!,
             transcript: transcriptionModel.displayText,
             samples: samples
@@ -187,7 +199,7 @@ extension RecordingViewModel {
         audioRepository.addRecording(
             title: title!,
             fileName: fileURL!.lastPathComponent,
-            duration: currentTime,
+            duration: recordingTime,
             createdAt: createdAt!,
             isFavorite: true,
             samples: samples
@@ -202,7 +214,7 @@ extension RecordingViewModel {
         audioRepository.addRecordingToFolder(
             title: title!,
             fileName: fileURL!.lastPathComponent,
-            duration: currentTime,
+            duration: recordingTime,
             createdAt: createdAt!,
             samples: samples,
             folder: folder!
@@ -283,9 +295,10 @@ extension RecordingViewModel {
     func toggleRecording() async {
         if hasStartedRecording {
             if isRecording {
-                pauseRecording()
+//                pauseRecording()
+                await pauseAndMergeRecording()
             } else {
-                resumeRecording()
+                await resumeRecording()
             }
         } else {
             await startRecording()
@@ -301,9 +314,10 @@ extension RecordingViewModel {
         let count = audioRepository.getAudioCount()
         
         title = "New Recording \(count)"
-        fileURL = makeUniqueURL(for: title!)
-        currentTime = 0
-        recordingTime = 0
+//        fileURL = makeUniqueURL(for: title!)
+        fileURL = makeSegmentURL()
+//        currentTime = 0
+//        recordingTime = 0
         createdAt = Date.now
         
         do {
@@ -349,8 +363,8 @@ extension RecordingViewModel {
             audioManager.onRecordingFinished = { [weak self] _ in
                 guard let self else { return }
                 
-                hasStartedRecording = false
-                isRecording = false
+//                hasStartedRecording = false
+//                isRecording = false
                 
                 // Set expanded row to most latest recording
                 expandedRecording = nil
@@ -378,43 +392,145 @@ extension RecordingViewModel {
         stopTimer()
         
         print("current = \(currentTime)")
-        
-//        setupPlaybackForCurrentlyRecording()
     }
     
-    func resumeRecording() {
-        guard !isRecording else { return }
+    func pauseAndMergeRecording() async {
+        guard isRecording else { return }
         
-        currentTime = recordingTime
-        
-        do {
-            try audioManager.resumeRecording()
-            isRecording = true
-            startRecordingTimer()
-        } catch {
-            print("error resuming: \(error.localizedDescription)")
-        }
-    }
-    
-    func stopRecording() async {
-        guard hasStartedRecording else {
-            dismissRecordingSheet()
-            return
-        }
-        
-        isRecording = false
-        hasStartedRecording = false
-        
-        stopTimer()
-        
+//        audioManager.pauseRecording()
         audioManager.stopRecording()
         
         if #available(iOS 26.0, *) {
             await transcriptionManager?.stopTranscription()
             transcriptionModel.isRecording = false
-            clearTranscript()
+        }
+        
+        isRecording = false
+        stopTimer()
+        
+        if finalizedURL == nil {
+            finalizedURL = fileURL
+            
+            // Insert finalized URL into array
+            segmentsURLs.append(finalizedURL!)
+            
+            // Setup playback for finalized URL
+            setupPlaybackForPausedRecording(url: finalizedURL!)
+            
+            fileURL = nil
+        } else {
+            segmentsURLs.append(fileURL!)
+            do {
+                // Make a new URL for merging
+                let newURL = makeSegmentURL()
+                
+                // Merging segments into merged URL
+                try await audioManager.mergeSegments(segmentsURLs, into: newURL)
+                
+                // Setup playback for finalized URL
+                setupPlaybackForPausedRecording(url: newURL)
+                
+                // Overwrites finalized URL with new URL
+                finalizedURL = newURL
+                
+                // Clear last recorded URL
+                segmentsURLs.removeAll()
+                segmentsURLs.append(finalizedURL!)
+            } catch {
+                print("error merging here: \(error.localizedDescription)")
+            }
         }
     }
+    
+    private func setupPlaybackForPausedRecording(url: URL) {
+        do {
+            try audioManager.setupPlayback(fileURL: url, rate: 1.0)
+            
+            audioManager.onPlaybackFinished = { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.hasStartedPlaying = false
+                    self?.isScrubbing = false
+                    self?.isPlaying = false
+                    self?.currentTime = 0
+                    self?.stopTimer()
+                }
+            }
+        } catch {
+            print("Playback setup error: \(error)")
+        }
+    }
+    
+    func resumeRecording() async {
+        guard !isRecording else { return }
+        
+        if isPlaying {
+            stopAudio()
+        }
+        
+        currentTime = recordingTime
+        
+        do {
+            await startRecording()
+//            try audioManager.resumeRecording()
+//            isRecording = true
+//            startRecordingTimer()
+        } catch {
+            print("error resuming: \(error.localizedDescription)")
+        }
+    }
+    
+    func stopRecording() async throws {
+        guard hasStartedRecording else {
+            dismissRecordingSheet()
+            return
+        }
+        
+        audioManager.stopRecording()
+        stopTimer()
+        
+        let finalURL = makeUniqueURL(for: title!)
+        
+        if isRecording {
+            segmentsURLs.append(fileURL!)
+            try await audioManager.mergeSegments(segmentsURLs, into: finalURL)
+            fileURL = finalURL
+            print("save this: \(fileURL)")
+        } else {
+            try moveURL(from: finalizedURL!, to: finalURL)
+            fileURL = finalURL
+        }
+        
+        if #available(iOS 26.0, *) {
+            await transcriptionManager?.stopTranscription()
+            transcriptionModel.isRecording = false
+        }
+        
+        isRecording = false
+        hasStartedRecording = false
+        segmentsURLs.removeAll()
+        finalizedURL = nil
+    }
+    
+    func stopAndSave(folderTitle: String) async {
+        do {
+            try await stopRecording()
+            
+            print("file: \(fileURL)")
+            
+            if folderTitle == "Favorites" {
+                saveRecordingForFavorites()
+            } else if folderTitle == "All Recordings" {
+                saveRecording()
+            } else {
+                saveRecordingToFolder(folderTitle: folderTitle)
+            }
+            
+            dismissRecordingSheet()
+        } catch {
+            print("Failed to stop and save: \(error)")
+        }
+    }
+    
 }
 
 

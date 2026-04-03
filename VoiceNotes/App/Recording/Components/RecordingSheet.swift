@@ -58,18 +58,20 @@ struct RecordingSheet: View {
                     Button("Done", systemImage: "checkmark") {
                         if vm.hasStartedRecording {
                             Task {
-                                await vm.stopRecording()
+//                                try await vm.stopRecording()
+//                                
+//                                if folderTitle == "Favorites" {
+//                                    vm.saveRecordingForFavorites()
+//                                } else if folderTitle == "All Recordings" {
+//                                    vm.saveRecording()
+//                                } else {
+//                                    vm.saveRecordingToFolder(folderTitle: folderTitle)
+//                                }
+//                                
+//                                vm.dismissRecordingSheet()
+                                
+                                await vm.stopAndSave(folderTitle: folderTitle)
                             }
-                            
-                            if folderTitle == "Favorites" {
-                                vm.saveRecordingForFavorites()
-                            } else if folderTitle == "All Recordings" {
-                                vm.saveRecording()
-                            } else {
-                                vm.saveRecordingToFolder(folderTitle: folderTitle)
-                            }
-                            
-                            vm.dismissRecordingSheet()
                         } else {
                             vm.dismissRecordingSheet()
                         }
@@ -180,6 +182,7 @@ struct RecordingSheet: View {
             .fontWeight(.medium)
             .foregroundStyle(.primary)
             .frame(maxWidth: .infinity)
+            .disabled(vm.isRecording)
             
             HStack {
                 Button {
@@ -213,18 +216,20 @@ struct RecordingSheet: View {
                     Button {
                         if vm.hasStartedRecording {
                             Task {
-                                await vm.stopRecording()
+//                                try await vm.stopRecording()
+//
+//                                if folderTitle == "Favorites" {
+//                                    vm.saveRecordingForFavorites()
+//                                } else if folderTitle == "All Recordings" {
+//                                    vm.saveRecording()
+//                                } else {
+//                                    vm.saveRecordingToFolder(folderTitle: folderTitle)
+//                                }
+//                                
+//                                vm.dismissRecordingSheet()
+                                
+                                await vm.stopAndSave(folderTitle: folderTitle)
                             }
-                            
-                            if folderTitle == "Favorites" {
-                                vm.saveRecordingForFavorites()
-                            } else if folderTitle == "All Recordings" {
-                                vm.saveRecording()
-                            } else {
-                                vm.saveRecordingToFolder(folderTitle: folderTitle)
-                            }
-                            
-                            vm.dismissRecordingSheet()
                         } else {
                             vm.dismissRecordingSheet()
                         }

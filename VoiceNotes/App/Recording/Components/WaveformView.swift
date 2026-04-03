@@ -28,8 +28,6 @@ struct WaveformView: View {
     // Drag scroll state
     @State private var dragOffset: CGFloat = 0
     @State private var lastDragOffset: CGFloat = 0
-    // When recording, auto-follow the newest sample
-    // When dragging, freeze the view at the drag position
     @State private var isDragging = false
     
     private var playbackProgress: CGFloat {
@@ -62,19 +60,12 @@ struct WaveformView: View {
                     let maxOffset = CGFloat(samples.count) * barStep
                     let progress = CGFloat(newTime / totalDuration)
                     
-                    // 2. Map progress (0...1) to offset (maxOffset...0)
+                    // Map progress (0...1) to offset (maxOffset...0)
                     let targetOffset = maxOffset * (1.0 - progress)
                     
-                    // 3. Update the view state
-                    // Use withAnimation if you want the movement to be buttery smooth
                     dragOffset = targetOffset
                     lastDragOffset = targetOffset
                 }
-            }
-            
-            .onAppear {
-                print("Max offset = \(CGFloat(samples.count) * barStep)")
-                print("Progress = \(playbackProgress)")
             }
         }
     }

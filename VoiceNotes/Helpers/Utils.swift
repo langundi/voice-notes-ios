@@ -75,6 +75,13 @@ nonisolated func makeUniqueURL(for title: String) -> URL {
 
 /// Make segment URL path
 nonisolated func makeSegmentURL() -> URL {
-    let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    let docs = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
     return docs.appendingPathComponent("segment_\(UUID().uuidString).m4a")
+}
+
+
+/// Rename URL
+nonisolated func moveURL(from oldURL: URL, to newURL: URL) throws {
+    let destinationDirectory = newURL.deletingLastPathComponent()
+    try FileManager.default.moveItem(at: oldURL, to: newURL)
 }

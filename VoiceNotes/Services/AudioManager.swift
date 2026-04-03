@@ -240,6 +240,41 @@ extension AudioManager {
         audioEngine.reset()
     }
     
+    func mergeSegments(_ segmentURLs: [URL], into outputURL: URL) async throws {
+        let composition = AVMutableComposition()
+        
+        guard let compositionTrack = composition.addMutableTrack(
+            withMediaType: .audio,
+            preferredTrackID: kCMPersistentTrackID_Invalid
+        ) else {
+            throw AudioManagerError.mergeFailure
+        }
+        
+        var insertTime = CMTime.zero
+        
+        for url in segmentURLs {
+            let asset = AVURLAsset(url: url)
+            let duration = try await asset.load(.duration)
+            
+            guard let assetTrack = try await asset.loadTracks(withMediaType: .audio).first else {
+                continue
+            }
+            
+            let timeRange = CMTimeRange(start: .zero, duration: duration)
+            try compositionTrack.insertTimeRange(timeRange, of: assetTrack, at: insertTime)
+            insertTime = CMTimeAdd(insertTime, duration)
+        }
+        
+        guard let exportSession = AVAssetExportSession(
+            asset: composition,
+            presetName: AVAssetExportPresetAppleM4A
+        ) else {
+            throw AudioManagerError.mergeFailure
+        }
+        
+        try await exportSession.export(to: outputURL, as: .m4a)
+    }
+    
     func removeSamples() {
         samples.removeAll()
     }
