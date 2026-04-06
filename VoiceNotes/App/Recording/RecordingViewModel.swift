@@ -380,8 +380,6 @@ extension RecordingViewModel {
             // Insert current URL into an array for merging and setup for playback
             segmentsURLs.append(currentFileURL)
             setupPlaybackForPausedRecording(url: currentFileURL)
-            
-            fileURL = nil
         } else {
             segmentsURLs.append(currentFileURL)
             
@@ -451,8 +449,10 @@ extension RecordingViewModel {
     }
     
     func stopAndSave(folderTitle: String) async {
+        
         do {
             try await stopRecording()
+            
             
             if folderTitle == "Favorites" {
                 saveRecordingForFavorites()
