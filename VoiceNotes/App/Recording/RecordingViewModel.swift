@@ -420,6 +420,10 @@ extension RecordingViewModel {
             return
         }
         
+        if isPlaying {
+            stopAudio()
+        }
+        
         audioManager.stopRecording()
         stopTimer()
         
