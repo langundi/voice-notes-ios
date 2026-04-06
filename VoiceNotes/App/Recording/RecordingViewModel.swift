@@ -13,19 +13,20 @@ final class RecordingViewModel {
     
     private let audioRepository: AudioRepository
     private let audioManager: AudioManager
-    private var anyTranscriptionManager: Any?
+    
     private(set) var transcriptionModel = TranscriptionModel()
+    private var transcriptionProvder: Any?
     
     @available(iOS 26.0, *)
     private var transcriptionManager: TranscriptionManager? {
-        anyTranscriptionManager as? TranscriptionManager
+        transcriptionProvder as? TranscriptionManager
     }
     
     @available(iOS 26.0, *)
     init(audioRepository: AudioRepository, audioManager: AudioManager, transcriptionManager: TranscriptionManager? = nil) {
         self.audioRepository = audioRepository
         self.audioManager = audioManager
-        self.anyTranscriptionManager = transcriptionManager
+        self.transcriptionProvder = transcriptionManager
     }
     
     init(audioRepository: AudioRepository, audioManager: AudioManager) {
@@ -94,14 +95,6 @@ final class RecordingViewModel {
         currentTime = 0
     }
     
-    func toggleSelection(for id: AudioModel.ID) {
-        if selectedRecordings.contains(id) {
-            selectedRecordings.remove(id)
-        } else {
-            selectedRecordings.insert(id)
-        }
-    }
-    
     func dismissRecordingSheet() {
         showRecordingSheet = false
         hasStartedPlaying = false
@@ -121,29 +114,17 @@ final class RecordingViewModel {
         }
     }
     
+    func toggleSelection(for id: AudioModel.ID) {
+        if selectedRecordings.contains(id) {
+            selectedRecordings.remove(id)
+        } else {
+            selectedRecordings.insert(id)
+        }
+    }
+    
     private func clearTranscript() {
         transcriptionModel.finalizedText = ""
         transcriptionModel.currentText = ""
-    }
-    
-    private func duplicateFile(sourceURL: URL, destinationURL: URL) {
-        let fileManager = FileManager.default
-        let destinationDirectory = destinationURL.deletingLastPathComponent()
-        
-        if !fileManager.fileExists(atPath: destinationDirectory.path) {
-            do {
-                try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: nil)
-            } catch {
-                print("error creating directory: \(error.localizedDescription)")
-                return
-            }
-        }
-        
-        do {
-            try fileManager.copyItem(at: sourceURL, to: destinationURL)
-        } catch {
-            print("error duplicating file: \(error.localizedDescription)")
-        }
     }
     
     private func startRecordingTimer() {
@@ -179,7 +160,7 @@ final class RecordingViewModel {
 
 extension RecordingViewModel {
     
-    // SAVING RECORDINGS
+    // Save recordings
     func saveRecording() {
         audioRepository.addRecording(
             title: title!,
@@ -222,7 +203,7 @@ extension RecordingViewModel {
     }
     
     
-    // MOVING RECORDINGS FROM FOLDERS
+    // Move recordings
     func moveRecordingToFolder(folder: FolderModel, recording: AudioModel) {
         stopAudio()
         audioRepository.moveRecordingToFolder(recording: recording, folder: folder)
@@ -234,7 +215,7 @@ extension RecordingViewModel {
     }
     
     
-    // DELETE RECORDING
+    // Delete Recordings
     func deleteRecording(for recordings: [AudioModel]) {
         stopAudio()
         audioRepository.deleteRecording(for: recordings)
@@ -254,7 +235,7 @@ extension RecordingViewModel {
     }
     
     
-    // UPDATE RECORDINGS ATTRIBUTE
+    // Update recordings attribute
     func renameTitle(for recording: AudioModel, newTitle: String) {
         audioRepository.updateTitle(for: recording, newTitle: newTitle)
     }
@@ -272,7 +253,7 @@ extension RecordingViewModel {
     }
 
     
-    // DUPLICATE RECORDING
+    // Duplicate recordings
     func duplicateRecording(recording: AudioModel) {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let sourceFile = path.appending(path: recording.fileName)
@@ -293,7 +274,6 @@ extension RecordingViewModel {
     func toggleRecording() async {
         if hasStartedRecording {
             if isRecording {
-//                pauseRecording()
                 await pauseAndMergeRecording()
             } else {
                 await resumeRecording()
@@ -311,10 +291,7 @@ extension RecordingViewModel {
         let count = audioRepository.getAudioCount()
         
         title = "New Recording \(count)"
-//        fileURL = makeUniqueURL(for: title!)
         fileURL = makeSegmentURL()
-//        currentTime = 0
-//        recordingTime = 0
         createdAt = Date.now
         
         do {
@@ -345,7 +322,7 @@ extension RecordingViewModel {
                     do {
                         try self.transcriptionManager!.processAudioBuffer(buffer)
                     } catch {
-                        print("error transcribing: \(error.localizedDescription)")
+                        print("Error transcribing: \(error.localizedDescription)")
                     }
                     
                     transcriptionModel.isRecording = true
@@ -360,15 +337,10 @@ extension RecordingViewModel {
             audioManager.onRecordingFinished = { [weak self] _ in
                 guard let self else { return }
                 
-//                hasStartedRecording = false
-//                isRecording = false
-                
-                // Set expanded row to most latest recording
                 expandedRecording = nil
+                
                 if let newRecording = audioRepository.getLatestRecording().first {
                     expandedRecording = newRecording.id
-                    
-                    // Setup playback
                     setupPlayback(for: newRecording)
                 }
             }
@@ -377,24 +349,21 @@ extension RecordingViewModel {
             isRecording = true
             startRecordingTimer()
         } catch {
-            print("error start recording: \(error.localizedDescription)")
+            print("Error start recording: \(error.localizedDescription)")
         }
     }
     
-    func pauseRecording() {
-        guard isRecording else { return }
-        
-        isRecording = false
-        audioManager.pauseRecording()
-        stopTimer()
-        
-        print("current = \(currentTime)")
-    }
+//    func pauseRecording() {
+//        guard isRecording else { return }
+//        
+//        isRecording = false
+//        audioManager.pauseRecording()
+//        stopTimer()
+//    }
     
     func pauseAndMergeRecording() async {
-        guard isRecording else { return }
+        guard isRecording, let currentFileURL = fileURL else { return }
         
-//        audioManager.pauseRecording()
         audioManager.stopRecording()
         
         if #available(iOS 26.0, *) {
@@ -406,54 +375,32 @@ extension RecordingViewModel {
         stopTimer()
         
         if finalizedURL == nil {
-            finalizedURL = fileURL
+            finalizedURL = currentFileURL
             
-            // Insert finalized URL into array
-            segmentsURLs.append(finalizedURL!)
-            
-            // Setup playback for finalized URL
-            setupPlaybackForPausedRecording(url: finalizedURL!)
+            // Insert current URL into an array for merging and setup for playback
+            segmentsURLs.append(currentFileURL)
+            setupPlaybackForPausedRecording(url: currentFileURL)
             
             fileURL = nil
         } else {
-            segmentsURLs.append(fileURL!)
+            segmentsURLs.append(currentFileURL)
+            
             do {
-                // Make a new URL for merging
                 let newURL = makeSegmentURL()
                 
-                // Merging segments into merged URL
+                // Merging all segments to new URL
                 try await audioManager.mergeSegments(segmentsURLs, into: newURL)
                 
-                // Setup playback for finalized URL
+                // Setup playback for the new merged URL
                 setupPlaybackForPausedRecording(url: newURL)
-                
-                // Overwrites finalized URL with new URL
                 finalizedURL = newURL
                 
-                // Clear last recorded URL
-                segmentsURLs.removeAll()
-                segmentsURLs.append(finalizedURL!)
+                // Reset segment array
+                segmentsURLs = [newURL]
+                fileURL = nil
             } catch {
-                print("error merging here: \(error.localizedDescription)")
+                print("Error merging segments: \(error.localizedDescription)")
             }
-        }
-    }
-    
-    private func setupPlaybackForPausedRecording(url: URL) {
-        do {
-            try audioManager.setupPlayback(fileURL: url, rate: 1.0)
-            
-            audioManager.onPlaybackFinished = { [weak self] _ in
-                DispatchQueue.main.async {
-                    self?.hasStartedPlaying = false
-                    self?.isScrubbing = false
-                    self?.isPlaying = false
-                    self?.currentTime = 0
-                    self?.stopTimer()
-                }
-            }
-        } catch {
-            print("Playback setup error: \(error)")
         }
     }
     
@@ -470,7 +417,7 @@ extension RecordingViewModel {
     }
     
     func stopRecording() async throws {
-        guard hasStartedRecording else {
+        guard hasStartedRecording, let currentFileURL = fileURL else {
             dismissRecordingSheet()
             return
         }
@@ -480,13 +427,16 @@ extension RecordingViewModel {
         
         let finalURL = makeUniqueURL(for: title!)
         
+        // Merge or replace URL with final URL
         if isRecording {
-            segmentsURLs.append(fileURL!)
+            segmentsURLs.append(currentFileURL)
             try await audioManager.mergeSegments(segmentsURLs, into: finalURL)
             fileURL = finalURL
         } else {
-            try moveURL(from: finalizedURL!, to: finalURL)
-            fileURL = finalURL
+            if let source = finalizedURL {
+                try moveURL(from: source, to: finalURL)
+                fileURL = finalURL
+            }
         }
         
         if #available(iOS 26.0, *) {
@@ -514,7 +464,7 @@ extension RecordingViewModel {
             
             dismissRecordingSheet()
         } catch {
-            print("Failed to stop and save: \(error)")
+            print("Failed to stop and save: \(error.localizedDescription)")
         }
     }
     
@@ -525,7 +475,6 @@ extension RecordingViewModel {
 
 extension RecordingViewModel {
     
-    // Setup playback when a row is expanded
     func setupPlayback(for recording: AudioModel) {
         if isPlaying {
             stopAudio()
@@ -550,13 +499,9 @@ extension RecordingViewModel {
         }
     }
     
-    func setupPlaybackForCurrentlyRecording() {
-        if isPlaying {
-            stopAudio()
-        }
-        
+    private func setupPlaybackForPausedRecording(url: URL) {
         do {
-            try audioManager.setupPlayback(fileURL: fileURL!, rate: 1.0)
+            try audioManager.setupPlayback(fileURL: url, rate: 1.0)
             
             audioManager.onPlaybackFinished = { [weak self] _ in
                 DispatchQueue.main.async {
@@ -568,7 +513,7 @@ extension RecordingViewModel {
                 }
             }
         } catch {
-            print("error setup playback: \(error.localizedDescription)")
+            print("Error playback setup when paused: \(error)")
         }
     }
     

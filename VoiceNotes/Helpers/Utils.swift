@@ -76,11 +76,32 @@ nonisolated func makeUniqueURL(for title: String) -> URL {
 /// Make segment URL path
 nonisolated func makeSegmentURL() -> URL {
     let docs = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-    return docs.appendingPathComponent("segment_\(UUID().uuidString).m4a")
+    return docs.appendingPathComponent("segment_\(UUID().uuidString).caf")
 }
 
 
 /// Rename URL
 nonisolated func moveURL(from oldURL: URL, to newURL: URL) throws {
     try FileManager.default.moveItem(at: oldURL, to: newURL)
+}
+
+/// Duplicate file
+nonisolated func duplicateFile(sourceURL: URL, destinationURL: URL) {
+    let fileManager = FileManager.default
+    let destinationDirectory = destinationURL.deletingLastPathComponent()
+    
+    if !fileManager.fileExists(atPath: destinationDirectory.path) {
+        do {
+            try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            print("error creating directory: \(error.localizedDescription)")
+            return
+        }
+    }
+    
+    do {
+        try fileManager.copyItem(at: sourceURL, to: destinationURL)
+    } catch {
+        print("error duplicating file: \(error.localizedDescription)")
+    }
 }

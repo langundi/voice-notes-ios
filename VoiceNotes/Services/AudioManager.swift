@@ -39,10 +39,10 @@ final class AudioManager: NSObject {
     var samples: [Float] = []
     
     private let settings: [String : Any] = [
-        AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+        AVFormatIDKey: Int(kAudioFormatLinearPCM),
         AVSampleRateKey: 48_000.0,
         AVNumberOfChannelsKey: 1,
-        AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        AVLinearPCMBitDepthKey: 32
     ]
     
     func requestAudioPermission() async {
@@ -88,53 +88,6 @@ final class AudioManager: NSObject {
 }
 
 
-// MARK: - Audio Recorder
-
-//extension AudioManager: AVAudioRecorderDelegate {
-//    
-//    func startRecording(fileURL: URL) throws {
-//        guard microphonePermission() else {
-//            throw AudioManagerError.microphonePermissionDenied
-//        }
-//        
-//        recorder = try AVAudioRecorder(url: fileURL, settings: settings)
-//        recorder?.delegate = self
-//        recorder?.isMeteringEnabled = true
-//        recorder?.prepareToRecord()
-//        recorder?.record()
-//    }
-//    
-//    func pauseRecording() {
-//        recorder?.pause()
-//    }
-//    
-//    func resumeRecording() {
-//        recorder?.record()
-//    }
-//    
-//    func stopRecording() {
-//        recorder?.stop()
-//        recorder?.isMeteringEnabled = false
-//        recorder = nil
-//    }
-//    
-//    func cancelRecording() {
-//        recorder?.stop()
-//        recorder?.isMeteringEnabled = false
-//        recorder?.deleteRecording()
-//        recorder = nil
-//    }
-//    
-//    func getCurrentTime() -> TimeInterval {
-//        return player!.currentTime
-//    }
-//    
-//    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-//        onRecordingFinished?(flag)
-//    }
-//}
-
-
 // MARK: - Audio Player
 
 extension AudioManager: AVAudioPlayerDelegate {
@@ -152,12 +105,7 @@ extension AudioManager: AVAudioPlayerDelegate {
         player?.play()
     }
     
-    func play(at time: TimeInterval) {
-        player?.play(atTime: time)
-    }
-    
     func seek(to time: TimeInterval) {
-        // Ensure the minimum time is not below 0 and the maxium time not above the total duration
         let clampedTime = max(0, (min(time, totalDuration)))
         player?.currentTime = clampedTime
     }
@@ -207,6 +155,7 @@ extension AudioManager {
             
             try? self.audioFile?.write(from: buffer)
             onBuffer(buffer)
+            // Calculate samples for audio waveform
             processSamples(buffer: buffer)
         }
         
@@ -232,14 +181,13 @@ extension AudioManager {
     }
     
     func stopRecording() {
-        audioFile?.close()
-        audioFile = nil
-        
-        audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
+        audioEngine.stop()
+        audioFile = nil
         audioEngine.reset()
     }
     
+    /// Merge URL recordings
     func mergeSegments(_ segmentURLs: [URL], into outputURL: URL) async throws {
         let composition = AVMutableComposition()
         
@@ -296,11 +244,54 @@ extension AudioManager {
         
         DispatchQueue.main.async {
             self.samples.append(normalizedValue)
-//            // Keep a rolling window (e.g., last 100 samples for display)
-//            if self.samples.count > 1000 {
-//                self.samples.removeFirst()
-//            }
         }
     }
     
 }
+
+
+// MARK: - Audio Recorder
+
+//extension AudioManager: AVAudioRecorderDelegate {
+//
+//    func startRecording(fileURL: URL) throws {
+//        guard microphonePermission() else {
+//            throw AudioManagerError.microphonePermissionDenied
+//        }
+//
+//        recorder = try AVAudioRecorder(url: fileURL, settings: settings)
+//        recorder?.delegate = self
+//        recorder?.isMeteringEnabled = true
+//        recorder?.prepareToRecord()
+//        recorder?.record()
+//    }
+//
+//    func pauseRecording() {
+//        recorder?.pause()
+//    }
+//
+//    func resumeRecording() {
+//        recorder?.record()
+//    }
+//
+//    func stopRecording() {
+//        recorder?.stop()
+//        recorder?.isMeteringEnabled = false
+//        recorder = nil
+//    }
+//
+//    func cancelRecording() {
+//        recorder?.stop()
+//        recorder?.isMeteringEnabled = false
+//        recorder?.deleteRecording()
+//        recorder = nil
+//    }
+//
+//    func getCurrentTime() -> TimeInterval {
+//        return player!.currentTime
+//    }
+//
+//    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+//        onRecordingFinished?(flag)
+//    }
+//}

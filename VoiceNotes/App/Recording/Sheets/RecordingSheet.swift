@@ -61,18 +61,6 @@ struct RecordingSheet: View {
                     Button("Done", systemImage: "checkmark") {
                         if vm.hasStartedRecording {
                             Task {
-//                                try await vm.stopRecording()
-//                                
-//                                if folderTitle == "Favorites" {
-//                                    vm.saveRecordingForFavorites()
-//                                } else if folderTitle == "All Recordings" {
-//                                    vm.saveRecording()
-//                                } else {
-//                                    vm.saveRecordingToFolder(folderTitle: folderTitle)
-//                                }
-//                                
-//                                vm.dismissRecordingSheet()
-                                
                                 await vm.stopAndSave(folderTitle: folderTitle)
                             }
                         } else {
@@ -255,18 +243,6 @@ struct RecordingSheet: View {
                     Button {
                         if vm.hasStartedRecording {
                             Task {
-//                                try await vm.stopRecording()
-//
-//                                if folderTitle == "Favorites" {
-//                                    vm.saveRecordingForFavorites()
-//                                } else if folderTitle == "All Recordings" {
-//                                    vm.saveRecording()
-//                                } else {
-//                                    vm.saveRecordingToFolder(folderTitle: folderTitle)
-//                                }
-//                                
-//                                vm.dismissRecordingSheet()
-                                
                                 await vm.stopAndSave(folderTitle: folderTitle)
                             }
                         } else {

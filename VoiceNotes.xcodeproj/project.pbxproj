@@ -20,7 +20,7 @@
 		815329C62F42F26600CAB519 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815329C52F42F26600CAB519 /* K.swift */; };
 		815329C82F433D5000CAB519 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815329C72F433D5000CAB519 /* Utils.swift */; };
 		815329CA2F434F5300CAB519 /* RecordingRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815329C92F434F5300CAB519 /* RecordingRowView.swift */; };
-		81544E652F5721A70072B8B2 /* LineScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81544E642F5721A70072B8B2 /* LineScrubber.swift */; };
+		81544E652F5721A70072B8B2 /* LineScrubberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81544E642F5721A70072B8B2 /* LineScrubberView.swift */; };
 		8156B15A2F407AD1000447EF /* AudioModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B1592F407AD1000447EF /* AudioModel.swift */; };
 		8156B15C2F407B7C000447EF /* FolderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B15B2F407B7C000447EF /* FolderModel.swift */; };
 		8156B1662F40824C000447EF /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8156B1652F40824C000447EF /* DIContainer.swift */; };
@@ -54,7 +54,7 @@
 		815329C52F42F26600CAB519 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		815329C72F433D5000CAB519 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		815329C92F434F5300CAB519 /* RecordingRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingRowView.swift; sourceTree = "<group>"; };
-		81544E642F5721A70072B8B2 /* LineScrubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineScrubber.swift; sourceTree = "<group>"; };
+		81544E642F5721A70072B8B2 /* LineScrubberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineScrubberView.swift; sourceTree = "<group>"; };
 		8156B1592F407AD1000447EF /* AudioModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioModel.swift; sourceTree = "<group>"; };
 		8156B15B2F407B7C000447EF /* FolderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderModel.swift; sourceTree = "<group>"; };
 		8156B1652F40824C000447EF /* DIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainer.swift; sourceTree = "<group>"; };
@@ -185,6 +185,7 @@
 		8122CE272F3F59C00098A422 /* Recording */ = {
 			isa = PBXGroup;
 			children = (
+				81A896302F83A2E7009C2C36 /* Sheets */,
 				815329CB2F434F8400CAB519 /* Components */,
 				8156B17E2F40B4AD000447EF /* RecordingScreen.swift */,
 				8156B1802F40B4B4000447EF /* RecordingViewModel.swift */,
@@ -196,10 +197,7 @@
 			isa = PBXGroup;
 			children = (
 				815329C92F434F5300CAB519 /* RecordingRowView.swift */,
-				81ED5BF42F41F46C00357F54 /* RecordingSheet.swift */,
-				811AF7B52F4C9D9300EDAA4C /* OptionsSheet.swift */,
-				8152BEA82F5033C60055DD6C /* SelectFolderSheet.swift */,
-				81544E642F5721A70072B8B2 /* LineScrubber.swift */,
+				81544E642F5721A70072B8B2 /* LineScrubberView.swift */,
 				81683F992F7B767A0044E782 /* WaveformView.swift */,
 			);
 			path = Components;
@@ -211,6 +209,16 @@
 				8156B17C2F40B2DE000447EF /* AudioRepository.swift */,
 			);
 			path = Repositories;
+			sourceTree = "<group>";
+		};
+		81A896302F83A2E7009C2C36 /* Sheets */ = {
+			isa = PBXGroup;
+			children = (
+				81ED5BF42F41F46C00357F54 /* RecordingSheet.swift */,
+				811AF7B52F4C9D9300EDAA4C /* OptionsSheet.swift */,
+				8152BEA82F5033C60055DD6C /* SelectFolderSheet.swift */,
+			);
+			path = Sheets;
 			sourceTree = "<group>";
 		};
 		81BD96712F419B77001135A2 /* Services */ = {
@@ -332,7 +340,7 @@
 				8156B15C2F407B7C000447EF /* FolderModel.swift in Sources */,
 				8156B1662F40824C000447EF /* DIContainer.swift in Sources */,
 				815329C62F42F26600CAB519 /* K.swift in Sources */,
-				81544E652F5721A70072B8B2 /* LineScrubber.swift in Sources */,
+				81544E652F5721A70072B8B2 /* LineScrubberView.swift in Sources */,
 				8130BBD72F475C1800A6C283 /* FolderEnum.swift in Sources */,
 				81BD96732F419B88001135A2 /* AudioManager.swift in Sources */,
 				81ED5BF02F41E22800357F54 /* View+Extensions.swift in Sources */,

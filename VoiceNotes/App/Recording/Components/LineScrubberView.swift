@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LineScrubber: View {
+struct LineScrubberView: View {
     var config: Config = .init()
     @Binding var current: TimeInterval
     var total: TimeInterval
@@ -85,5 +85,5 @@ struct LineScrubber: View {
 #Preview {
     @Previewable @State var progress: TimeInterval = 0
     
-    LineScrubber(current: $progress, total: 15)
+    LineScrubberView(current: $progress, total: 15)
 }

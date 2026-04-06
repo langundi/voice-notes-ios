@@ -73,8 +73,6 @@ struct RecordingRowView: View {
                             vm.hideRecordButton = true
                         }
                         
-                        Button("Edit Recording", systemImage: "waveform") { }
-                        
                         Divider()
                         
                         Button("Options", systemImage: "slider.horizontal.3") {
@@ -141,7 +139,7 @@ struct RecordingRowView: View {
                 .focused($isFocused)
                 .disabled(!isExpanded || vm.isEditing)
                 .onChange(of: recording.title) { oldValue, newValue in
-                    // Update textfield for when renamed on rececoding sheet
+                    // Update textfield for when renamed on recording sheet
                     textField = newValue
                 }
                 .onChange(of: isFocused) { oldValue, newValue in
@@ -182,11 +180,12 @@ struct RecordingRowView: View {
             @Bindable var vm = vm
             
             let totalDuration = recording.duration
-            let config: LineScrubber.Config = .init(activeTint: colorScheme == .dark ? .white : .black)
+            let config: LineScrubberView.Config = .init(activeTint: colorScheme == .dark ? .white : .black)
             
+            // Scrubber
             Group {
                 if !vm.isRecording {
-                    LineScrubber(
+                    LineScrubberView(
                         config: config,
                         current: $vm.currentTime,
                         total: totalDuration,
@@ -214,7 +213,7 @@ struct RecordingRowView: View {
             .padding(.top, 24)
             .allowsHitTesting(!isFocused)
             
-            /// Timestamp and Duration
+            // Timestamp and Duration
             HStack {
                 Text(formatTime(time: vm.currentTime))
                     .contentTransition(.numericText())
@@ -228,7 +227,7 @@ struct RecordingRowView: View {
             .foregroundStyle(.secondary)
             .monospacedDigit()
             
-            /// Control Buttons
+            // Control Buttons
             HStack(alignment: .center, spacing: 36) {
                 Button {
                     vm.showRecordingSheet = true

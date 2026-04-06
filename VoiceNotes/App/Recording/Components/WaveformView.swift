@@ -63,8 +63,8 @@ struct WaveformView: View {
                     // Map progress (0...1) to offset (maxOffset...0)
                     let targetOffset = maxOffset * (1.0 - progress)
                     
-                    dragOffset = targetOffset
-                    lastDragOffset = targetOffset
+                    dragOffset = clamped(targetOffset)
+                    lastDragOffset = clamped(targetOffset)
                 }
             }
         }

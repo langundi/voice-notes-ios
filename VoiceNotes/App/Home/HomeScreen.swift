@@ -20,15 +20,13 @@ struct HomeScreen: View {
     @AppStorage(K.microphoneAccess)
     private var microphoneAccess: MicrophoneAccessEnum = .undetermined
     
-    @Query(animation: .snappy) var recordings: [AudioModel]
+    @Query(filter: #Predicate<AudioModel> { !$0.isDeleted }, animation: .snappy)
+    var recordings: [AudioModel]
+    @Query(filter: #Predicate<AudioModel> { $0.isFavorite && !$0.isDeleted }, animation: .snappy)
+    var favorites: [AudioModel]
+    @Query(filter: #Predicate<AudioModel> { $0.isDeleted }, animation: .snappy)
+    var trash: [AudioModel]
     @Query(animation: .snappy) var folders: [FolderModel]
-    @Query(filter: #Predicate<AudioModel> {
-        $0.isFavorite
-    }, animation: .snappy) var favorites: [AudioModel]
-    @Query(filter: #Predicate<AudioModel> {
-        $0.isDeleted
-    }, animation: .snappy) var trash: [AudioModel]
-    
     
     var body: some View {
         NavigationStack {
@@ -218,22 +216,19 @@ struct HomeScreen: View {
             }
             .task {
                 vm.checkMicrophonePermission()
+                
                 if vm.microphoneAccess == .undetermined {
                     await vm.requestMicrophonePermissions()
-                    print("microphone: \(microphoneAccess)")
                 }
                 
                 microphoneAccess = vm.microphoneAccess
                 
                 if microphoneAccess == .granted {
-//                    microphoneAccess = vm.microphoneAccess
                     vm.setupAudioSession()
-                    print("microphone: \(microphoneAccess)")
                 } else if microphoneAccess == .denied {
-//                    microphoneAccess = vm.microphoneAccess
                     vm.showMicrophoneAlert = true
-                    print("microphone: \(microphoneAccess)")
                 }
+                print("microphone: \(microphoneAccess)")
             }
             .animation(.smooth(duration: K.animDuration), value: vm.isEditing)
             .environment(\.editMode, .constant(vm.isEditing ? .active : .inactive))

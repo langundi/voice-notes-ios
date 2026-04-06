@@ -19,6 +19,9 @@ class TranscriptionManager {
     private var converter = BufferConverter()
     
     
+    static let shared = TranscriptionManager()
+    
+    
     func requestSpeechPermission() async -> Bool {
         let status = await withCheckedContinuation { continuation in
             SFSpeechRecognizer.requestAuthorization { status in
