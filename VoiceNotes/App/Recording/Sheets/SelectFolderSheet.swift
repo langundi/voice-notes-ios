@@ -46,9 +46,10 @@ struct SelectFolderSheet: View {
                         .disabled(recording.Folder == nil)
                         
                         //TODO: favorite the recording
-                        if !favorites.isEmpty {
+                        if !recording.isFavorite {
                             Button {
-                                
+                                vm.favoriteRecording(recording: recording)
+                                vm.showSelectFolderSheet = false
                             } label: {
                                 ListRow(
                                     symbol: "heart",
@@ -58,9 +59,10 @@ struct SelectFolderSheet: View {
                             }
                         }
                         
-                        if !deleted.isEmpty {
+                        if !recording.isDeleted {
                             Button {
-                                
+                                vm.moveToTrash(for: [recording])
+                                vm.showSelectFolderSheet = false
                             } label: {
                                 ListRow(
                                     symbol: "trash",

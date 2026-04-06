@@ -66,20 +66,16 @@ struct RecordingRowView: View {
                             Label("Share", systemImage: "square.and.arrow.up")
                         }
                         
+                        Button("Options", systemImage: "slider.horizontal.3") {
+                            vm.showOptionsSheet = true
+                        }
+                        
                         Divider()
                         
                         Button("Rename", systemImage: "pencil") {
                             isFocused = true
                             vm.hideRecordButton = true
                         }
-                        
-                        Divider()
-                        
-                        Button("Options", systemImage: "slider.horizontal.3") {
-                            vm.showOptionsSheet = true
-                        }
-                        
-                        Divider()
                         
                         Button(isFavorite ? "Unfavorite" : "Favorite", systemImage: isFavorite ? "heart.fill" : "heart") {
                             vm.favoriteRecording(recording: recording)

@@ -224,8 +224,18 @@ struct RecordingScreen: View {
                             .disabled(selectedRecordings.isEmpty)
                         }
                         
-                        
-                        Spacer()
+                        if vm.selectedRecordings.isEmpty {
+                            Spacer()
+                        } else {
+                            let count = vm.selectedRecordings.count
+                            Spacer()
+                            Text("\(count) Selected")
+                                .fixedSize()
+                                .monospacedDigit()
+                                .contentTransition(.numericText())
+                                .padding(.horizontal, 8)
+                            Spacer()
+                        }
                         
                         if folderTitle?.title == FolderEnum.trash.title {
                             Button("Delete") {
