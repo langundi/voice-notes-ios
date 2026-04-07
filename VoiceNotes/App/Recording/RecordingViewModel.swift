@@ -264,6 +264,19 @@ extension RecordingViewModel {
         
         audioRepository.duplicateRecording(from: recording, newFile: copiedFileName)
     }
+    
+    // Select Folder Sheet
+    func createNewFolder(title: String) {
+        guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+            return
+        }
+        
+        audioRepository.addNewFolder(title: title)
+    }
+    
+    func deleteFolder(folder: FolderModel) {
+        audioRepository.deleteFolder(folder: folder)
+    }
 }
 
 

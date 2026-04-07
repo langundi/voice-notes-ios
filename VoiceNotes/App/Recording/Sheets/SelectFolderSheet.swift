@@ -23,6 +23,8 @@ struct SelectFolderSheet: View {
         $0.isDeleted
     }, animation: .snappy) var deleted: [AudioModel]
     
+    @State private var newFolderTitle: String = ""
+    @State private var showAlert: Bool = false
     
     var body: some View {
         @Bindable var vm = vm
@@ -107,9 +109,37 @@ struct SelectFolderSheet: View {
                     Spacer()
                     
                     Button("", systemImage: "folder.badge.plus") {
-                        
+                        showAlert = true
                     }
                 }
+            }
+            .alert("New Folder", isPresented: $showAlert) {
+                TextField("Name", text: $newFolderTitle)
+                    .onChange(of: newFolderTitle) { newValue, _ in
+                        if newValue.count > 50 {
+                            newFolderTitle = String(newValue.prefix(50))
+                        }
+                    }
+    
+                Button("Cancel", role: .cancel) {
+                    resetAlert()
+                }
+                
+                if #available(iOS 26.0, *) {
+                    Button("Add", role: .confirm) {
+                        vm.createNewFolder(title: newFolderTitle)
+                        resetAlert()
+                    }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(newFolderTitle.isEmpty)
+                } else {
+                    Button("Add") {
+                        vm.createNewFolder(title: newFolderTitle)
+                    }
+                    .disabled(newFolderTitle.isEmpty)
+                }
+            } message: {
+                Text("Enter a name for this folder.")
             }
         }
     }
@@ -129,6 +159,11 @@ struct SelectFolderSheet: View {
             Text("\(count)")
                 .foregroundStyle(.secondary)
         }
+    }
+    
+    private func resetAlert() {
+        newFolderTitle = ""
+        showAlert = false
     }
         
 }
